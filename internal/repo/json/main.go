@@ -2,11 +2,13 @@ package json
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"lkserver/internal/models"
 	"log"
 	"os"
+	"time"
 )
 
 type User struct {
@@ -38,7 +40,21 @@ func (r *JsonRepo) init() error {
 
 func (r *JsonRepo) GetUser(iin, pin string) (*models.User, error) {
 
-	return nil, nil
+	for _, user := range r.users {
+		if user.Iin == iin && user.Pin == pin {
+			BirthDate, err := time.Parse("2006-01-02", user.BirthDate)
+			if err != nil {
+				return nil, err
+			}
+			return &models.User{
+				Name:      user.Name,
+				Iin:       user.Iin,
+				Pin:       user.Pin,
+				BirthDate: models.JSONTime(BirthDate),
+			}, nil
+		}
+	}
+	return nil, errors.New("NOT FOUND")
 
 }
 

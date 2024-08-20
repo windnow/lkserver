@@ -13,13 +13,13 @@ import (
 
 type Config struct {
 	BindAddr    string `toml:"bind_addr"`
-	SessionsKey string `toml:"sessions_key"`
+	SessionsKey string `toml:"session_key"`
 }
 
 func NewConfig() *Config {
 	return &Config{
 		BindAddr:    ":8833",
-		SessionsKey: "-==--==",
+		SessionsKey: "2342340234234-2234234",
 	}
 }
 
@@ -32,7 +32,7 @@ type lkserver struct {
 }
 
 func (s *lkserver) Start() error {
-	log.Printf("Startin server")
+	log.Printf("Starting server: %s\n\t-> %s", s.config.BindAddr, s.config.SessionsKey)
 	defer log.Printf("Server stopped")
 
 	return http.ListenAndServe(s.config.BindAddr, s)
@@ -58,6 +58,11 @@ func (s *lkserver) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	s.router.ServeHTTP(w, r)
 }
 
+func (s *lkserver) HandleFunc(path string, f func(http.ResponseWriter,
+	*http.Request)) *mux.Route {
+	return s.router.HandleFunc(path, f)
+}
+
 func (s *lkserver) configureRouter() {
 	s.router.Use(handlers.CORS(
 		//handlers.AllowedOrigins([]string{"*"}),
@@ -66,4 +71,6 @@ func (s *lkserver) configureRouter() {
 		handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"}),
 		handlers.AllowCredentials(),
 	))
+
+	s.HandleFunc("/session", s.handleSessionCreate()).Methods("POST")
 }

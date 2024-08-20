@@ -1,10 +1,12 @@
 package models
 
-import "time"
-
 type User struct {
-	Name      string
-	Iin       string
-	Pin       string
-	BirthDate time.Time
+	Name      string   `json:"name"`
+	Iin       string   `json:"iin"`
+	Pin       string   `json:"pin,omitempty"`
+	BirthDate JSONTime `json:"birth_date,omitempty"`
+}
+
+func (u *User) Sanitize() {
+	u.Pin = ""
 }
