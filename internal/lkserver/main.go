@@ -12,14 +12,16 @@ import (
 )
 
 type Config struct {
-	BindAddr    string `toml:"bind_addr"`
-	SessionsKey string `toml:"session_key"`
+	BindAddr        string `toml:"bind_addr"`
+	SessionsKey     string `toml:"session_key"`
+	StaticFilesPath string `toml:"files"`
 }
 
 func NewConfig() *Config {
 	return &Config{
-		BindAddr:    ":8833",
-		SessionsKey: "2342340234234-2234234",
+		BindAddr:        ":8833",
+		SessionsKey:     "2342340234234-2234234",
+		StaticFilesPath: "data",
 	}
 }
 
@@ -73,4 +75,6 @@ func (s *lkserver) configureRouter() {
 	))
 
 	s.HandleFunc("/session", s.handleSessionCreate()).Methods("POST")
+	s.handleFileServerIfExists()
+
 }
