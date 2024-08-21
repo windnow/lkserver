@@ -2,7 +2,6 @@ package lkserver
 
 import (
 	"context"
-	"errors"
 	"lkserver/internal/models"
 	"net/http"
 	"time"
@@ -18,8 +17,6 @@ const (
 	CTXUSER
 )
 
-var errUnautorized = errors.New("NOT AUTORIZED")
-
 func (s *lkserver) setRequestID(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		id := uuid.New()
@@ -30,28 +27,49 @@ func (s *lkserver) setRequestID(next http.Handler) http.Handler {
 
 func (s *lkserver) authUser(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		session, err := s.sessionStore.Get(r, s.config.SessionsKey)
-		if err != nil {
-			s.error(w, http.StatusInternalServerError, err)
-			return
-		}
 
-		iin, ok := session.Values["user_iin"]
-		if !ok {
-			// s.error(w, http.StatusUnauthorized, errUnautorized) // Просто не будем устанавливать пользователя
-			return
-		}
+		u, _ := s.getSessionUser(r)
 
-		u, err := s.repo.GetUser(iin.(string))
-		if err != nil {
-			s.error(w, http.StatusUnauthorized, errUnautorized)
-			return
+		if u == nil {
+			next.ServeHTTP(w, r)
+		} else {
+			next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), CTXUSER, u)))
 		}
-
-		next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), CTXUSER, u)))
 	})
 }
 
+func (s *lkserver) checkUser(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		_, err := s.getSessionUser(r)
+		if err != nil {
+			s.error(w, http.StatusNotFound, err)
+			return
+		}
+		next.ServeHTTP(w, r)
+
+	})
+}
+
+func (s *lkserver) getSessionUser(r *http.Request) (*models.User, error) {
+
+	session, err := s.sessionStore.Get(r, s.config.SessionsKey)
+	if err != nil {
+		return nil, err
+	}
+
+	iin, ok := session.Values["user_iin"]
+	if !ok {
+		return nil, errUnautorized
+	}
+
+	u, err := s.repo.GetUser(iin.(string))
+	if err != nil {
+		return nil, errNotFound
+	}
+	return u, nil
+
+}
 func (s *lkserver) logRequest(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		logger := s.logger.WithFields(logrus.Fields{

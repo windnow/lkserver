@@ -1,6 +1,7 @@
 package lkserver
 
 import (
+	"errors"
 	"lkserver/internal/repo"
 	"log"
 	"net/http"
@@ -10,6 +11,9 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/sirupsen/logrus"
 )
+
+var errUnautorized = errors.New("NOT AUTORIZED")
+var errNotFound = errors.New("NOT Found")
 
 type Config struct {
 	BindAddr        string `toml:"bind_addr"`
@@ -88,8 +92,11 @@ func (s *lkserver) configureRouter() {
 	))
 
 	s.HandleFunc("/session", s.handleSessionCreate()).Methods("POST")
+	s.HandleFunc("/wai", s.handleWhoAmI()).Methods("GET")
+
 	s.handleFileServerIfExists()
 
-	// private := s.PathPrefix("/i").Subrouter()
+	private := s.PathPrefix("/i").Subrouter()
+	private.Use(s.checkUser)
 
 }
