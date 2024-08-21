@@ -65,8 +65,21 @@ func (s *lkserver) HandleFunc(path string, f func(http.ResponseWriter,
 	return s.router.HandleFunc(path, f)
 }
 
+func (s *lkserver) Use(mwf mux.MiddlewareFunc) {
+	s.router.Use(mwf)
+}
+
+func (s *lkserver) PathPrefix(tpl string) *mux.Route {
+	return s.router.PathPrefix(tpl)
+}
+
 func (s *lkserver) configureRouter() {
-	s.router.Use(handlers.CORS(
+
+	s.Use(s.setRequestID) // Присвоим уникальный идентификатор каждому запросу
+	s.Use(s.authUser)
+	s.Use(s.logRequest)
+
+	s.Use(handlers.CORS(
 		//handlers.AllowedOrigins([]string{"*"}),
 		handlers.AllowedOriginValidator(func(a string) bool { return true }),
 		handlers.AllowedHeaders([]string{"X-Requested-With", "X-Request-ID", "Accept", "Content-Type"}),
@@ -76,5 +89,7 @@ func (s *lkserver) configureRouter() {
 
 	s.HandleFunc("/session", s.handleSessionCreate()).Methods("POST")
 	s.handleFileServerIfExists()
+
+	// private := s.PathPrefix("/i").Subrouter()
 
 }

@@ -38,7 +38,26 @@ func (r *JsonRepo) init() error {
 	return err
 }
 
-func (r *JsonRepo) GetUser(iin, pin string) (*models.User, error) {
+func (r *JsonRepo) GetUser(iin string) (*models.User, error) {
+
+	for _, user := range r.users {
+		if user.Iin == iin {
+			BirthDate, err := time.Parse("2006-01-02", user.BirthDate)
+			if err != nil {
+				return nil, err
+			}
+			return &models.User{
+				Name:      user.Name,
+				Iin:       user.Iin,
+				Pin:       user.Pin,
+				BirthDate: models.JSONTime(BirthDate),
+			}, nil
+		}
+	}
+	return nil, errors.New("NOT FOUND")
+}
+
+func (r *JsonRepo) FindUser(iin, pin string) (*models.User, error) {
 
 	for _, user := range r.users {
 		if user.Iin == iin && user.Pin == pin {
@@ -80,5 +99,4 @@ func readData(path string) ([]byte, error) {
 	}
 
 	return bytes, nil
-
 }

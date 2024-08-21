@@ -13,5 +13,5 @@ func (s *lkserver) handleFileServerIfExists() {
 	var staticFilesPrefix = "/static"
 	fileServer := http.FileServer(http.Dir(s.config.StaticFilesPath))
 	sp := http.StripPrefix(staticFilesPrefix, fileServer)
-	s.router.PathPrefix(staticFilesPrefix).Handler(sp)
+	s.PathPrefix(staticFilesPrefix).Handler(sp)
 }
