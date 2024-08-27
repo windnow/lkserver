@@ -99,4 +99,8 @@ func (s *lkserver) configureRouter() {
 	private := s.PathPrefix("/i").Subrouter()
 	private.Use(s.checkUser)
 
+	s.router.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		s.logger.Printf("Not found: %s, SERVING NOT FOUND index.html", r.URL.Path)
+		http.ServeFile(w, r, s.config.StaticFilesPath+"/index.html")
+	})
 }
