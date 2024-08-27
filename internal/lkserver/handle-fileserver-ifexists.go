@@ -10,8 +10,8 @@ func (s *lkserver) handleFileServerIfExists() {
 	if err != nil {
 		return
 	}
-	var staticFilesPrefix = "/static"
+	var staticFilesPrefix = "/"
 	fileServer := http.FileServer(http.Dir(s.config.StaticFilesPath))
-	sp := http.StripPrefix(staticFilesPrefix, fileServer)
-	s.PathPrefix(staticFilesPrefix).Handler(sp)
+	// sp := http.StripPrefix(staticFilesPrefix, fileServer)
+	s.PathPrefix(staticFilesPrefix).Handler(fileServer) //sp)
 }

@@ -2,3 +2,4 @@ res
 data
 go.sum
 ./lkserver
+cmd/lkserver/__debug*
