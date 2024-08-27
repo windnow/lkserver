@@ -36,6 +36,16 @@ func (s *lkserver) handleSessionCreate() http.HandlerFunc {
 	}
 }
 
+func (s *lkserver) handleSessionDestroy() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if err := s.updateSession(w, r, "user_iin", ""); err != nil {
+			s.error(w, http.StatusInternalServerError, err)
+			return
+		}
+		s.respond(w, http.StatusOK, struct{ status string }{status: "Ok"})
+	}
+}
+
 func (s *lkserver) updateSession(w http.ResponseWriter, r *http.Request, key, value string) error {
 	session, err := s.sessionStore.Get(r, s.config.SessionsKey)
 	if err != nil {
