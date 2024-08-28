@@ -16,6 +16,7 @@ type User struct {
 	Iin       string `json:"iin"`
 	Pin       string `json:"pin"`
 	BirthDate string `json:"birth_date"`
+	Image     string `json:"image"`
 }
 type UserRepo struct {
 	dataDir string
@@ -51,6 +52,7 @@ func (r *UserRepo) GetUser(iin string) (*models.User, error) {
 				Iin:       user.Iin,
 				Pin:       user.Pin,
 				BirthDate: models.JSONTime(BirthDate),
+				Image:     user.Image,
 			}, nil
 		}
 	}

@@ -27,5 +27,6 @@ type ContractProvider interface {
 }
 
 type FileProvider interface {
+	// Return reader of file (io.Reader)
 	GetFile(fileId string) (io.Reader, string, error)
 }

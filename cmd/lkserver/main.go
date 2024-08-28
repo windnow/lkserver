@@ -4,6 +4,7 @@ import (
 	"flag"
 	"lkserver/internal/lkserver"
 	"lkserver/internal/repository"
+	"lkserver/internal/repository/file"
 	"lkserver/internal/repository/json"
 	"log"
 
@@ -49,8 +50,19 @@ func initRepo() (*repository.Repo, error) {
 	if err != nil {
 		return nil, err
 	}
+	contractRepo, err := json.NewContractRepo("data/files")
+	if err != nil {
+		return nil, err
+	}
+
+	fileRepo, err := file.NewFileRepo("data/files")
+	if err != nil {
+		return nil, err
+	}
 
 	return &repository.Repo{
-		User: userRepo,
+		User:     userRepo,
+		Contract: contractRepo,
+		Files:    fileRepo,
 	}, nil
 }

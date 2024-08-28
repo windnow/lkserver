@@ -12,6 +12,10 @@ type FileRepo struct {
 	repo string
 }
 
+func NewFileRepo(dir string) (*FileRepo, error) {
+	return &FileRepo{repo: dir}, nil
+}
+
 func (fr *FileRepo) GetFile(fileId string) (io.Reader, string, error) {
 	filePath := filepath.Join(fr.repo, fr.getFileName(fileId))
 

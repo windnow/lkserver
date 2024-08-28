@@ -2,6 +2,10 @@ package json
 
 type ContractRepo struct{}
 
-func NewContracRepo(folder string) (*ContractRepo, error) {
+func NewContractRepo(folder string) (*ContractRepo, error) {
 	return &ContractRepo{}, nil
+}
+
+func (c *ContractRepo) Close() {
+
 }
