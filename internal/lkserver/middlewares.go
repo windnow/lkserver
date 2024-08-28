@@ -71,7 +71,7 @@ func (s *lkserver) getSessionUser(r *http.Request) (*models.User, error) {
 		return nil, errUnautorized
 	}
 
-	u, err := s.repo.GetUser(iin)
+	u, err := s.repo.User.GetUser(iin)
 	if err != nil {
 		return nil, errNotFound
 	}

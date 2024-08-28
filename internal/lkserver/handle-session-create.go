@@ -19,7 +19,7 @@ func (s *lkserver) handleSessionCreate() http.HandlerFunc {
 			return
 		}
 
-		u, err := s.repo.FindUser(req.Iin, req.Pin)
+		u, err := s.repo.User.FindUser(req.Iin, req.Pin)
 		if err != nil {
 			s.error(w, http.StatusUnauthorized, err)
 			return

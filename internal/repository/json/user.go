@@ -17,12 +17,12 @@ type User struct {
 	Pin       string `json:"pin"`
 	BirthDate string `json:"birth_date"`
 }
-type JsonRepo struct {
+type UserRepo struct {
 	dataDir string
 	users   []User
 }
 
-func (r *JsonRepo) init() error {
+func (r *UserRepo) init() error {
 	log.Printf("Init JSON storage (%s)", r.dataDir)
 
 	bytes, err := readData(fmt.Sprintf("%s/users.json", r.dataDir))
@@ -38,7 +38,7 @@ func (r *JsonRepo) init() error {
 	return err
 }
 
-func (r *JsonRepo) GetUser(iin string) (*models.User, error) {
+func (r *UserRepo) GetUser(iin string) (*models.User, error) {
 
 	for _, user := range r.users {
 		if user.Iin == iin {
@@ -57,7 +57,7 @@ func (r *JsonRepo) GetUser(iin string) (*models.User, error) {
 	return nil, errors.New("NOT FOUND")
 }
 
-func (r *JsonRepo) FindUser(iin, pin string) (*models.User, error) {
+func (r *UserRepo) FindUser(iin, pin string) (*models.User, error) {
 
 	for _, user := range r.users {
 		if user.Iin == iin && user.Pin == pin {
@@ -77,10 +77,10 @@ func (r *JsonRepo) FindUser(iin, pin string) (*models.User, error) {
 
 }
 
-func (r *JsonRepo) Close() {}
+func (r *UserRepo) Close() {}
 
-func New(config string) (*JsonRepo, error) {
-	repo := &JsonRepo{dataDir: config}
+func NewUserRepo(config string) (*UserRepo, error) {
+	repo := &UserRepo{dataDir: config}
 	if err := repo.init(); err != nil {
 		return nil, err
 	}

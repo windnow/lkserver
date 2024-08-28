@@ -3,7 +3,8 @@ package main
 import (
 	"flag"
 	"lkserver/internal/lkserver"
-	"lkserver/internal/repo/json"
+	"lkserver/internal/repository"
+	"lkserver/internal/repository/json"
 	"log"
 
 	"github.com/BurntSushi/toml"
@@ -24,17 +25,32 @@ func main() {
 		log.Fatal(err)
 	}
 
-	storage, err := json.New("data")
+	repo, err := initRepo()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Error on init repository")
 	}
-	defer storage.Close()
+	defer repo.Close()
 
-	server := lkserver.New(storage, config)
+	server := lkserver.New(
+		repo,
+		config,
+	)
 
 	if err := server.Start(); err != nil {
 		log.Fatal(err)
 	}
 
 	log.Printf("Bind addr: %s", config.BindAddr)
+}
+
+func initRepo() (*repository.Repo, error) {
+
+	userRepo, err := json.NewUserRepo("data")
+	if err != nil {
+		return nil, err
+	}
+
+	return &repository.Repo{
+		User: userRepo,
+	}, nil
 }

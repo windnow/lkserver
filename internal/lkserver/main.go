@@ -2,7 +2,7 @@ package lkserver
 
 import (
 	"errors"
-	"lkserver/internal/repo"
+	"lkserver/internal/repository"
 	"log"
 	"net/http"
 
@@ -30,7 +30,7 @@ func NewConfig() *Config {
 }
 
 type lkserver struct {
-	repo         repo.DataProvider
+	repo         *repository.Repo
 	router       *mux.Router
 	config       *Config
 	logger       *logrus.Logger
@@ -45,7 +45,7 @@ func (s *lkserver) Start() error {
 
 }
 
-func New(r repo.DataProvider, config *Config) *lkserver {
+func New(r *repository.Repo, config *Config) *lkserver {
 	logger := logrus.New()
 	sessionStore := sessions.NewCookieStore([]byte(config.SessionsKey))
 
