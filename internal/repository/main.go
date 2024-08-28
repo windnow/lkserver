@@ -1,10 +1,19 @@
 package repository
 
-import "lkserver/internal/models"
+import (
+	"io"
+	"lkserver/internal/models"
+)
 
 type Repo struct {
 	User     UserProvider
 	Contract ContractProvider
+	Files    FileProvider
+}
+
+func (r *Repo) Close() {
+	r.User.Close()
+	r.Contract.Close()
 }
 
 type UserProvider interface {
@@ -13,11 +22,10 @@ type UserProvider interface {
 	Close()
 }
 
-func (r *Repo) Close() {
-	r.User.Close()
-	r.Contract.Close()
-}
-
 type ContractProvider interface {
 	Close()
+}
+
+type FileProvider interface {
+	GetFile(fileId string) (io.Reader, string, error)
 }
