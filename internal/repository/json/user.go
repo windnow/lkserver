@@ -23,6 +23,20 @@ type UserRepo struct {
 	users   []User
 }
 
+func (u *User) compile() (*models.User, error) {
+	BirthDate, err := time.Parse("2006-01-02", u.BirthDate)
+	if err != nil {
+		return nil, err
+	}
+	return &models.User{
+		Name:      u.Name,
+		Iin:       u.Iin,
+		Pin:       u.Pin,
+		BirthDate: models.JSONTime(BirthDate),
+		Image:     u.Image,
+	}, nil
+}
+
 func (r *UserRepo) init() error {
 	log.Printf("Init JSON storage (%s)", r.dataDir)
 
@@ -43,17 +57,7 @@ func (r *UserRepo) GetUser(iin string) (*models.User, error) {
 
 	for _, user := range r.users {
 		if user.Iin == iin {
-			BirthDate, err := time.Parse("2006-01-02", user.BirthDate)
-			if err != nil {
-				return nil, err
-			}
-			return &models.User{
-				Name:      user.Name,
-				Iin:       user.Iin,
-				Pin:       user.Pin,
-				BirthDate: models.JSONTime(BirthDate),
-				Image:     user.Image,
-			}, nil
+			return user.compile()
 		}
 	}
 	return nil, errors.New("NOT FOUND")
@@ -63,16 +67,7 @@ func (r *UserRepo) FindUser(iin, pin string) (*models.User, error) {
 
 	for _, user := range r.users {
 		if user.Iin == iin && user.Pin == pin {
-			BirthDate, err := time.Parse("2006-01-02", user.BirthDate)
-			if err != nil {
-				return nil, err
-			}
-			return &models.User{
-				Name:      user.Name,
-				Iin:       user.Iin,
-				Pin:       user.Pin,
-				BirthDate: models.JSONTime(BirthDate),
-			}, nil
+			return user.compile()
 		}
 	}
 	return nil, errors.New("NOT FOUND")
