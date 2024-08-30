@@ -19,6 +19,7 @@ type Config struct {
 	BindAddr        string `toml:"bind_addr"`
 	SessionsKey     string `toml:"session_key"`
 	StaticFilesPath string `toml:"files"`
+	SessionMaxAge   int    `toml:"session_max_age"`
 }
 
 func NewConfig() *Config {
@@ -26,6 +27,7 @@ func NewConfig() *Config {
 		BindAddr:        ":8833",
 		SessionsKey:     "2342340234234-2234234",
 		StaticFilesPath: "data",
+		SessionMaxAge:   60 * 30,
 	}
 }
 
@@ -48,7 +50,7 @@ func (s *lkserver) Start() error {
 func New(r *repository.Repo, config *Config) *lkserver {
 	logger := logrus.New()
 	sessionStore := sessions.NewCookieStore([]byte(config.SessionsKey))
-	sessionStore.Options.MaxAge = 60 * 30
+	sessionStore.Options.MaxAge = config.SessionMaxAge
 
 	s := &lkserver{
 		config:       config,

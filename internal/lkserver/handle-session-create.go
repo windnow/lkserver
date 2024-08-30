@@ -25,7 +25,7 @@ func (s *lkserver) handleSessionCreate() http.HandlerFunc {
 			return
 		}
 
-		if err := s.updateSession(w, r, "user_iin", u.Iin); err != nil {
+		if err := s.sessionAddValue(w, r, "user_iin", u.Iin); err != nil {
 			s.error(w, http.StatusInternalServerError, err)
 			return
 		}
@@ -38,39 +38,7 @@ func (s *lkserver) handleSessionCreate() http.HandlerFunc {
 
 func (s *lkserver) handleSessionDestroy() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if err := s.updateSession(w, r, "user_iin", ""); err != nil {
-			s.error(w, http.StatusInternalServerError, err)
-			return
-		}
+		s.sessionDeleteValue(w, r, "user_iin")
 		s.respond(w, http.StatusOK, struct{ status string }{status: "Ok"})
 	}
-}
-
-func (s *lkserver) updateSession(w http.ResponseWriter, r *http.Request, key, value string) error {
-	session, err := s.sessionStore.Get(r, s.config.SessionsKey)
-	if err != nil {
-		return err
-	}
-
-	session.Values[key] = value
-	if err := s.sessionStore.Save(r, w, session); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (s *lkserver) error(w http.ResponseWriter, code int, err error) {
-
-	s.respond(w, code, map[string]string{"error": err.Error()})
-
-}
-
-func (s *lkserver) respond(w http.ResponseWriter, code int, data interface{}) {
-
-	w.WriteHeader(code)
-	if data != nil {
-		json.NewEncoder(w).Encode(data)
-	}
-
 }

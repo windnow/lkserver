@@ -28,7 +28,7 @@ func (s *lkserver) setRequestID(next http.Handler) http.Handler {
 func (s *lkserver) authUser(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		u, _ := s.getSessionUser(r)
+		u, _ := s.getSessionUser(w, r)
 
 		if u == nil {
 			next.ServeHTTP(w, r)
@@ -41,13 +41,6 @@ func (s *lkserver) authUser(next http.Handler) http.Handler {
 func (s *lkserver) checkUser(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		/*_, err := s.getSessionUser(r)
-		if err != nil {
-			s.error(w, http.StatusNotFound, err)
-			return
-		}
-		*/
-
 		user := r.Context().Value(CTXUSER)
 		if user == nil {
 			s.error(w, http.StatusNotFound, errUnautorized)
@@ -59,19 +52,14 @@ func (s *lkserver) checkUser(next http.Handler) http.Handler {
 	})
 }
 
-func (s *lkserver) getSessionUser(r *http.Request) (*models.User, error) {
+func (s *lkserver) getSessionUser(w http.ResponseWriter, r *http.Request) (*models.User, error) {
 
-	session, err := s.sessionStore.Get(r, s.config.SessionsKey)
+	iin, err := s.sessionGetValue(w, r, "user_iin")
 	if err != nil {
-		return nil, err
-	}
-
-	iin, ok := session.Values["user_iin"].(string)
-	if !ok {
 		return nil, errUnautorized
 	}
 
-	u, err := s.repo.User.GetUser(iin)
+	u, err := s.repo.User.GetUser(iin.(string))
 	if err != nil {
 		return nil, errNotFound
 	}
