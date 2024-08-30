@@ -28,7 +28,7 @@ func main() {
 
 	repo, err := initRepo()
 	if err != nil {
-		log.Fatal("Error on init repository")
+		log.Fatal("Error on init repository", err.Error())
 	}
 	defer repo.Close()
 
