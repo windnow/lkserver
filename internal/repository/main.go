@@ -6,9 +6,10 @@ import (
 )
 
 type Repo struct {
-	User     UserProvider
-	Contract ContractProvider
-	Files    FileProvider
+	User        UserProvider
+	Individuals IndividualsProvider
+	Contract    ContractProvider
+	Files       FileProvider
 }
 
 func (r *Repo) Close() {
@@ -20,6 +21,10 @@ type UserProvider interface {
 	FindUser(iin, pin string) (*models.User, error)
 	GetUser(iin string) (*models.User, error)
 	Close()
+}
+
+type IndividualsProvider interface {
+	Get(iin string) (*models.Individuals, error)
 }
 
 type ContractProvider interface {

@@ -4,24 +4,21 @@ import (
 	"errors"
 	"io"
 	"net/http"
-
-	"github.com/gorilla/mux"
 )
 
 func (s *lkserver) handleFile() http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		fileID := vars["id"]
+		fileID, err := getParam("id", r)
 
-		if fileID == "" {
-			s.error(w, http.StatusBadRequest, errors.New("FILE ID IS MISSING"))
+		if err != nil {
+			s.error(w, http.StatusBadRequest, err)
 			return
 		}
 
 		fileReader, mimeType, err := s.repo.Files.GetFile(fileID)
 		if err != nil {
-			s.error(w, http.StatusNotFound, errors.New("FILE NOT FOUND"))
+			s.error(w, http.StatusNotFound, errors.New("FILE NOT FOUND")) // err may contain a path to a file on the server
 			return
 		}
 		w.Header().Set("Content-Type", mimeType)

@@ -48,6 +48,7 @@ func (s *lkserver) Start() error {
 func New(r *repository.Repo, config *Config) *lkserver {
 	logger := logrus.New()
 	sessionStore := sessions.NewCookieStore([]byte(config.SessionsKey))
+	sessionStore.Options.MaxAge = 60 * 30
 
 	s := &lkserver{
 		config:       config,
@@ -98,6 +99,7 @@ func (s *lkserver) configureRouter() {
 	private.Use(s.checkUser)
 	private.HandleFunc("/destroy", s.handleSessionDestroy())
 	private.HandleFunc("/file/{id}", s.handleFile()).Methods("GET")
+	private.HandleFunc("/ind/{iin}", s.handleIndividualsByIIN()).Methods("GET")
 
 	s.router.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, s.config.StaticFilesPath+"/index.html")

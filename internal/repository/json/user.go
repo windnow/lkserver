@@ -1,13 +1,9 @@
 package json
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"lkserver/internal/models"
-	"log"
-	"os"
 	"time"
 )
 
@@ -21,6 +17,14 @@ type User struct {
 type UserRepo struct {
 	dataDir string
 	users   []User
+}
+
+func NewUserRepo(dataDir string) (*UserRepo, error) {
+	repo := &UserRepo{dataDir: dataDir}
+	if err := repo.init(); err != nil {
+		return nil, err
+	}
+	return repo, nil
 }
 
 func (u *User) compile() (*models.User, error) {
@@ -38,19 +42,9 @@ func (u *User) compile() (*models.User, error) {
 }
 
 func (r *UserRepo) init() error {
-	log.Printf("Init JSON storage (%s)", r.dataDir)
 
-	bytes, err := readData(fmt.Sprintf("%s/users.json", r.dataDir))
-	if err != nil {
-		return err
-	}
-	err = json.Unmarshal(bytes, &r.users)
+	return initFile(fmt.Sprintf("%s/users.json", r.dataDir), &r.users)
 
-	for _, user := range r.users {
-		log.Printf("User: %s", user.Name)
-	}
-
-	return err
 }
 
 func (r *UserRepo) GetUser(iin string) (*models.User, error) {
@@ -75,25 +69,3 @@ func (r *UserRepo) FindUser(iin, pin string) (*models.User, error) {
 }
 
 func (r *UserRepo) Close() {}
-
-func NewUserRepo(config string) (*UserRepo, error) {
-	repo := &UserRepo{dataDir: config}
-	if err := repo.init(); err != nil {
-		return nil, err
-	}
-	return repo, nil
-}
-
-func readData(path string) ([]byte, error) {
-	file, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-	bytes, err := io.ReadAll(file)
-	if err != nil {
-		return nil, err
-	}
-
-	return bytes, nil
-}

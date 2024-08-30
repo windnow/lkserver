@@ -60,9 +60,15 @@ func initRepo() (*repository.Repo, error) {
 		return nil, err
 	}
 
+	individualsRepo, err := json.NewIndividualsRepo("data")
+	if err != nil {
+		return nil, err
+	}
+
 	return &repository.Repo{
-		User:     userRepo,
-		Contract: contractRepo,
-		Files:    fileRepo,
+		User:        userRepo,
+		Individuals: individualsRepo,
+		Contract:    contractRepo,
+		Files:       fileRepo,
 	}, nil
 }
