@@ -22,3 +22,7 @@ func (t *JSONTime) UnmarshalJSON(b []byte) error {
 	*t = JSONTime(result)
 	return nil
 }
+
+func (t JSONTime) After(u JSONTime) bool {
+	return time.Time(t).After(time.Time(u))
+}

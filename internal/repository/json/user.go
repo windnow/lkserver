@@ -19,12 +19,13 @@ type UserRepo struct {
 	users   []User
 }
 
-func NewUserRepo(dataDir string) (*UserRepo, error) {
-	repo := &UserRepo{dataDir: dataDir}
+func (r *repo) initUserRepo() error {
+	repo := &UserRepo{dataDir: r.dataDir}
 	if err := repo.init(); err != nil {
-		return nil, err
+		return err
 	}
-	return repo, nil
+	r.user = repo
+	return nil
 }
 
 func (u *User) compile() (*models.User, error) {

@@ -1,14 +1,14 @@
 package json
 
 import (
-	"errors"
 	"fmt"
 	"lkserver/internal/models"
+	"lkserver/internal/repository"
 )
 
 type IndividualsRepo struct {
 	dataDir     string
-	individuals []models.Individuals
+	individuals []*models.Individuals
 }
 
 func (r *IndividualsRepo) init() error {
@@ -18,19 +18,20 @@ func (r *IndividualsRepo) init() error {
 	)
 }
 
-func NewIndividualsRepo(dataDir string) (*IndividualsRepo, error) {
-	repo := &IndividualsRepo{dataDir: dataDir}
+func (r *repo) initIndividualsRepo() error {
+	repo := &IndividualsRepo{dataDir: r.dataDir}
 	if err := repo.init(); err != nil {
-		return nil, err
+		return err
 	}
-	return repo, nil
+	r.individuals = repo
+	return nil
 }
 
 func (r *IndividualsRepo) Get(iin string) (*models.Individuals, error) {
 	for _, individual := range r.individuals {
 		if individual.IndividualNumber == iin {
-			return &individual, nil
+			return individual, nil
 		}
 	}
-	return nil, errors.New("NOT FOUND")
+	return nil, repository.ErrNotFound
 }

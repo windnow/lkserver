@@ -16,7 +16,7 @@ func (s *lkserver) handleFile() http.HandlerFunc {
 			return
 		}
 
-		fileReader, mimeType, err := s.repo.Files.GetFile(fileID)
+		fileReader, mimeType, err := s.fileStore.GetFile(fileID)
 		if err != nil {
 			s.error(w, http.StatusNotFound, errors.New("FILE NOT FOUND")) // err may contain a path to a file on the server
 			return

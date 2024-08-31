@@ -33,6 +33,7 @@ func NewConfig() *Config {
 
 type lkserver struct {
 	repo         *repository.Repo
+	fileStore    repository.FileProvider
 	router       *mux.Router
 	config       *Config
 	logger       *logrus.Logger
@@ -47,7 +48,7 @@ func (s *lkserver) Start() error {
 
 }
 
-func New(r *repository.Repo, config *Config) *lkserver {
+func New(r *repository.Repo, fileStore repository.FileProvider, config *Config) *lkserver {
 	logger := logrus.New()
 	sessionStore := sessions.NewCookieStore([]byte(config.SessionsKey))
 	sessionStore.Options.MaxAge = config.SessionMaxAge
@@ -55,6 +56,7 @@ func New(r *repository.Repo, config *Config) *lkserver {
 	s := &lkserver{
 		config:       config,
 		repo:         r,
+		fileStore:    fileStore,
 		logger:       logger,
 		sessionStore: sessionStore,
 		router:       mux.NewRouter(),

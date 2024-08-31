@@ -1,20 +1,29 @@
 package repository
 
 import (
+	"errors"
 	"io"
 	"lkserver/internal/models"
 )
 
+var (
+	ErrNotFound     = errors.New("NOT FOUND")
+	ErrRefIntegrity = errors.New("REFERENCE INTEGRITY IS VIOLATED")
+)
+
 type Repo struct {
-	User        UserProvider
-	Individuals IndividualsProvider
-	Contract    ContractProvider
-	Files       FileProvider
+	User         UserProvider
+	Individuals  IndividualsProvider
+	Contract     ContractProvider
+	Ranks        RankProvider
+	RanksHistory RankHistoryProvider
 }
 
 func (r *Repo) Close() {
 	r.User.Close()
 	r.Contract.Close()
+	r.Ranks.Close()
+	r.RanksHistory.Close()
 }
 
 type UserProvider interface {
@@ -34,4 +43,15 @@ type ContractProvider interface {
 type FileProvider interface {
 	// Return reader of file (io.Reader)
 	GetFile(fileId string) (io.Reader, string, error)
+}
+
+type RankProvider interface {
+	Get(id int) (*models.Rank, error)
+	Close()
+}
+
+type RankHistoryProvider interface {
+	GetLast(people *models.Individuals) (*models.RankHistory, error)
+	GetHistory(people *models.Individuals) ([]*models.RankHistory, error)
+	Close()
 }
