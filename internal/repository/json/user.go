@@ -2,7 +2,6 @@ package json
 
 import (
 	"errors"
-	"fmt"
 	"lkserver/internal/models"
 	"time"
 )
@@ -14,14 +13,13 @@ type User struct {
 	BirthDate string `json:"birth_date"`
 	Image     string `json:"image"`
 }
-type UserRepo struct {
-	dataDir string
-	users   []User
+type userRepo struct {
+	users []User
 }
 
 func (r *repo) initUserRepo() error {
-	repo := &UserRepo{dataDir: r.dataDir}
-	if err := repo.init(); err != nil {
+	repo := &userRepo{}
+	if err := initFile(r.dataDir+"/users.json", &repo.users); err != nil {
 		return err
 	}
 	r.user = repo
@@ -42,13 +40,7 @@ func (u *User) compile() (*models.User, error) {
 	}, nil
 }
 
-func (r *UserRepo) init() error {
-
-	return initFile(fmt.Sprintf("%s/users.json", r.dataDir), &r.users)
-
-}
-
-func (r *UserRepo) GetUser(iin string) (*models.User, error) {
+func (r *userRepo) GetUser(iin string) (*models.User, error) {
 
 	for _, user := range r.users {
 		if user.Iin == iin {
@@ -58,7 +50,7 @@ func (r *UserRepo) GetUser(iin string) (*models.User, error) {
 	return nil, errors.New("NOT FOUND")
 }
 
-func (r *UserRepo) FindUser(iin, pin string) (*models.User, error) {
+func (r *userRepo) FindUser(iin, pin string) (*models.User, error) {
 
 	for _, user := range r.users {
 		if user.Iin == iin && user.Pin == pin {
@@ -69,4 +61,4 @@ func (r *UserRepo) FindUser(iin, pin string) (*models.User, error) {
 
 }
 
-func (r *UserRepo) Close() {}
+func (r *userRepo) Close() {}

@@ -5,12 +5,15 @@ import (
 )
 
 type repo struct {
-	dataDir      string
-	user         *UserRepo
-	individuals  *IndividualsRepo
-	contract     *ContractRepo
-	ranks        *RankRepo
-	ranksHistory *RankHistoryRepo
+	dataDir         string
+	user            *userRepo
+	individuals     *individualsRepo
+	contract        *contractRepo
+	ranks           *rankRepo
+	ranksHistory    *rankHistoryRepo
+	eduInstitutions *educationInstitutionRepo
+	specialties     *specialtiesRepo
+	education       *educationRepo
 }
 
 func (r *repo) init() error {
@@ -30,6 +33,18 @@ func (r *repo) init() error {
 		return err
 	}
 
+	if err := r.initEducationInstitutions(); err != nil {
+		return err
+	}
+
+	if err := r.initSpcialties(); err != nil {
+		return err
+	}
+
+	if err := r.initEducation(); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -41,10 +56,13 @@ func NewJSONProvider(dataDir string) (*repository.Repo, error) {
 	}
 
 	return &repository.Repo{
-		User:         r.user,
-		Individuals:  r.individuals,
-		Contract:     r.contract,
-		Ranks:        r.ranks,
-		RanksHistory: r.ranksHistory,
+		User:                 r.user,
+		Individuals:          r.individuals,
+		Contract:             r.contract,
+		Ranks:                r.ranks,
+		RanksHistory:         r.ranksHistory,
+		EducationInstitution: r.eduInstitutions,
+		Specialties:          r.specialties,
+		Education:            r.education,
 	}, nil
 }

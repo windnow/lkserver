@@ -6,13 +6,13 @@ import (
 	"lkserver/internal/repository"
 )
 
-type RankHistoryRepo struct {
+type rankHistoryRepo struct {
 	dataDir     string
 	rankHistory []*models.RankHistory
 }
 
 func (r *repo) initRankHistoryRepo() error {
-	repo := &RankHistoryRepo{dataDir: r.dataDir}
+	repo := &rankHistoryRepo{dataDir: r.dataDir}
 	if err := repo.init(r.individuals, r.ranks); err != nil {
 		return err
 	}
@@ -22,8 +22,8 @@ func (r *repo) initRankHistoryRepo() error {
 	return nil
 }
 
-func (r *RankHistoryRepo) GetLast(people *models.Individuals) (*models.RankHistory, error) {
-	allRanks, err := r.GetHistory(people)
+func (r *rankHistoryRepo) GetLast(iin string) (*models.RankHistory, error) {
+	allRanks, err := r.GetHistory(iin)
 	if err != nil {
 		return nil, err
 	}
@@ -42,10 +42,10 @@ func (r *RankHistoryRepo) GetLast(people *models.Individuals) (*models.RankHisto
 	return result, nil
 }
 
-func (r *RankHistoryRepo) GetHistory(people *models.Individuals) ([]*models.RankHistory, error) {
+func (r *rankHistoryRepo) GetHistory(iin string) ([]*models.RankHistory, error) {
 	var ranks []*models.RankHistory
 	for _, rank := range r.rankHistory {
-		if rank.Individual.IndividualNumber == people.IndividualNumber {
+		if rank.Individual.IndividualNumber == iin {
 			ranks = append(ranks, rank)
 		}
 	}
@@ -54,9 +54,9 @@ func (r *RankHistoryRepo) GetHistory(people *models.Individuals) ([]*models.Rank
 
 }
 
-func (r *RankHistoryRepo) Close() {}
+func (r *rankHistoryRepo) Close() {}
 
-func (jr *RankHistoryRepo) init(i repository.IndividualsProvider, r repository.RankProvider) error {
+func (jr *rankHistoryRepo) init(i repository.IndividualsProvider, r repository.RankProvider) error {
 	data := []struct {
 		Date       models.JSONTime
 		Rank       int
@@ -87,7 +87,7 @@ func (jr *RankHistoryRepo) init(i repository.IndividualsProvider, r repository.R
 		}
 		history = append(history, &models.RankHistory{
 			Date:       row.Date,
-			Individual: *individual,
+			Individual: individual,
 			Rank:       *rank,
 		})
 	}

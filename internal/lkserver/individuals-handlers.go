@@ -23,8 +23,8 @@ func (s *lkserver) handleIndividualsByIIN() http.HandlerFunc {
 			s.error(w, http.StatusNotFound, err)
 			return
 		}
-		LastRank, _ := s.repo.RanksHistory.GetLast(individ)
-		RankHistory, _ := s.repo.RanksHistory.GetHistory(individ)
+		LastRank, _ := s.repo.RanksHistory.GetLast(iin)
+		RankHistory, _ := s.repo.RanksHistory.GetHistory(iin)
 
 		full := &individuals{
 			Individuals: individ,
@@ -33,5 +33,20 @@ func (s *lkserver) handleIndividualsByIIN() http.HandlerFunc {
 		}
 
 		s.respond(w, http.StatusOK, full)
+	}
+}
+
+func (s *lkserver) handleEducationByIIN() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		iin, err := getParam("iin", r)
+		if err != nil {
+			s.error(w, http.StatusBadRequest, err)
+		}
+		edu, err := s.repo.Education.Get(iin)
+		if err != nil {
+			s.error(w, http.StatusNotFound, err)
+		}
+
+		s.respond(w, http.StatusOK, edu)
 	}
 }

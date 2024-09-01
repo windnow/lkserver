@@ -1,12 +1,12 @@
 package json
 
-type ContractRepo struct{}
+type contractRepo struct{}
 
 func (r *repo) initContractRepo() error {
-	r.contract = &ContractRepo{}
+	r.contract = &contractRepo{}
 	return nil
 }
 
-func (c *ContractRepo) Close() {
+func (c *contractRepo) Close() {
 
 }

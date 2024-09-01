@@ -1,19 +1,17 @@
 package json
 
 import (
-	"fmt"
 	"lkserver/internal/models"
 	"lkserver/internal/repository"
 )
 
-type RankRepo struct {
-	dataDir string
-	ranks   []*models.Rank
+type rankRepo struct {
+	ranks []*models.Rank
 }
 
 func (r *repo) initRankRepo() error {
-	repo := &RankRepo{dataDir: r.dataDir}
-	if err := repo.init(); err != nil {
+	repo := &rankRepo{}
+	if err := initFile(r.dataDir+"/ranks.json", &repo.ranks); err != nil {
 		return err
 	}
 
@@ -21,7 +19,7 @@ func (r *repo) initRankRepo() error {
 	return nil
 }
 
-func (r *RankRepo) Get(id int) (*models.Rank, error) {
+func (r *rankRepo) Get(id int) (*models.Rank, error) {
 	for _, rank := range r.ranks {
 		if rank.Id == id {
 			return rank, nil
@@ -31,11 +29,4 @@ func (r *RankRepo) Get(id int) (*models.Rank, error) {
 	return nil, repository.ErrNotFound
 }
 
-func (r *RankRepo) Close() {}
-
-func (r *RankRepo) init() error {
-	return initFile(
-		fmt.Sprintf("%s/ranks.json", r.dataDir),
-		&r.ranks,
-	)
-}
+func (r *rankRepo) Close() {}

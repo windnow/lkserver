@@ -5,6 +5,7 @@ type Individuals struct {
 	FirstName        string   `json:"first_name"`
 	LastName         string   `json:"last_name"`
 	Patronymic       string   `json:"patronymic"`
+	Nationality      string   `json:"nationality"`
 	IndividualNumber string   `json:"iin"`
 	Image            string   `json:"image"`
 	BirthDate        JSONTime `json:"birth_date"`

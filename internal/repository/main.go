@@ -12,11 +12,14 @@ var (
 )
 
 type Repo struct {
-	User         UserProvider
-	Individuals  IndividualsProvider
-	Contract     ContractProvider
-	Ranks        RankProvider
-	RanksHistory RankHistoryProvider
+	User                 UserProvider
+	Individuals          IndividualsProvider
+	Contract             ContractProvider
+	Ranks                RankProvider
+	RanksHistory         RankHistoryProvider
+	EducationInstitution EducationInstitutionProvider
+	Specialties          SpecialtiesProvider
+	Education            EducationProvider
 }
 
 func (r *Repo) Close() {
@@ -24,6 +27,9 @@ func (r *Repo) Close() {
 	r.Contract.Close()
 	r.Ranks.Close()
 	r.RanksHistory.Close()
+	r.EducationInstitution.Close()
+	r.Specialties.Close()
+	r.Education.Close()
 }
 
 type UserProvider interface {
@@ -51,7 +57,22 @@ type RankProvider interface {
 }
 
 type RankHistoryProvider interface {
-	GetLast(people *models.Individuals) (*models.RankHistory, error)
-	GetHistory(people *models.Individuals) ([]*models.RankHistory, error)
+	GetLast(individIin string) (*models.RankHistory, error)
+	GetHistory(indivIin string) ([]*models.RankHistory, error)
+	Close()
+}
+
+type EducationInstitutionProvider interface {
+	Get(id int) (*models.EducationInstitution, error)
+	Close()
+}
+
+type SpecialtiesProvider interface {
+	Get(id int) (*models.Specialties, error)
+	Close()
+}
+
+type EducationProvider interface {
+	Get(individIin string) ([]*models.Education, error)
 	Close()
 }

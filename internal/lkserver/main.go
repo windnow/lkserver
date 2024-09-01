@@ -104,6 +104,7 @@ func (s *lkserver) configureRouter() {
 	private.HandleFunc("/destroy", s.handleSessionDestroy())
 	private.HandleFunc("/file/{id}", s.handleFile()).Methods("GET")
 	private.HandleFunc("/ind/{iin}", s.handleIndividualsByIIN()).Methods("GET")
+	private.HandleFunc("/edu/{iin}", s.handleEducationByIIN()).Methods("GET")
 
 	s.router.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, s.config.StaticFilesPath+"/index.html")
