@@ -5,5 +5,5 @@ type Education struct {
 	EducationInstitution *EducationInstitution `json:"institution"`
 	YearOfCompletion     int                   `json:"year"`
 	Specialty            *Specialties          `json:"specialty"`
-	Type                 string                `json:"type"`
+	Type                 string                `json:"type"` // military | civil
 }
