@@ -41,10 +41,16 @@ func (s *lkserver) handleEducationByIIN() http.HandlerFunc {
 		iin, err := getParam("iin", r)
 		if err != nil {
 			s.error(w, http.StatusBadRequest, err)
+			return
 		}
 		edu, err := s.repo.Education.Get(iin)
 		if err != nil {
 			s.error(w, http.StatusNotFound, err)
+			return
+		}
+		if len(edu) == 0 {
+			s.error(w, http.StatusNotFound, err)
+			return
 		}
 
 		s.respond(w, http.StatusOK, edu)
