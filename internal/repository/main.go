@@ -7,8 +7,9 @@ import (
 )
 
 var (
-	ErrNotFound     = errors.New("NOT FOUND")
-	ErrRefIntegrity = errors.New("REFERENCE INTEGRITY IS VIOLATED")
+	ErrNotFound           = errors.New("NOT FOUND")
+	ErrRefIntegrity       = errors.New("REFERENCE INTEGRITY IS VIOLATED")
+	ErrInvalidCredentials = errors.New("INVALID CREDENTIALS")
 )
 
 type Repo struct {
