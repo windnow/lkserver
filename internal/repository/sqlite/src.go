@@ -1,6 +1,7 @@
 package sqlite
 
 import (
+	"context"
 	"database/sql"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -20,4 +21,25 @@ func newDB(file string) (*src, error) {
 		db: db,
 	}, nil
 
+}
+
+func (s *src) ExecContextInTransaction(ctx context.Context, query string, args ...interface{}) error {
+	tx, err := s.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	_, err = tx.ExecContext(ctx,
+		query,
+		args...)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	select {
+	case <-ctx.Done():
+		tx.Rollback()
+		return ctx.Err()
+	default:
+		return tx.Commit()
+	}
 }

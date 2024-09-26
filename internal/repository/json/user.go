@@ -1,6 +1,7 @@
 package json
 
 import (
+	"context"
 	"errors"
 	"lkserver/internal/models"
 )
@@ -40,6 +41,10 @@ func (r *userRepo) GetUser(iin string) (*models.User, error) {
 		}
 	}
 	return nil, errors.New("NOT FOUND")
+}
+
+func (s *userRepo) Save(ctx context.Context, user *models.User) error {
+	return errors.ErrUnsupported
 }
 
 func (r *userRepo) FindUser(iin, pin string) (*models.User, error) {

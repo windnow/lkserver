@@ -91,22 +91,12 @@ func (r *sqliteRepo) initUserRepo() error {
 }
 
 func (u *UserRepository) Save(ctx context.Context, user *models.User) error {
-	tx, err := u.source.db.BeginTx(ctx, nil)
-	if err != nil {
-		return err
-	}
-	_, err = tx.ExecContext(ctx,
-		`INSERT OR REPLACE INTO users(guid, iin, hash) VALUES (?, ?, ?)`,
-		user.Key, user.Iin, user.PasswordHash[:])
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
-	select {
-	case <-ctx.Done():
-		tx.Rollback()
-		return ctx.Err()
-	default:
-		return tx.Commit()
-	}
+
+	return u.source.ExecContextInTransaction(ctx, insertUserQuery,
+		user.Key,
+		user.Iin,
+		user.PasswordHash[:])
+
 }
+
+var insertUserQuery string = `INSERT OR REPLACE INTO users(guid, iin, hash) VALUES (?, ?, ?)`

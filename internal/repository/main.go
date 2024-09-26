@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"errors"
 	"io"
 	"lkserver/internal/models"
@@ -36,6 +37,7 @@ func (r *Repo) Close() {
 type UserProvider interface {
 	FindUser(iin, pin string) (*models.User, error)
 	GetUser(iin string) (*models.User, error)
+	Save(ctx context.Context, user *models.User) error
 	Close()
 }
 
