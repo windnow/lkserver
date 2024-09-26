@@ -35,7 +35,6 @@ func (r *sqliteRepo) initIndividualsRepo() error {
 		return err
 	}
 
-	// Создание индексов
 	err = i.source.Exec(`
 		CREATE INDEX IF NOT EXISTS idx_individuals_iin ON individuals(iin);
 		CREATE INDEX IF NOT EXISTS idx_individuals_first_name ON individuals(first_name);
@@ -52,9 +51,6 @@ func (r *sqliteRepo) initIndividualsRepo() error {
 		var individuals []models.Individuals
 		json.Unmarshal([]byte(data), &individuals)
 		for _, individ := range individuals {
-			if individ.Key, err = GenerateUUID(); err != nil {
-				return err
-			}
 			if err := i.Save(context.Background(), &individ); err != nil {
 				return err
 			}
@@ -98,6 +94,7 @@ var insertIndividQuery = `
 
 var data string = `[
 {
+		"key":"27f74b66-cba7-486d-a263-81b6cb9a3e57",
         "code": "000000015",
         "iin": "821019000888",
         "nationality": "Казах",
@@ -110,6 +107,7 @@ var data string = `[
         "personal_number": "А-000001"
     },
     {
+		"key":"52efc72d-ba0d-4f87-ae73-e902936395fe",
         "code": "000000016",
         "iin": "910702000888",
         "nationality": "Казах",
@@ -121,6 +119,7 @@ var data string = `[
         "personal_number": "А-000002"
     },
     {
+		"key":"19db2753-68f9-4b5d-998a-727e347a958a",
         "code": "000000017",
         "iin": "851204000888",
         "nationality": "Казах",

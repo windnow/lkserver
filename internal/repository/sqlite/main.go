@@ -26,6 +26,9 @@ func NewSQLiteProvider(dataFile string) (*repository.Repo, error) {
 	if err := repo.initRankRepo(); err != nil {
 		return nil, err
 	}
+	if err := repo.initRankHistory(); err != nil {
+		return nil, err
+	}
 
 	return &repository.Repo{
 		User:        repo.userRepo,

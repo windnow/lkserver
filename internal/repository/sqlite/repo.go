@@ -6,4 +6,5 @@ type sqliteRepo struct {
 	contract    *contractRepo
 	individuals *individualsRepo
 	ranks       *rankRepo
+	rankHistory *rankHistoryRepo
 }

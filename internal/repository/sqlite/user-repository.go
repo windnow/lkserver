@@ -2,6 +2,7 @@ package sqlite
 
 import (
 	"context"
+	"encoding/json"
 	"lkserver/internal/models"
 	"lkserver/internal/repository"
 )
@@ -65,14 +66,8 @@ func (r *sqliteRepo) initUserRepo() error {
 	var count int64
 	userRepo.source.db.QueryRow(`select count(*) from users`).Scan(&count)
 	if count == 0 {
-		id1, _ := GenerateUUID()
-		id2, _ := GenerateUUID()
-		id3, _ := GenerateUUID()
-		users := []models.User{
-			{Key: id1, Iin: "821019000888", Pin: "82"},
-			{Key: id2, Iin: "851204000888", Pin: "85"},
-			{Key: id3, Iin: "910702000888", Pin: "91"},
-		}
+		var users []models.User
+		json.Unmarshal([]byte(mockUserData), &users)
 		for _, user := range users {
 			if err := user.GeneratePasswordHash(); err != nil {
 				return err
@@ -98,3 +93,20 @@ func (u *UserRepository) Save(ctx context.Context, user *models.User) error {
 }
 
 var insertUserQuery string = `INSERT OR REPLACE INTO users(guid, iin, hash) VALUES (?, ?, ?)`
+var mockUserData string = `[
+    {
+		"key": "c9aba8d6-351a-4d85-a8b6-9427ea2f8c8e",
+        "iin": "821019000888",
+        "pin": "82"
+    },
+    {
+		"key": "8c272f7c-6c2c-4dba-bba5-4062005b2400",
+        "iin": "851204000888",
+        "pin": "85"
+    },
+    {
+		"key": "f31c6a0f-b07c-4632-8949-2f24fde4fc26",
+        "iin": "910702000888",
+        "pin": "91"
+    }
+]`
