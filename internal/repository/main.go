@@ -55,7 +55,8 @@ type FileProvider interface {
 }
 
 type RankProvider interface {
-	Get(id int) (*models.Rank, error)
+	Get(key []byte) (*models.Rank, error)
+	Save(ctx context.Context, rank *models.Rank) error
 	Close()
 }
 

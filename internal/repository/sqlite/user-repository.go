@@ -2,8 +2,6 @@ package sqlite
 
 import (
 	"context"
-	"database/sql"
-	"errors"
 	"lkserver/internal/models"
 	"lkserver/internal/repository"
 )
@@ -35,10 +33,7 @@ func (u *UserRepository) GetUser(iin string) (*models.User, error) {
 		WHERE iin=?`,
 		user.Iin).Scan(&user.Key, &user.PasswordHash)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, repository.ErrNotFound
-		}
-		return nil, err
+		return nil, handleQueryError(err)
 	}
 	return user, nil
 }
@@ -48,19 +43,22 @@ func (u *UserRepository) Close() {
 }
 
 func (r *sqliteRepo) initUserRepo() error {
-	query := `
+	userRepo := &UserRepository{
+		source: r.db,
+	}
+
+	if err := userRepo.source.Exec(`
 		CREATE TABLE IF NOT EXISTS users (
 			guid BLOB PRIMARY KEY,
 			iin TEXT UNIQUE,
 			hash BLOB
 		)
-	`
-
-	userRepo := &UserRepository{
-		source: r.db,
+	`); err != nil {
+		return err
 	}
-	_, err := userRepo.source.db.Exec(query)
-	if err != nil {
+	if err := userRepo.source.Exec(`
+		CREATE INDEX IF NOT EXISTS idx_individuals_iin ON individuals(iin);
+		`); err != nil {
 		return err
 	}
 

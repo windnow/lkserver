@@ -43,3 +43,8 @@ func (s *src) ExecContextInTransaction(ctx context.Context, query string, args .
 		return tx.Commit()
 	}
 }
+
+func (s *src) Exec(query string, args ...any) error {
+	_, err := s.db.Exec(query, args...)
+	return err
+}

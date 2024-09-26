@@ -1,6 +1,9 @@
 package json
 
 import (
+	"bytes"
+	"context"
+	"errors"
 	"lkserver/internal/models"
 	"lkserver/internal/repository"
 )
@@ -19,9 +22,9 @@ func (r *repo) initRankRepo() error {
 	return nil
 }
 
-func (r *rankRepo) Get(id int) (*models.Rank, error) {
+func (r *rankRepo) Get(key []byte) (*models.Rank, error) {
 	for _, rank := range r.ranks {
-		if rank.Id == id {
+		if bytes.Equal(rank.Key, key) {
 			return rank, nil
 		}
 	}
@@ -30,3 +33,7 @@ func (r *rankRepo) Get(id int) (*models.Rank, error) {
 }
 
 func (r *rankRepo) Close() {}
+
+func (r *rankRepo) Save(ctx context.Context, rank *models.Rank) error {
+	return errors.ErrUnsupported
+}

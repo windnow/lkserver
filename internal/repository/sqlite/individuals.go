@@ -17,7 +17,7 @@ func (r *sqliteRepo) initIndividualsRepo() error {
 		source: r.db,
 	}
 	r.individuals = i
-	query := `
+	err := i.source.Exec(`
 		CREATE TABLE IF NOT EXISTS individuals(
 			guid BLOB PRIMARY KEY,
 			iin TEXT UNIQUE,
@@ -30,11 +30,22 @@ func (r *sqliteRepo) initIndividualsRepo() error {
 			birth_place TEXT,
 			personal_number TEXT
 		)
-	`
-	_, err := i.source.db.Exec(query)
+	`)
 	if err != nil {
 		return err
 	}
+
+	// Создание индексов
+	err = i.source.Exec(`
+		CREATE INDEX IF NOT EXISTS idx_individuals_iin ON individuals(iin);
+		CREATE INDEX IF NOT EXISTS idx_individuals_first_name ON individuals(first_name);
+		CREATE INDEX IF NOT EXISTS idx_individuals_last_name ON individuals(last_name);
+		CREATE INDEX IF NOT EXISTS idx_individuals_birth_date ON individuals(birth_date);
+	`)
+	if err != nil {
+		return err
+	}
+
 	var count int64
 	i.source.db.QueryRow(`select count(*) from individuals`).Scan(&count)
 	if count == 0 {

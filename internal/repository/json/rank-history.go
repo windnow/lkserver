@@ -59,7 +59,7 @@ func (r *rankHistoryRepo) Close() {}
 func (jr *rankHistoryRepo) init(i repository.IndividualsProvider, r repository.RankProvider) error {
 	data := []struct {
 		Date       models.JSONTime
-		Rank       int
+		Rank       []byte
 		Individual string
 	}{}
 
