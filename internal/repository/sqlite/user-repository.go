@@ -57,7 +57,7 @@ func (r *sqliteRepo) initUserRepo() error {
 		return err
 	}
 	if err := userRepo.source.Exec(`
-		CREATE INDEX IF NOT EXISTS idx_individuals_iin ON individuals(iin);
+		CREATE INDEX IF NOT EXISTS idx_users_iin ON users(iin);
 		`); err != nil {
 		return err
 	}
