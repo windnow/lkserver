@@ -3,7 +3,8 @@ package sqlite
 import (
 	"context"
 	"encoding/json"
-	. "lkserver/internal/models"
+	"fmt"
+	m "lkserver/internal/models"
 )
 
 type rankRepo struct {
@@ -20,14 +21,14 @@ func (s *sqliteRepo) initRankRepo() error {
 			name TEXT
 		)
 	`); err != nil {
-		return HandleError(err, "initRankRepo")
+		return m.HandleError(err, "initRankRepo")
 	}
 
 	var count int64
 	r.source.db.QueryRow(`select count(*) from ranks`).Scan(&count)
-	var ranks []Rank
+	var ranks []m.Rank
 	if err := json.Unmarshal([]byte(rankMock), &ranks); err != nil {
-		return HandleError(err, "initRankRepo")
+		return m.HandleError(err, "initRankRepo")
 	}
 	if count == 0 {
 
@@ -44,21 +45,22 @@ func (s *sqliteRepo) initRankRepo() error {
 	return nil
 }
 
-func (r *rankRepo) Get(key JSONByte) (*Rank, error) {
+func (r *rankRepo) Get(key m.JSONByte) (*m.Rank, error) {
 
-	rank := &Rank{Key: key}
+	rank := &m.Rank{Key: key}
 	err := r.source.db.QueryRow(`
 		SELECT name from ranks WHERE guid = ?	
 	`, key[:]).Scan(&rank.Name)
 	if err != nil {
-		return nil, HandleError(err, "rankRepo.Get")
+		value := fmt.Sprint(key)
+		return nil, m.HandleError(err, "rankRepo.Get ", value)
 	}
 
 	return rank, nil
 
 }
 
-func (r *rankRepo) Save(ctx context.Context, rank *Rank) error {
+func (r *rankRepo) Save(ctx context.Context, rank *m.Rank) error {
 
 	return r.source.ExecContextInTransaction(ctx, `INSERT OR REPLACE INTO ranks(guid, name) VALUES (?, ?)`,
 		rank.Key,
