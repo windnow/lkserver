@@ -1,8 +1,8 @@
 package json
 
 import (
+	"errors"
 	"lkserver/internal/models"
-	"lkserver/internal/repository"
 )
 
 type individualsRepo struct {
@@ -18,11 +18,15 @@ func (r *repo) initIndividualsRepo() error {
 	return nil
 }
 
-func (r *individualsRepo) Get(iin string) (*models.Individuals, error) {
+func (r *individualsRepo) Get(key models.JSONByte) (*models.Individuals, error) {
 	for _, individual := range r.individuals {
-		if individual.IndividualNumber == iin {
+		if individual.Key == key {
 			return individual, nil
 		}
 	}
-	return nil, repository.ErrNotFound
+	return nil, models.ErrNotFound
+}
+
+func (r *individualsRepo) GetByIin(iin string) (*models.Individuals, error) {
+	return nil, errors.ErrUnsupported
 }

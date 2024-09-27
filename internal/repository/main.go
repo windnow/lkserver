@@ -2,15 +2,8 @@ package repository
 
 import (
 	"context"
-	"errors"
 	"io"
 	"lkserver/internal/models"
-)
-
-var (
-	ErrNotFound           = errors.New("NOT FOUND")
-	ErrRefIntegrity       = errors.New("REFERENCE INTEGRITY IS VIOLATED")
-	ErrInvalidCredentials = errors.New("INVALID CREDENTIALS")
 )
 
 type Repo struct {
@@ -42,7 +35,8 @@ type UserProvider interface {
 }
 
 type IndividualsProvider interface {
-	Get(iin string) (*models.Individuals, error)
+	Get(key models.JSONByte) (*models.Individuals, error)
+	GetByIin(iin string) (*models.Individuals, error)
 }
 
 type ContractProvider interface {
@@ -55,7 +49,7 @@ type FileProvider interface {
 }
 
 type RankProvider interface {
-	Get(key []byte) (*models.Rank, error)
+	Get(key models.JSONByte) (*models.Rank, error)
 	Save(ctx context.Context, rank *models.Rank) error
 	Close()
 }

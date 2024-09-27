@@ -23,7 +23,7 @@ func newDB(file string) (*src, error) {
 
 }
 
-func (s *src) ExecContextInTransaction(ctx context.Context, query string, args ...interface{}) error {
+func (s *src) ExecContextInTransaction(ctx context.Context, query string, args ...any) error {
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
 		return err

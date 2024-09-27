@@ -59,8 +59,8 @@ func (r *rankHistoryRepo) Close() {}
 func (jr *rankHistoryRepo) init(i repository.IndividualsProvider, r repository.RankProvider) error {
 	data := []struct {
 		Date       models.JSONTime
-		Rank       []byte
-		Individual string
+		Rank       models.JSONByte
+		Individual models.JSONByte
 	}{}
 
 	if err := initFile(
@@ -73,22 +73,22 @@ func (jr *rankHistoryRepo) init(i repository.IndividualsProvider, r repository.R
 	for _, row := range data {
 		individual, err := i.Get(row.Individual)
 		if err != nil {
-			if err == repository.ErrNotFound {
-				return repository.ErrRefIntegrity
+			if err == models.ErrNotFound {
+				return models.ErrRefIntegrity
 			}
 			return err
 		}
 		rank, err := r.Get(row.Rank)
 		if err != nil {
-			if err == repository.ErrNotFound {
-				return repository.ErrRefIntegrity
+			if err == models.ErrNotFound {
+				return models.ErrRefIntegrity
 			}
 			return err
 		}
 		history = append(history, &models.RankHistory{
 			Date:       row.Date,
 			Individual: individual,
-			Rank:       *rank,
+			Rank:       rank,
 		})
 	}
 

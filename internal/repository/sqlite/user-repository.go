@@ -3,29 +3,28 @@ package sqlite
 import (
 	"context"
 	"encoding/json"
-	"lkserver/internal/models"
-	"lkserver/internal/repository"
+	. "lkserver/internal/models"
 )
 
 type UserRepository struct {
 	source *src
 }
 
-func (u *UserRepository) FindUser(iin, pin string) (*models.User, error) {
+func (u *UserRepository) FindUser(iin, pin string) (*User, error) {
 
 	user, err := u.GetUser(iin)
 	if err != nil {
-		return nil, err
+		return nil, HandleError(err, "UserRepository.FindUser")
 	}
 	user.Pin = pin
 	if !user.CheckPassword() {
-		return nil, repository.ErrInvalidCredentials
+		return nil, HandleError(ErrInvalidCredentials, "UserRepository.FindUser")
 	}
 	return user, nil
 
 }
-func (u *UserRepository) GetUser(iin string) (*models.User, error) {
-	user := &models.User{Iin: iin}
+func (u *UserRepository) GetUser(iin string) (*User, error) {
+	user := &User{Iin: iin}
 	err := u.source.db.QueryRow(`
 		SELECT 
 			guid,
@@ -34,7 +33,7 @@ func (u *UserRepository) GetUser(iin string) (*models.User, error) {
 		WHERE iin=?`,
 		user.Iin).Scan(&user.Key, &user.PasswordHash)
 	if err != nil {
-		return nil, handleQueryError(err)
+		return nil, HandleError(err, "UserRepository.GetUser")
 	}
 	return user, nil
 }
@@ -55,25 +54,25 @@ func (r *sqliteRepo) initUserRepo() error {
 			hash BLOB
 		)
 	`); err != nil {
-		return err
+		return HandleError(err, "sqliteRepo.initUserRepo")
 	}
 	if err := userRepo.source.Exec(`
 		CREATE INDEX IF NOT EXISTS idx_users_iin ON users(iin);
 		`); err != nil {
-		return err
+		return HandleError(err, "sqliteRepo.initUserRepo")
 	}
 
 	var count int64
 	userRepo.source.db.QueryRow(`select count(*) from users`).Scan(&count)
 	if count == 0 {
-		var users []models.User
+		var users []User
 		json.Unmarshal([]byte(mockUserData), &users)
 		for _, user := range users {
 			if err := user.GeneratePasswordHash(); err != nil {
-				return err
+				return HandleError(err, "sqliteRepo.initUserRepo")
 			}
 			if err := userRepo.Save(context.Background(), &user); err != nil {
-				return err
+				return HandleError(err, "sqliteRepo.initUserRepo")
 			}
 		}
 	}
@@ -83,10 +82,10 @@ func (r *sqliteRepo) initUserRepo() error {
 	return nil
 }
 
-func (u *UserRepository) Save(ctx context.Context, user *models.User) error {
+func (u *UserRepository) Save(ctx context.Context, user *User) error {
 
 	return u.source.ExecContextInTransaction(ctx, insertUserQuery,
-		user.Key,
+		user.Key[:],
 		user.Iin,
 		user.PasswordHash[:])
 

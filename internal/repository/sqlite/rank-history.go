@@ -1,13 +1,43 @@
 package sqlite
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
-	"lkserver/internal/models"
+	"fmt"
+	. "lkserver/internal/models"
+	"time"
 )
 
 type rankHistoryRepo struct {
 	source *src
+}
+
+type draftRH struct {
+	D  JSONTime `json:"date"`
+	Rg JSONByte `json:"rank"`
+	Ig JSONByte `json:"individual"`
+}
+
+func (draft *draftRH) update(r *sqliteRepo) (*RankHistory, error) {
+	ret := func(err error) (*RankHistory, error) {
+		return nil, HandleError(err, "draftRH.update")
+	}
+
+	rank, err := r.ranks.Get(draft.Rg)
+	if err != nil {
+		return ret(err)
+	}
+	individ, err := r.individuals.Get(draft.Ig)
+	if err != nil {
+		return ret(err)
+	}
+
+	return &RankHistory{
+		Date:       draft.D,
+		Rank:       rank,
+		Individual: individ,
+	}, nil
 }
 
 func (s *sqliteRepo) initRankHistory() error {
@@ -16,40 +46,52 @@ func (s *sqliteRepo) initRankHistory() error {
 	}
 
 	err := rh.source.Exec(`
-		CREATE TABLE rank_history (
+		CREATE TABLE IF NOT EXISTS rank_history (
 			date INTEGER,
 			rank BLOB,
 			individual BLOB
 		)
 	`)
 	if err != nil {
-		return err
+		return HandleError(err, "sqliteRepo.initRankHistory")
 	}
 	err = rh.source.Exec(`
 		CREATE INDEX IF NOT EXISTS idx_rank_history_date ON rank_history(date);
-		CREATE INDEX IF NOT EXISTS idx_rank_history_individ ON rank_history(individ);
+		CREATE INDEX IF NOT EXISTS idx_rank_history_individ ON rank_history(individual);
 	`)
 	if err != nil {
-		return err
+		return HandleError(err, "sqliteRepo.initRankHistory")
 	}
 
 	var count int64
 	rh.source.db.QueryRow(`select count(*) from rank_history`).Scan(&count)
 	if count == 0 {
-		var result *[]struct {
-			D  models.JSONTime
-			Rg models.JSONByte
-			Ig models.JSONByte
-		} = nil
+		var result *[]draftRH
 		if err := json.Unmarshal([]byte(mockData), &result); err != nil {
-			return err
+			return HandleError(err, "sqliteRepo.initRankHistory")
+		}
+		for _, r := range *result {
+			row, err := r.update(s)
+			if err != nil {
+				return HandleError(err)
+			}
+			if err = rh.Save(context.Background(), row); err != nil {
+				return HandleError(err)
+			}
+			fmt.Printf("%v\n", r)
 		}
 	}
 
 	s.rankHistory = rh
 
-	return errors.ErrUnsupported
+	return HandleError(errors.ErrUnsupported, "sqliteRepo.initRankHistory")
 
+}
+
+func (r *rankHistoryRepo) Save(ctx context.Context, rh *RankHistory) error {
+	return HandleError(r.source.ExecContextInTransaction(ctx, `INSERT OR REPLACE INTO rank_history (date, rank, individual) VALUES (?, ?, ?)`,
+		time.Time(rh.Date), rh.Rank.Key, rh.Individual.Key,
+	), "rankHistoryRepo.Save")
 }
 
 var mockData string = `

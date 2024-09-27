@@ -1,11 +1,9 @@
 package json
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"lkserver/internal/models"
-	"lkserver/internal/repository"
 )
 
 type rankRepo struct {
@@ -22,14 +20,14 @@ func (r *repo) initRankRepo() error {
 	return nil
 }
 
-func (r *rankRepo) Get(key []byte) (*models.Rank, error) {
+func (r *rankRepo) Get(key models.JSONByte) (*models.Rank, error) {
 	for _, rank := range r.ranks {
-		if bytes.Equal(rank.Key, key) {
+		if key.Equal(rank.Key) {
 			return rank, nil
 		}
 	}
 
-	return nil, repository.ErrNotFound
+	return nil, models.ErrNotFound
 }
 
 func (r *rankRepo) Close() {}

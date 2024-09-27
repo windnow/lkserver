@@ -3,7 +3,6 @@ package json
 import (
 	"errors"
 	"lkserver/internal/models"
-	"lkserver/internal/repository"
 )
 
 type educationInstitutionRepo struct {
@@ -19,7 +18,7 @@ func (e *educationInstitutionRepo) Get(id int) (*models.EducationInstitution, er
 		}
 	}
 
-	return nil, repository.ErrNotFound
+	return nil, models.ErrNotFound
 }
 
 type specialtiesRepo struct {
@@ -39,7 +38,7 @@ func (s *specialtiesRepo) Get(id int) (*models.Specialties, error) {
 		}
 	}
 
-	return nil, repository.ErrNotFound
+	return nil, models.ErrNotFound
 }
 
 type educationRepo struct {
@@ -94,7 +93,7 @@ func (r *repo) initEducation() error {
 	}
 
 	for _, str := range data {
-		individ, err := r.individuals.Get(str.Iin)
+		individ, err := r.individuals.GetByIin(str.Iin)
 		if err != nil {
 			return err
 		}

@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"lkserver/internal/models"
+	. "lkserver/internal/models"
 	"time"
 )
 
@@ -32,7 +32,7 @@ func (r *sqliteRepo) initIndividualsRepo() error {
 		)
 	`)
 	if err != nil {
-		return err
+		return HandleError(err, "sqliteRepo.initIndividualsRepo")
 	}
 
 	err = i.source.Exec(`
@@ -42,17 +42,17 @@ func (r *sqliteRepo) initIndividualsRepo() error {
 		CREATE INDEX IF NOT EXISTS idx_individuals_birth_date ON individuals(birth_date);
 	`)
 	if err != nil {
-		return err
+		return HandleError(err, "sqliteRepo.initIndividualsRepo")
 	}
 
 	var count int64
 	i.source.db.QueryRow(`select count(*) from individuals`).Scan(&count)
 	if count == 0 {
-		var individuals []models.Individuals
+		var individuals []Individuals
 		json.Unmarshal([]byte(data), &individuals)
 		for _, individ := range individuals {
 			if err := i.Save(context.Background(), &individ); err != nil {
-				return err
+				return HandleError(err, "sqliteRepo.initIndividualsRepo")
 			}
 
 		}
@@ -62,13 +62,18 @@ func (r *sqliteRepo) initIndividualsRepo() error {
 
 }
 
-func (i *individualsRepo) Get(iin string) (*models.Individuals, error) {
+func (i *individualsRepo) Get(key JSONByte) (*Individuals, error) {
 
-	return nil, errors.ErrUnsupported
+	return nil, HandleError(errors.ErrUnsupported, "individualsRepo.Get")
+
+}
+func (i *individualsRepo) GetByIin(iin string) (*Individuals, error) {
+
+	return nil, HandleError(errors.ErrUnsupported, "individualsRepo.Get")
 
 }
 
-func (i *individualsRepo) Save(ctx context.Context, individ *models.Individuals) error {
+func (i *individualsRepo) Save(ctx context.Context, individ *Individuals) error {
 
 	return i.source.ExecContextInTransaction(ctx, insertIndividQuery,
 		individ.Key[:],
