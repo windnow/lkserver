@@ -78,6 +78,10 @@ func (uuid JSONByte) MarshalJSON() ([]byte, error) {
 	return json.Marshal(uuidStr)
 }
 
+func (uuid JSONByte) Blank() bool {
+	return uuid == [16]byte{}
+}
+
 func (uuid JSONByte) String() string {
 	return (fmt.Sprintf("%08x-%04x-%04x-%04x-%12x",
 		uuid[0:4], uuid[4:6], uuid[6:8], uuid[8:10], uuid[10:16]))

@@ -99,6 +99,7 @@ func (i *individualsRepo) Get(key m.JSONByte) (*m.Individuals, error) {
 	return individ, nil
 
 }
+
 func (i *individualsRepo) GetByIin(iin string) (*m.Individuals, error) {
 	individ := &m.Individuals{IndividualNumber: iin}
 	err := i.source.db.QueryRow(`

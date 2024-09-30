@@ -61,16 +61,19 @@ type RankHistoryProvider interface {
 }
 
 type EducationInstitutionProvider interface {
-	Get(id int) (*models.EducationInstitution, error)
+	Get(Key models.JSONByte) (*models.EducationInstitution, error)
+	Save(ctx context.Context, ei *models.EducationInstitution) error
 	Close()
 }
 
 type SpecialtiesProvider interface {
-	Get(id int) (*models.Specialties, error)
+	Get(key models.JSONByte) (*models.Specialties, error)
+	Save(ctx context.Context, ei *models.Specialties) error
 	Close()
 }
 
 type EducationProvider interface {
-	Get(individIin string) ([]*models.Education, error)
+	GetByIin(individIin string) ([]*models.Education, error)
+	Save(ctx context.Context, ei *models.Education) error
 	Close()
 }

@@ -1,8 +1,6 @@
 package sqlite
 
 import (
-	"errors"
-	"fmt"
 	m "lkserver/internal/models"
 	"lkserver/internal/repository"
 )
@@ -32,14 +30,24 @@ func NewSQLiteProvider(dataFile string) (*repository.Repo, error) {
 		return nil, m.HandleError(err, "NewSQLiteProvider")
 	}
 
-	h, _ := repo.rankHistory.GetLastByIin("821019000888")
-	fmt.Printf("%v\n", h)
+	if err := repo.initEducationInstitutions(); err != nil {
+		return nil, m.HandleError(err, "NewSQLiteProvider")
+	}
+	if err := repo.initSpecialties(); err != nil {
+		return nil, m.HandleError(err, "NewSQLiteProvider")
+	}
+	if err := repo.initEducation(); err != nil {
+		return nil, m.HandleError(err, "NewSQLiteProvider")
+	}
 
 	return &repository.Repo{
-		User:         repo.userRepo,
-		Contract:     repo.contract,
-		Individuals:  repo.individuals,
-		Ranks:        repo.ranks,
-		RanksHistory: repo.rankHistory,
-	}, errors.New("Testing")
+		User:                 repo.userRepo,
+		Contract:             repo.contract,
+		Individuals:          repo.individuals,
+		Ranks:                repo.ranks,
+		RanksHistory:         repo.rankHistory,
+		EducationInstitution: repo.institutions,
+		Specialties:          repo.specialties,
+		Education:            repo.education,
+	}, nil
 }

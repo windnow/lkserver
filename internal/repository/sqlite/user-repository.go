@@ -83,11 +83,18 @@ func (r *sqliteRepo) initUserRepo() error {
 }
 
 func (u *UserRepository) Save(ctx context.Context, user *m.User) error {
+	if user.Key.Blank() {
+		Key, err := m.GenerateUUID()
+		if err != nil {
+			return m.HandleError(err, "UserRepository.Save")
+		}
+		user.Key = Key
+	}
 
-	return u.source.ExecContextInTransaction(ctx, insertUserQuery,
+	return m.HandleError(u.source.ExecContextInTransaction(ctx, insertUserQuery,
 		user.Key,
 		user.Iin,
-		user.PasswordHash[:])
+		user.PasswordHash[:]))
 
 }
 

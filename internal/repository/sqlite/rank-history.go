@@ -104,7 +104,7 @@ func (r *rankHistoryRepo) GetHistoryByIin(indivIin string) ([]*m.RankHistory, er
 	if err != nil {
 		return nil, m.HandleError(err)
 	}
-	result, err := r.getHistory(context.Background(), individ)
+	result, err := r.GetHistory(context.Background(), individ)
 	if err != nil {
 		return nil, m.HandleError(err)
 	}
@@ -136,7 +136,7 @@ func (r *rankHistoryRepo) GetLastByIin(individIin string) (*m.RankHistory, error
 
 }
 
-func (r *rankHistoryRepo) getHistory(ctx context.Context, individ *m.Individuals) ([]*m.RankHistory, error) {
+func (r *rankHistoryRepo) GetHistory(ctx context.Context, individ *m.Individuals) ([]*m.RankHistory, error) {
 
 	rows, err := r.source.db.QueryContext(ctx, "SELECT date, rank FROM rank_history WHERE individual = ?", individ.Key)
 	if err != nil {
