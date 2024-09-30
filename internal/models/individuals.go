@@ -1,6 +1,7 @@
 package models
 
 type Individuals struct {
+	Key              JSONByte `json:"key"`
 	Code             string   `json:"code"`
 	FirstName        string   `json:"first_name"`
 	LastName         string   `json:"last_name"`

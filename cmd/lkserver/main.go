@@ -4,7 +4,7 @@ import (
 	"flag"
 	"lkserver/internal/lkserver"
 	"lkserver/internal/repository/file"
-	"lkserver/internal/repository/json"
+	"lkserver/internal/repository/sqlite"
 	"log"
 
 	"github.com/BurntSushi/toml"
@@ -25,7 +25,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	repo, err := json.NewJSONProvider("data/json")
+	// repo, err := json.NewJSONProvider("data/json")
+	repo, err := sqlite.NewSQLiteProvider("data/data.db")
 	if err != nil {
 		log.Fatal("Error on init repository\n", err.Error())
 	}

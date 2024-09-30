@@ -1,9 +1,9 @@
 package json
 
 import (
+	"context"
 	"errors"
 	"lkserver/internal/models"
-	"lkserver/internal/repository"
 )
 
 type educationInstitutionRepo struct {
@@ -11,15 +11,18 @@ type educationInstitutionRepo struct {
 }
 
 func (c *educationInstitutionRepo) Close() {}
-func (e *educationInstitutionRepo) Get(id int) (*models.EducationInstitution, error) {
+func (c *educationInstitutionRepo) Save(ctx context.Context, ei *models.EducationInstitution) error {
+	return errors.ErrUnsupported
+}
+func (e *educationInstitutionRepo) Get(key models.JSONByte) (*models.EducationInstitution, error) {
 
 	for _, inst := range e.educationInstitution {
-		if inst.Id == id {
+		if inst.Key == key {
 			return inst, nil
 		}
 	}
 
-	return nil, repository.ErrNotFound
+	return nil, models.ErrNotFound
 }
 
 type specialtiesRepo struct {
@@ -27,19 +30,22 @@ type specialtiesRepo struct {
 }
 
 func (c *specialtiesRepo) Close() {}
-func (s *specialtiesRepo) Get(id int) (*models.Specialties, error) {
+func (s *specialtiesRepo) Get(key models.JSONByte) (*models.Specialties, error) {
 
 	if s == nil {
 		return nil, errors.New("REPO NOT INIT")
 	}
 
 	for _, spec := range s.specialties {
-		if spec.Id == id {
+		if spec.Key == key {
 			return spec, nil
 		}
 	}
 
-	return nil, repository.ErrNotFound
+	return nil, models.ErrNotFound
+}
+func (s *specialtiesRepo) Save(ctx context.Context, ei *models.Specialties) error {
+	return errors.ErrUnsupported
 }
 
 type educationRepo struct {
@@ -47,7 +53,7 @@ type educationRepo struct {
 }
 
 func (e *educationRepo) Close() {}
-func (e *educationRepo) Get(iin string) ([]*models.Education, error) {
+func (e *educationRepo) GetByIin(iin string) ([]*models.Education, error) {
 	var result []*models.Education
 	for _, str := range e.education {
 		if str.Individual.IndividualNumber == iin {
@@ -56,6 +62,11 @@ func (e *educationRepo) Get(iin string) ([]*models.Education, error) {
 	}
 	return result, nil
 }
+
+func (e *educationRepo) Save(ctx context.Context, ei *models.Education) error {
+	return errors.ErrUnsupported
+}
+
 func (r *repo) initEducationInstitutions() (err error) {
 	repo := &educationInstitutionRepo{}
 	err = initFile(r.dataDir+"/education-institutions.json", &repo.educationInstitution)
@@ -82,11 +93,11 @@ func (r *repo) initEducation() error {
 	var result []*models.Education
 
 	var data []struct {
-		Iin       string `json:"individual"`
-		Institut  int    `json:"institution"`
-		Year      int    `json:"year"`
-		Specialty int    `json:"specialty"`
-		Type      string `json:"type"`
+		Iin       string          `json:"individual"`
+		Institut  models.JSONByte `json:"institution"`
+		Year      int             `json:"year"`
+		Specialty models.JSONByte `json:"specialty"`
+		Type      string          `json:"type"`
 	}
 	err := initFile(r.dataDir+"/education.json", &data)
 	if err != nil {
@@ -94,7 +105,7 @@ func (r *repo) initEducation() error {
 	}
 
 	for _, str := range data {
-		individ, err := r.individuals.Get(str.Iin)
+		individ, err := r.individuals.GetByIin(str.Iin)
 		if err != nil {
 			return err
 		}

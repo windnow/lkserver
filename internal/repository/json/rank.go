@@ -1,8 +1,9 @@
 package json
 
 import (
+	"context"
+	"errors"
 	"lkserver/internal/models"
-	"lkserver/internal/repository"
 )
 
 type rankRepo struct {
@@ -19,14 +20,18 @@ func (r *repo) initRankRepo() error {
 	return nil
 }
 
-func (r *rankRepo) Get(id int) (*models.Rank, error) {
+func (r *rankRepo) Get(key models.JSONByte) (*models.Rank, error) {
 	for _, rank := range r.ranks {
-		if rank.Id == id {
+		if key.Equal(rank.Key) {
 			return rank, nil
 		}
 	}
 
-	return nil, repository.ErrNotFound
+	return nil, models.ErrNotFound
 }
 
 func (r *rankRepo) Close() {}
+
+func (r *rankRepo) Save(ctx context.Context, rank *models.Rank) error {
+	return errors.ErrUnsupported
+}

@@ -1,14 +1,9 @@
 package repository
 
 import (
-	"errors"
+	"context"
 	"io"
 	"lkserver/internal/models"
-)
-
-var (
-	ErrNotFound     = errors.New("NOT FOUND")
-	ErrRefIntegrity = errors.New("REFERENCE INTEGRITY IS VIOLATED")
 )
 
 type Repo struct {
@@ -35,11 +30,13 @@ func (r *Repo) Close() {
 type UserProvider interface {
 	FindUser(iin, pin string) (*models.User, error)
 	GetUser(iin string) (*models.User, error)
+	Save(ctx context.Context, user *models.User) error
 	Close()
 }
 
 type IndividualsProvider interface {
-	Get(iin string) (*models.Individuals, error)
+	Get(key models.JSONByte) (*models.Individuals, error)
+	GetByIin(iin string) (*models.Individuals, error)
 }
 
 type ContractProvider interface {
@@ -52,27 +49,31 @@ type FileProvider interface {
 }
 
 type RankProvider interface {
-	Get(id int) (*models.Rank, error)
+	Get(key models.JSONByte) (*models.Rank, error)
+	Save(ctx context.Context, rank *models.Rank) error
 	Close()
 }
 
 type RankHistoryProvider interface {
-	GetLast(individIin string) (*models.RankHistory, error)
-	GetHistory(indivIin string) ([]*models.RankHistory, error)
+	GetLastByIin(individIin string) (*models.RankHistory, error)
+	GetHistoryByIin(indivIin string) ([]*models.RankHistory, error)
 	Close()
 }
 
 type EducationInstitutionProvider interface {
-	Get(id int) (*models.EducationInstitution, error)
+	Get(Key models.JSONByte) (*models.EducationInstitution, error)
+	Save(ctx context.Context, ei *models.EducationInstitution) error
 	Close()
 }
 
 type SpecialtiesProvider interface {
-	Get(id int) (*models.Specialties, error)
+	Get(key models.JSONByte) (*models.Specialties, error)
+	Save(ctx context.Context, ei *models.Specialties) error
 	Close()
 }
 
 type EducationProvider interface {
-	Get(individIin string) ([]*models.Education, error)
+	GetByIin(individIin string) ([]*models.Education, error)
+	Save(ctx context.Context, ei *models.Education) error
 	Close()
 }

@@ -1,6 +1,6 @@
 package models
 
 type Rank struct {
-	Id   int    `json:"id"`
-	Name string `json:"name"`
+	Key  JSONByte `json:"key"`
+	Name string   `json:"name"`
 }

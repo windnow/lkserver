@@ -1,6 +1,6 @@
 package models
 
 type Specialties struct {
-	Id    int    `json:"id"`
-	Title string `json:"title"`
+	Key   JSONByte `json:"key"`
+	Title string   `json:"title"`
 }

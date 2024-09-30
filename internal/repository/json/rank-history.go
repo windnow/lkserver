@@ -22,8 +22,8 @@ func (r *repo) initRankHistoryRepo() error {
 	return nil
 }
 
-func (r *rankHistoryRepo) GetLast(iin string) (*models.RankHistory, error) {
-	allRanks, err := r.GetHistory(iin)
+func (r *rankHistoryRepo) GetLastByIin(iin string) (*models.RankHistory, error) {
+	allRanks, err := r.GetHistoryByIin(iin)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +42,7 @@ func (r *rankHistoryRepo) GetLast(iin string) (*models.RankHistory, error) {
 	return result, nil
 }
 
-func (r *rankHistoryRepo) GetHistory(iin string) ([]*models.RankHistory, error) {
+func (r *rankHistoryRepo) GetHistoryByIin(iin string) ([]*models.RankHistory, error) {
 	var ranks []*models.RankHistory
 	for _, rank := range r.rankHistory {
 		if rank.Individual.IndividualNumber == iin {
@@ -59,8 +59,8 @@ func (r *rankHistoryRepo) Close() {}
 func (jr *rankHistoryRepo) init(i repository.IndividualsProvider, r repository.RankProvider) error {
 	data := []struct {
 		Date       models.JSONTime
-		Rank       int
-		Individual string
+		Rank       models.JSONByte
+		Individual models.JSONByte
 	}{}
 
 	if err := initFile(
@@ -73,22 +73,22 @@ func (jr *rankHistoryRepo) init(i repository.IndividualsProvider, r repository.R
 	for _, row := range data {
 		individual, err := i.Get(row.Individual)
 		if err != nil {
-			if err == repository.ErrNotFound {
-				return repository.ErrRefIntegrity
+			if err == models.ErrNotFound {
+				return models.ErrRefIntegrity
 			}
 			return err
 		}
 		rank, err := r.Get(row.Rank)
 		if err != nil {
-			if err == repository.ErrNotFound {
-				return repository.ErrRefIntegrity
+			if err == models.ErrNotFound {
+				return models.ErrRefIntegrity
 			}
 			return err
 		}
 		history = append(history, &models.RankHistory{
 			Date:       row.Date,
 			Individual: individual,
-			Rank:       *rank,
+			Rank:       rank,
 		})
 	}
 

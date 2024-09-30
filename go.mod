@@ -10,6 +10,8 @@ require (
 	github.com/gorilla/mux v1.8.1 // indirect
 	github.com/gorilla/securecookie v1.1.2 // indirect
 	github.com/gorilla/sessions v1.3.0 // indirect
+	github.com/mattn/go-sqlite3 v1.14.23 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
-	golang.org/x/sys v0.0.0-20220715151400-c0bba94af5f8 // indirect
+	golang.org/x/crypto v0.27.0 // indirect
+	golang.org/x/sys v0.25.0 // indirect
 )
