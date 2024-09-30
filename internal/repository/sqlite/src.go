@@ -4,6 +4,8 @@ import (
 	"context"
 	"database/sql"
 
+	m "lkserver/internal/models"
+
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -33,14 +35,14 @@ func (s *src) ExecContextInTransaction(ctx context.Context, query string, args .
 		args...)
 	if err != nil {
 		tx.Rollback()
-		return err
+		return m.HandleError(err, "src.ExecContextInTransaction")
 	}
 	select {
 	case <-ctx.Done():
 		tx.Rollback()
-		return ctx.Err()
+		return m.HandleError(ctx.Err(), "src.ExecContextInTransaction")
 	default:
-		return tx.Commit()
+		return m.HandleError(tx.Commit(), "src.ExecContextInTransaction")
 	}
 }
 

@@ -3,7 +3,6 @@ package sqlite
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	m "lkserver/internal/models"
 	"time"
@@ -11,6 +10,7 @@ import (
 
 type rankHistoryRepo struct {
 	source *src
+	repo   *sqliteRepo
 }
 
 type draftRH struct {
@@ -43,6 +43,7 @@ func (draft *draftRH) update(r *sqliteRepo) (*m.RankHistory, error) {
 func (s *sqliteRepo) initRankHistory() error {
 	rh := &rankHistoryRepo{
 		source: s.db,
+		repo:   s,
 	}
 
 	err := rh.source.Exec(`
@@ -84,14 +85,96 @@ func (s *sqliteRepo) initRankHistory() error {
 
 	s.rankHistory = rh
 
-	return m.HandleError(errors.ErrUnsupported, "sqliteRepo.initRankHistory")
+	return nil
+
+	// return m.HandleError(errors.ErrUnsupported, "sqliteRepo.initRankHistory")
 
 }
 
 func (r *rankHistoryRepo) Save(ctx context.Context, rh *m.RankHistory) error {
 	return m.HandleError(r.source.ExecContextInTransaction(ctx, `INSERT OR REPLACE INTO rank_history (date, rank, individual) VALUES (?, ?, ?)`,
-		time.Time(rh.Date), rh.Rank.Key, rh.Individual.Key,
+		time.Time(rh.Date).Unix(), rh.Rank.Key, rh.Individual.Key,
 	), "rankHistoryRepo.Save")
+}
+
+func (r *rankHistoryRepo) Close() {}
+
+func (r *rankHistoryRepo) GetHistoryByIin(indivIin string) ([]*m.RankHistory, error) {
+	individ, err := r.repo.individuals.GetByIin(indivIin)
+	if err != nil {
+		return nil, m.HandleError(err)
+	}
+	result, err := r.getHistory(context.Background(), individ)
+	if err != nil {
+		return nil, m.HandleError(err)
+	}
+	if len(result) == 0 {
+		return nil, m.HandleError(m.ErrNotFound, "rankHistoryRepo.GetLastByIin")
+	}
+
+	return result, nil
+
+}
+
+func (r *rankHistoryRepo) GetLastByIin(individIin string) (*m.RankHistory, error) {
+
+	var last *m.RankHistory
+	history, err := r.GetHistoryByIin(individIin)
+	if err != nil {
+		return nil, m.HandleError(err, "rankHistoryRepo.GetLastByIin")
+	}
+	if len(history) == 0 {
+		return nil, m.HandleError(m.ErrNotFound, "rankHistoryRepo.GetLastByIin")
+	}
+	for _, record := range history {
+		if last == nil || time.Time(record.Date).Unix() > time.Time(last.Date).Unix() {
+			last = record
+		}
+	}
+
+	return last, nil
+
+}
+
+func (r *rankHistoryRepo) getHistory(ctx context.Context, individ *m.Individuals) ([]*m.RankHistory, error) {
+
+	rows, err := r.source.db.QueryContext(ctx, "SELECT date, rank FROM rank_history WHERE individual = ?", individ.Key)
+	if err != nil {
+		return nil, m.HandleError(err, "rankHistoryRepo.getHistory")
+	}
+	defer rows.Close()
+	select {
+	case <-ctx.Done():
+		return nil, m.HandleError(ctx.Err(), "rankHistoryRepo.getHistory")
+	default:
+	}
+
+	var records []*draftRH
+
+	for rows.Next() {
+		record := &draftRH{}
+		if err := rows.Scan(&record.D, &record.Rg); err != nil {
+			return nil, m.HandleError(err, "rankHistoryRepo.getHistory")
+		}
+		records = append(records, record)
+	}
+
+	var result []*m.RankHistory
+	for _, record := range records {
+
+		rank, err := r.repo.ranks.Get(record.Rg)
+		if err != nil {
+			return nil, m.HandleError(err, "rankHistoryRepo.getHistory")
+		}
+		result = append(result, &m.RankHistory{
+			Date:       record.D,
+			Individual: individ,
+			Rank:       rank,
+		})
+
+	}
+
+	return result, nil
 }
 
 var mockData string = `
@@ -99,16 +182,16 @@ var mockData string = `
     {
         "date": "2023-10-23",
         "rank": "86bf503e-9327-46d4-8d6c-35dd19b88cfa",
-        "individual": "c9aba8d6-351a-4d85-a8b6-9427ea2f8c8e"
+        "individual": "27f74b66-cba7-486d-a263-81b6cb9a3e57"
     },
     {
         "date": "2022-07-02",
         "rank": "758ebb53-eea6-4fde-84fa-1153527a3883",
-        "individual": "f31c6a0f-b07c-4632-8949-2f24fde4fc26"
+        "individual": "19db2753-68f9-4b5d-998a-727e347a958a"
     },
     {
         "date": "2023-07-02",
         "rank": "f5e5f01c-6a27-4ae2-a3a3-5d714f9b871f",
-        "individual": "8c272f7c-6c2c-4dba-bba5-4062005b2400"
+        "individual": "52efc72d-ba0d-4f87-ae73-e902936395fe"
     }
 ]`

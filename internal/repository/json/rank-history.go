@@ -22,8 +22,8 @@ func (r *repo) initRankHistoryRepo() error {
 	return nil
 }
 
-func (r *rankHistoryRepo) GetLast(iin string) (*models.RankHistory, error) {
-	allRanks, err := r.GetHistory(iin)
+func (r *rankHistoryRepo) GetLastByIin(iin string) (*models.RankHistory, error) {
+	allRanks, err := r.GetHistoryByIin(iin)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +42,7 @@ func (r *rankHistoryRepo) GetLast(iin string) (*models.RankHistory, error) {
 	return result, nil
 }
 
-func (r *rankHistoryRepo) GetHistory(iin string) ([]*models.RankHistory, error) {
+func (r *rankHistoryRepo) GetHistoryByIin(iin string) ([]*models.RankHistory, error) {
 	var ranks []*models.RankHistory
 	for _, rank := range r.rankHistory {
 		if rank.Individual.IndividualNumber == iin {

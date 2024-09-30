@@ -55,8 +55,8 @@ type RankProvider interface {
 }
 
 type RankHistoryProvider interface {
-	GetLast(individIin string) (*models.RankHistory, error)
-	GetHistory(indivIin string) ([]*models.RankHistory, error)
+	GetLastByIin(individIin string) (*models.RankHistory, error)
+	GetHistoryByIin(indivIin string) ([]*models.RankHistory, error)
 	Close()
 }
 

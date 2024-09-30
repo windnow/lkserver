@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"database/sql"
 	"errors"
+	"fmt"
 )
 
 func handleQueryError(err error) error {
@@ -22,7 +23,7 @@ func HandleError(err error, text ...string) error {
 	for _, str := range text {
 		resultStr += str
 	}
-	return errors.New("\n" + resultStr + ": " + err.Error())
+	return fmt.Errorf("%w\n%s", err, resultStr)
 }
 func GenerateUUID() (JSONByte, error) {
 	uuid := make([]byte, 16)

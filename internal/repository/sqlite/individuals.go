@@ -21,6 +21,7 @@ func (r *sqliteRepo) initIndividualsRepo() error {
 		CREATE TABLE IF NOT EXISTS individuals(
 			guid BLOB PRIMARY KEY,
 			iin TEXT UNIQUE,
+			code TEXT DEFAULT "" NOT NULL,
 			nationality TEXT,
 			first_name TEXT,
 			last_name TEXT,
@@ -64,20 +65,81 @@ func (r *sqliteRepo) initIndividualsRepo() error {
 
 func (i *individualsRepo) Get(key m.JSONByte) (*m.Individuals, error) {
 
-	return nil, m.HandleError(errors.ErrUnsupported, "individualsRepo.Get")
+	individ := &m.Individuals{Key: key}
+	err := i.source.db.QueryRow(`
+		SELECT iin,  
+			code,
+			nationality,
+			first_name,
+			last_name,
+			patronymic,
+			image,
+			birth_date,
+			birth_place,
+			personal_number
+		FROM individuals
+		WHERE guid = ? 
+	`, individ.Key).Scan(
+		&individ.IndividualNumber,
+		&individ.Code,
+		&individ.Nationality,
+		&individ.FirstName,
+		&individ.LastName,
+		&individ.Patronymic,
+		&individ.Image,
+		&individ.BirthDate,
+		&individ.BirthPlace,
+		&individ.PersonalNumber,
+	)
+
+	if err != nil {
+		return nil, m.HandleError(err, "individualsRepo.Get")
+	}
+
+	return individ, nil
 
 }
 func (i *individualsRepo) GetByIin(iin string) (*m.Individuals, error) {
+	individ := &m.Individuals{IndividualNumber: iin}
+	err := i.source.db.QueryRow(`
+		SELECT guid,  
+			code,
+			nationality,
+			first_name,
+			last_name,
+			patronymic,
+			image,
+			birth_date,
+			birth_place,
+			personal_number
+		FROM individuals
+		WHERE iin = ? 
+	`, individ.IndividualNumber).Scan(
+		&individ.Key,
+		&individ.Code,
+		&individ.Nationality,
+		&individ.FirstName,
+		&individ.LastName,
+		&individ.Patronymic,
+		&individ.Image,
+		&individ.BirthDate,
+		&individ.BirthPlace,
+		&individ.PersonalNumber,
+	)
 
-	return nil, m.HandleError(errors.ErrUnsupported, "individualsRepo.Get")
+	if err != nil {
+		return nil, m.HandleError(errors.ErrUnsupported, "individualsRepo.GetByIin")
+	}
+	return individ, nil
 
 }
 
 func (i *individualsRepo) Save(ctx context.Context, individ *m.Individuals) error {
 
 	return i.source.ExecContextInTransaction(ctx, insertIndividQuery,
-		individ.Key[:],
+		individ.Key,
 		individ.IndividualNumber,
+		individ.Code,
 		individ.Nationality,
 		individ.FirstName,
 		individ.LastName,
@@ -91,9 +153,9 @@ func (i *individualsRepo) Save(ctx context.Context, individ *m.Individuals) erro
 
 var insertIndividQuery = `
 	INSERT INTO individuals(
-		guid, iin, nationality, first_name, last_name, patronymic, image, birth_date, birth_place, personal_number
+		guid, iin, code, nationality, first_name, last_name, patronymic, image, birth_date, birth_place, personal_number
 	) VALUES (
-	 	?,	  ?,   ?,			?,			?,			?,			?,	   ?,			?,			?
+	 	?,	  ?,   ?,	?,      		?,			?,			?,			?,	   ?,			?,			?
 	 )
 `
 

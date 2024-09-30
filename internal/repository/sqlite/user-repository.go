@@ -85,7 +85,7 @@ func (r *sqliteRepo) initUserRepo() error {
 func (u *UserRepository) Save(ctx context.Context, user *m.User) error {
 
 	return u.source.ExecContextInTransaction(ctx, insertUserQuery,
-		user.Key[:],
+		user.Key,
 		user.Iin,
 		user.PasswordHash[:])
 

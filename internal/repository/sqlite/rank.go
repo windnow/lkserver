@@ -34,7 +34,9 @@ func (s *sqliteRepo) initRankRepo() error {
 
 		for _, rank := range ranks {
 
-			r.Save(context.Background(), &rank)
+			if err := r.Save(context.Background(), &rank); err != nil {
+				return err
+			}
 
 		}
 
@@ -50,7 +52,7 @@ func (r *rankRepo) Get(key m.JSONByte) (*m.Rank, error) {
 	rank := &m.Rank{Key: key}
 	err := r.source.db.QueryRow(`
 		SELECT name from ranks WHERE guid = ?	
-	`, key[:]).Scan(&rank.Name)
+	`, key).Scan(&rank.Name)
 	if err != nil {
 		value := fmt.Sprint(key)
 		return nil, m.HandleError(err, "rankRepo.Get ", value)
@@ -62,10 +64,10 @@ func (r *rankRepo) Get(key m.JSONByte) (*m.Rank, error) {
 
 func (r *rankRepo) Save(ctx context.Context, rank *m.Rank) error {
 
-	return r.source.ExecContextInTransaction(ctx, `INSERT OR REPLACE INTO ranks(guid, name) VALUES (?, ?)`,
+	return m.HandleError(r.source.ExecContextInTransaction(ctx, `INSERT OR REPLACE INTO ranks(guid, name) VALUES (?, ?)`,
 		rank.Key,
 		rank.Name,
-	)
+	), "rankRepo.Save")
 }
 
 func (r *rankRepo) Close() {}

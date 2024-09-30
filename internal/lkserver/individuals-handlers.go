@@ -23,8 +23,8 @@ func (s *lkserver) handleIndividualsByIIN() http.HandlerFunc {
 			s.error(w, http.StatusNotFound, err)
 			return
 		}
-		LastRank, _ := s.repo.RanksHistory.GetLast(iin)
-		RankHistory, _ := s.repo.RanksHistory.GetHistory(iin)
+		LastRank, _ := s.repo.RanksHistory.GetLastByIin(iin)
+		RankHistory, _ := s.repo.RanksHistory.GetHistoryByIin(iin)
 
 		full := &individuals{
 			Individuals: individ,
