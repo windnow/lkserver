@@ -3,10 +3,11 @@ package models
 import "golang.org/x/crypto/bcrypt"
 
 type User struct {
-	Key          JSONByte `json:"key"`
-	Iin          string   `json:"iin"`
-	Pin          string   `json:"pin,omitempty"`
-	PasswordHash []byte   `json:"-"`
+	Key          JSONByte     `json:"key"`
+	Iin          string       `json:"iin"`
+	Pin          string       `json:"pin,omitempty"`
+	Individual   *Individuals `json:"individ"`
+	PasswordHash []byte       `json:"-"`
 }
 
 func (u *User) Sanitize() {
