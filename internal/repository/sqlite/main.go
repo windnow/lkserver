@@ -14,13 +14,13 @@ func NewSQLiteProvider(dataFile string) (*repository.Repo, error) {
 		db: db,
 	}
 
+	if err := repo.initIndividualsRepo(); err != nil {
+		return nil, m.HandleError(err, "NewSQLiteProvider")
+	}
 	if err := repo.initUserRepo(); err != nil {
 		return nil, m.HandleError(err, "NewSQLiteProvider")
 	}
 	if err := repo.initContractRepo(); err != nil {
-		return nil, m.HandleError(err, "NewSQLiteProvider")
-	}
-	if err := repo.initIndividualsRepo(); err != nil {
 		return nil, m.HandleError(err, "NewSQLiteProvider")
 	}
 	if err := repo.initRankRepo(); err != nil {
