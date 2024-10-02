@@ -180,17 +180,17 @@ func (r *rankHistoryRepo) GetHistory(ctx context.Context, individ *m.Individuals
 var mockData string = `
 [
     {
-        "date": "2023-10-23",
+        "date": "2023.10.23",
         "rank": "86bf503e-9327-46d4-8d6c-35dd19b88cfa",
         "individual": "27f74b66-cba7-486d-a263-81b6cb9a3e57"
     },
     {
-        "date": "2022-07-02",
+        "date": "2022.07.02",
         "rank": "758ebb53-eea6-4fde-84fa-1153527a3883",
         "individual": "19db2753-68f9-4b5d-998a-727e347a958a"
     },
     {
-        "date": "2023-07-02",
+        "date": "2023.07.02",
         "rank": "f5e5f01c-6a27-4ae2-a3a3-5d714f9b871f",
         "individual": "52efc72d-ba0d-4f87-ae73-e902936395fe"
     }

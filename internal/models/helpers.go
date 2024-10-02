@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"lkserver/internal/lkserver/config"
+	"time"
 )
 
 func handleQueryError(err error) error {
@@ -39,4 +41,15 @@ func GenerateUUID() (JSONByte, error) {
 	var jsonUUID JSONByte
 	copy(jsonUUID[:], uuid)
 	return jsonUUID, nil
+}
+
+func ParseTime(str string) (JSONTime, error) {
+	result, err := time.Parse(DateTimeFormat, str)
+	if err != nil {
+		result, err = time.ParseInLocation(DateFormat, str, config.ServerTimeZone)
+		if err != nil {
+			return JSONTime{}, err
+		}
+	}
+	return JSONTime(result.In(time.UTC)), nil
 }

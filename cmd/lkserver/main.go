@@ -3,11 +3,10 @@ package main
 import (
 	"flag"
 	"lkserver/internal/lkserver"
+	"lkserver/internal/lkserver/config"
 	"lkserver/internal/repository/file"
 	"lkserver/internal/repository/sqlite"
 	"log"
-
-	"github.com/BurntSushi/toml"
 )
 
 var (
@@ -20,8 +19,8 @@ func init() {
 }
 
 func main() {
-	config := lkserver.NewConfig()
-	if _, err := toml.DecodeFile(configPath, config); err != nil {
+	config, err := config.NewConfig(configPath)
+	if err != nil {
 		log.Fatal(err)
 	}
 
