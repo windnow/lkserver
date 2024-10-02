@@ -3,7 +3,6 @@ package sqlite
 import (
 	"context"
 	"encoding/json"
-	"lkserver/internal/models"
 	m "lkserver/internal/models"
 )
 
@@ -62,7 +61,7 @@ func (i *eduInstitutions) Get(key m.JSONByte) (*m.EducationInstitution, error) {
 
 }
 
-func (eduRepo *eduInstitutions) Save(ctx context.Context, ei *models.EducationInstitution) error {
+func (eduRepo *eduInstitutions) Save(ctx context.Context, ei *m.EducationInstitution) error {
 
 	if ei.Key.Blank() {
 		k, err := m.GenerateUUID()

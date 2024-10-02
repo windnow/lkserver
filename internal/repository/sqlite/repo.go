@@ -10,4 +10,5 @@ type sqliteRepo struct {
 	institutions *eduInstitutions
 	specialties  *specialties
 	education    *education
+	reports      *reportsRepo
 }

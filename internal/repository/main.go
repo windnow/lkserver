@@ -4,6 +4,7 @@ import (
 	"context"
 	"io"
 	"lkserver/internal/models"
+	"lkserver/internal/models/reports"
 )
 
 type Repo struct {
@@ -15,6 +16,7 @@ type Repo struct {
 	EducationInstitution EducationInstitutionProvider
 	Specialties          SpecialtiesProvider
 	Education            EducationProvider
+	Reports              ReportProvider
 }
 
 func (r *Repo) Close() {
@@ -76,4 +78,9 @@ type EducationProvider interface {
 	GetByIin(individIin string) ([]*models.Education, error)
 	Save(ctx context.Context, ei *models.Education) error
 	Close()
+}
+
+type ReportProvider interface {
+	GetTypes(codes []string) ([]*reports.ReportTypes, error)
+	SaveType(*reports.ReportTypes) error
 }
