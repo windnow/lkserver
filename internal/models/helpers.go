@@ -44,14 +44,12 @@ func GenerateUUID() (JSONByte, error) {
 }
 
 func ParseTime(str string) (JSONTime, error) {
-
 	result, err := time.Parse(DateTimeFormat, str)
 	if err != nil {
-		result, err = time.Parse(DateFormat, str)
+		result, err = time.ParseInLocation(DateFormat, str, config.ServerTimeZone)
 		if err != nil {
 			return JSONTime{}, err
 		}
 	}
-	return JSONTime(result.In(config.ServerTimeZone)), nil
-
+	return JSONTime(result.In(time.UTC)), nil
 }
