@@ -2,6 +2,7 @@ package lkserver
 
 import (
 	"errors"
+	"lkserver/internal/lkserver/config"
 	"lkserver/internal/repository"
 	"log"
 	"net/http"
@@ -15,27 +16,11 @@ import (
 var errUnautorized = errors.New("NOT AUTORIZED")
 var errNotFound = errors.New("NOT Found")
 
-type Config struct {
-	BindAddr        string `toml:"bind_addr"`
-	SessionsKey     string `toml:"session_key"`
-	StaticFilesPath string `toml:"files"`
-	SessionMaxAge   int    `toml:"session_max_age"`
-}
-
-func NewConfig() *Config {
-	return &Config{
-		BindAddr:        ":8833",
-		SessionsKey:     "2342340234234-2234234",
-		StaticFilesPath: "data",
-		SessionMaxAge:   60 * 30,
-	}
-}
-
 type lkserver struct {
 	repo         *repository.Repo
 	fileStore    repository.FileProvider
 	router       *mux.Router
-	config       *Config
+	config       *config.Config
 	logger       *logrus.Logger
 	sessionStore sessions.Store
 }
@@ -48,7 +33,7 @@ func (s *lkserver) Start() error {
 
 }
 
-func New(r *repository.Repo, fileStore repository.FileProvider, config *Config) *lkserver {
+func New(r *repository.Repo, fileStore repository.FileProvider, config *config.Config) *lkserver {
 	logger := logrus.New()
 	sessionStore := sessions.NewCookieStore([]byte(config.SessionsKey))
 	sessionStore.Options.MaxAge = config.SessionMaxAge

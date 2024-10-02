@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"lkserver/internal/lkserver/config"
 	"regexp"
 	"time"
 )
@@ -17,10 +18,13 @@ var (
 	ErrWrongLength        = errors.New("WRONG GUID LENGTH")
 	ErrRefIntegrity       = errors.New("REFERENCE INTEGRITY IS VIOLATED")
 	ErrInvalidCredentials = errors.New("INVALID CREDENTIALS")
+	DateTimeFormat        = "2006.01.02 15:04:05"
+	DateFormat            = "2006.01.02"
 )
 
 func (t JSONTime) MarshalJSON() ([]byte, error) {
-	stamp := fmt.Sprintf("\"%s\"", time.Time(t).Format("02.01.2006"))
+
+	stamp := fmt.Sprintf("\"%s\"", time.Time(t).In(config.ServerTimeZone).Format(DateTimeFormat))
 	return []byte(stamp), nil
 }
 
@@ -28,15 +32,15 @@ func (t *JSONTime) UnmarshalJSON(b []byte) error {
 
 	var dateStr string
 	if err := json.Unmarshal(b, &dateStr); err != nil {
-		return err
+		return HandleError(err)
 	}
 
-	result, err := time.Parse("2006-01-02", dateStr)
+	result, err := ParseTime(dateStr)
 	if err != nil {
 		return err
 	}
 
-	*t = JSONTime(result)
+	*t = result
 
 	return nil
 }
@@ -52,13 +56,13 @@ func (t *JSONTime) Scan(value any) error {
 	case int64:
 		*t = JSONTime(time.Unix(v, 0))
 	case string:
-		result, err := time.Parse("2006-01-02", v)
+		result, err := ParseTime(v)
 		if err != nil {
 			return HandleError(err, "JSONTime.Scan")
 		}
-		*t = JSONTime(result)
+		*t = result
 	default:
-		return HandleError(fmt.Errorf("Unsupported type for JSONTime: %T", v))
+		return HandleError(fmt.Errorf("UNSUPPORTED TYPE FOR JSONTime: %T", v))
 	}
 	return nil
 }

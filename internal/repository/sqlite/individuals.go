@@ -30,13 +30,7 @@ func (r *sqliteRepo) initIndividualsRepo() error {
 			birth_date INTEGER,
 			birth_place TEXT,
 			personal_number TEXT
-		)
-	`)
-	if err != nil {
-		return m.HandleError(err, "sqliteRepo.initIndividualsRepo")
-	}
-
-	err = i.source.Exec(`
+		);
 		CREATE INDEX IF NOT EXISTS idx_individuals_iin ON individuals(iin);
 		CREATE INDEX IF NOT EXISTS idx_individuals_first_name ON individuals(first_name);
 		CREATE INDEX IF NOT EXISTS idx_individuals_last_name ON individuals(last_name);
@@ -48,9 +42,11 @@ func (r *sqliteRepo) initIndividualsRepo() error {
 
 	var count int64
 	i.source.db.QueryRow(`select count(*) from individuals`).Scan(&count)
+	var individuals []m.Individuals
+	if err := json.Unmarshal([]byte(data), &individuals); err != nil {
+		return m.HandleError(err, "sqliteRepo.initIndividualsRepo")
+	}
 	if count == 0 {
-		var individuals []m.Individuals
-		json.Unmarshal([]byte(data), &individuals)
 		for _, individ := range individuals {
 			if err := i.Save(context.Background(), &individ); err != nil {
 				return m.HandleError(err, "sqliteRepo.initIndividualsRepo")
@@ -170,7 +166,7 @@ var data string = `[
         "last_name": "Усенбаев",
         "patronymic": "Жаксылыкович",
         "image": "821019000888",
-        "birth_date": "1981-11-19",
+        "birth_date": "1981.11.19",
         "birth_place": "с. Баканас Балхашского района Алма-Атинской области",
         "personal_number": "А-000001"
     },
@@ -182,7 +178,7 @@ var data string = `[
         "first_name": "Алинур",
         "last_name": "Асетов",
         "patronymic": "Дастанулы",
-        "birth_date": "1991-09-20",
+        "birth_date": "1991.09.20",
         "birth_place": "с. Баканас Жанааркинского района Карагандинской области",
         "personal_number": "А-000002"
     },
@@ -194,7 +190,7 @@ var data string = `[
         "first_name": "Кайрат",
         "last_name": "Каримов",
         "patronymic": "Ганиевич",
-        "birth_date": "1985-11-04",
+        "birth_date": "1985.11.04",
         "birth_place": "с. Октябрьское район М.Жумабаева Северо-Казахстанской области",
         "personal_number": "А-000003"
     }]`
