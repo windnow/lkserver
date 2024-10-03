@@ -28,7 +28,7 @@ func (u *UserRepository) GetUser(iin string) (*m.User, error) {
 	user := &m.User{Iin: iin}
 	err := u.source.db.QueryRow(`
 		SELECT 
-			guid,
+			ref,
 			hash
 		FROM users 
 		WHERE iin=?`,
@@ -51,10 +51,12 @@ func (r *sqliteRepo) initUserRepo() error {
 
 	if err := userRepo.source.Exec(`
 		CREATE TABLE IF NOT EXISTS users (
-			guid BLOB PRIMARY KEY,
+			ref BLOB PRIMARY KEY,
 			iin TEXT UNIQUE,
 			individ BLOB,
-			hash BLOB
+			hash BLOB,
+
+			FOREIGN KEY (individ) REFERENCES individuals(ref)
 		)
 	`); err != nil {
 		return m.HandleError(err, "sqliteRepo.initUserRepo")
@@ -133,7 +135,7 @@ func (u *UserRepository) Save(ctx context.Context, user *m.User) error {
 
 }
 
-var insertUserQuery string = `INSERT OR REPLACE INTO users(guid, individ, iin, hash) VALUES (?, ?, ?, ?)`
+var insertUserQuery string = `INSERT OR REPLACE INTO users(ref, individ, iin, hash) VALUES (?, ?, ?, ?)`
 var mockUserData string = `[
     {
 		"key": "c9aba8d6-351a-4d85-a8b6-9427ea2f8c8e",

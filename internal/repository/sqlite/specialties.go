@@ -16,7 +16,7 @@ func (r *sqliteRepo) initSpecialties() (err error) {
 	}
 	if err := s.source.Exec(`
 		CREATE TABLE IF NOT EXISTS specialties (
-			guid BLOB PRIMARY KEY,
+			ref BLOB PRIMARY KEY,
 			title TEXT
 		)
 	`); err != nil {
@@ -47,7 +47,7 @@ func (s *specialties) Get(key m.JSONByte) (*m.Specialties, error) {
 	err := s.source.db.QueryRow(`
 		SELECT title
 		FROM specialties
-		WHERE guid = ? 
+		WHERE ref = ? 
 	`, spec.Key).Scan(
 		&spec.Title,
 	)
@@ -78,7 +78,7 @@ func (s *specialties) Save(ctx context.Context, spec *m.Specialties) error {
 
 }
 
-var saveSpecQuery = `INSERT OR REPLACE INTO specialties (guid, title) VALUES (?, ?)`
+var saveSpecQuery = `INSERT OR REPLACE INTO specialties (ref, title) VALUES (?, ?)`
 
 var mockSpecialties string = `
 [

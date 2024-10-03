@@ -19,7 +19,7 @@ func (r *sqliteRepo) initIndividualsRepo() error {
 	r.individuals = i
 	err := i.source.Exec(`
 		CREATE TABLE IF NOT EXISTS individuals(
-			guid BLOB PRIMARY KEY,
+			ref BLOB PRIMARY KEY,
 			iin TEXT UNIQUE,
 			code TEXT DEFAULT "" NOT NULL,
 			nationality TEXT,
@@ -74,7 +74,7 @@ func (i *individualsRepo) Get(key m.JSONByte) (*m.Individuals, error) {
 			birth_place,
 			personal_number
 		FROM individuals
-		WHERE guid = ? 
+		WHERE ref = ? 
 	`, individ.Key).Scan(
 		&individ.IndividualNumber,
 		&individ.Code,
@@ -99,7 +99,7 @@ func (i *individualsRepo) Get(key m.JSONByte) (*m.Individuals, error) {
 func (i *individualsRepo) GetByIin(iin string) (*m.Individuals, error) {
 	individ := &m.Individuals{IndividualNumber: iin}
 	err := i.source.db.QueryRow(`
-		SELECT guid,  
+		SELECT ref,  
 			code,
 			nationality,
 			first_name,
@@ -150,7 +150,7 @@ func (i *individualsRepo) Save(ctx context.Context, individ *m.Individuals) erro
 
 var insertIndividQuery = `
 	INSERT INTO individuals(
-		guid, iin, code, nationality, first_name, last_name, patronymic, image, birth_date, birth_place, personal_number
+		ref, iin, code, nationality, first_name, last_name, patronymic, image, birth_date, birth_place, personal_number
 	) VALUES (
 	 	?,	  ?,   ?,	?,      		?,			?,			?,			?,	   ?,			?,			?
 	 )

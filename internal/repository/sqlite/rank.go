@@ -17,7 +17,7 @@ func (s *sqliteRepo) initRankRepo() error {
 	}
 	if err := r.source.Exec(`
 		CREATE TABLE IF NOT EXISTS ranks(
-			guid BLOB PRIMARY KEY,
+			ref BLOB PRIMARY KEY,
 			name TEXT
 		)
 	`); err != nil {
@@ -51,7 +51,7 @@ func (r *rankRepo) Get(key m.JSONByte) (*m.Rank, error) {
 
 	rank := &m.Rank{Key: key}
 	err := r.source.db.QueryRow(`
-		SELECT name from ranks WHERE guid = ?	
+		SELECT name from ranks WHERE ref = ?	
 	`, key).Scan(&rank.Name)
 	if err != nil {
 		value := fmt.Sprint(key)
@@ -64,7 +64,7 @@ func (r *rankRepo) Get(key m.JSONByte) (*m.Rank, error) {
 
 func (r *rankRepo) Save(ctx context.Context, rank *m.Rank) error {
 
-	return m.HandleError(r.source.ExecContextInTransaction(ctx, `INSERT OR REPLACE INTO ranks(guid, name) VALUES (?, ?)`,
+	return m.HandleError(r.source.ExecContextInTransaction(ctx, `INSERT OR REPLACE INTO ranks(ref, name) VALUES (?, ?)`,
 		rank.Key,
 		rank.Name,
 	), "rankRepo.Save")

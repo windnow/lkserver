@@ -17,7 +17,7 @@ func (r *sqliteRepo) initEducationInstitutions() (err error) {
 
 	if err := eduRepo.source.Exec(`
 		CREATE TABLE IF NOT EXISTS edu_institutions (
-			guid BLOB PRIMARY KEY,
+			ref BLOB PRIMARY KEY,
 			title TEXT
 		)
 	`); err != nil {
@@ -48,7 +48,7 @@ func (i *eduInstitutions) Get(key m.JSONByte) (*m.EducationInstitution, error) {
 	err := i.source.db.QueryRow(`
 		SELECT title
 		FROM edu_institutions
-		WHERE guid = ? 
+		WHERE ref = ? 
 	`, institut.Key).Scan(
 		&institut.Title,
 	)
@@ -77,7 +77,7 @@ func (eduRepo *eduInstitutions) Save(ctx context.Context, ei *m.EducationInstitu
 	))
 }
 
-var saveQuery string = `INSERT OR REPLACE INTO edu_institutions (guid, title) VALUES (?, ?)`
+var saveQuery string = `INSERT OR REPLACE INTO edu_institutions (ref, title) VALUES (?, ?)`
 var mockInstitutions string = `
 [
     {"key": "521451f0-1c6a-4647-b27d-d2204cd9e992", "title": "РГКП «Актауский государственный университет имени Ш. Есенова»"},

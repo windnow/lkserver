@@ -23,7 +23,11 @@ func (s *sqliteRepo) initEducation() error {
 			institut BLOB,
 			year INTEGER,
 			type TEXT,
-			specialty BLOB
+			specialty BLOB,
+
+			FOREIGN KEY (individ) REFERENCES individuals(ref),
+			FOREIGN KEY (institut) REFERENCES edu_institutions(ref),
+			FOREIGN KEY (specialty) REFERENCES specialties(ref)
 		)
 	`)
 	if err != nil {

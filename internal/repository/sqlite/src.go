@@ -19,6 +19,10 @@ func newDB(file string) (*src, error) {
 	if err != nil {
 		return nil, err
 	}
+	_, err = db.Exec("PRAGMA foreign_keys = ON;")
+	if err != nil {
+		return nil, err
+	}
 	return &src{
 		db: db,
 	}, nil

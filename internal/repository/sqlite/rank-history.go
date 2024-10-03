@@ -50,7 +50,10 @@ func (s *sqliteRepo) initRankHistory() error {
 		CREATE TABLE IF NOT EXISTS rank_history (
 			date INTEGER,
 			rank BLOB,
-			individual BLOB
+			individual BLOB,
+
+			FOREIGN KEY (rank) REFERENCES ranks(ref),
+			FOREIGN KEY (individual) REFERENCES individuals(ref)
 		)
 	`)
 	if err != nil {
