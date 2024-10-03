@@ -81,6 +81,6 @@ type EducationProvider interface {
 }
 
 type ReportProvider interface {
-	GetTypes(codes []string) ([]*reports.ReportTypes, error)
-	SaveType(*reports.ReportTypes) error
+	GetTypes(ctx context.Context, codes []string) ([]*reports.ReportTypes, error)
+	SaveType(context.Context, *reports.ReportTypes) error
 }

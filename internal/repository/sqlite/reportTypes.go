@@ -1,15 +1,15 @@
 package sqlite
 
 import (
+	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	m "lkserver/internal/models"
-	"lkserver/internal/models/reports"
 	r "lkserver/internal/models/reports"
+	"strings"
 )
 
-var tab_name = "report_types"
+var report_type = "report_types"
 
 func InitReportTypes(repo *reportsRepo) error {
 
@@ -21,17 +21,18 @@ func InitReportTypes(repo *reportsRepo) error {
 			title TEXT	
 		);
 		CREATE INDEX IF NOT EXISTS idx_%[1]s_code ON %[1]s(code);
-	`, tab_name)
+	`, report_type)
 
 	if _, err := repo.source.db.Exec(query); err != nil {
 		return err
 	}
 
-	var mockTypes []*reports.ReportTypes
-	if err := json.Unmarshal([]byte(data), &mockTypes); err != nil {
+	var mockTypes []*r.ReportTypes
+	if err := json.Unmarshal([]byte(mockReportTypesData), &mockTypes); err != nil {
 		return m.HandleError(err, "sqliteRepo.InitReportTypes")
 	}
-	dbTypes, err := repo.GetTypes([]string{})
+	ctx := context.Background()
+	dbTypes, err := repo.GetTypes(ctx, []string{"УбытиеВСлужебнКомандировку"})
 	if err != nil {
 		return m.HandleError(err, "sqliteRepo.InitReportTypes")
 	}
@@ -45,27 +46,74 @@ func InitReportTypes(repo *reportsRepo) error {
 		if ok {
 			continue
 		}
-		repo.SaveType(mType)
+		if err := repo.SaveType(ctx, mType); err != nil {
+			return m.HandleError(err, "sqliteRepo.InitReportTypes")
+		}
 	}
 
 	return nil
 
 }
 
-func (r *reportsRepo) GetTypes(types []string) ([]*r.ReportTypes, error) {
+func (repo *reportsRepo) GetTypes(ctx context.Context, types []string) ([]*r.ReportTypes, error) {
 
-	return nil, errors.ErrUnsupported
+	var conditions = ""
+	var args []any
+
+	if len(types) > 0 {
+		placeholders := make([]string, len(types))
+		args = make([]any, len(types))
+		for i, t := range types {
+			placeholders[i] = "?"
+			args[i] = t
+		}
+		conditions = fmt.Sprintf(` WHERE code in(%s)`, strings.Join(placeholders, ", "))
+	}
+
+	rows, err := repo.source.db.QueryContext(ctx, fmt.Sprintf(`SELECT ref, parent, code, title from %[1]s%[2]s`, report_type, conditions), args...)
+	if err != nil {
+		return nil, m.HandleError(err, "reportsRepo.GetTypes")
+	}
+	defer rows.Close()
+
+	result := make([]*r.ReportTypes, 0, 10)
+	for rows.Next() {
+		value := &r.ReportTypes{}
+		if err := rows.Scan(&value.Ref, &value.ParentRef, &value.Code, &value.Title); err != nil {
+			return nil, m.HandleError(err, "reportsRepo.GetTypes")
+		}
+		result = append(result, value)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, m.HandleError(err, "reportsRepo.GetTypes")
+	}
+
+	return result, nil
 
 }
 
-func (r *reportsRepo) SaveType(reportType *r.ReportTypes) error {
+func (repo *reportsRepo) SaveType(ctx context.Context, rt *r.ReportTypes) error {
 
-	return errors.ErrUnsupported
+	if rt.Ref.Blank() {
+		ref, err := m.GenerateUUID()
+		if err != nil {
+			return m.HandleError(err, "reportsRepo.SaveTypes")
+		}
+		rt.Ref = ref
+	}
+
+	return m.HandleError(repo.source.ExecContextInTransaction(ctx,
+		fmt.Sprintf(`INSERT INTO %[1]s (ref, parent, code, title) VALUES (?, ?, ?, ?)`, report_type),
+		rt.Ref,
+		rt.ParentRef,
+		rt.Code,
+		rt.Title,
+	))
 
 }
 
 var mockReportTypesData = `
 [
-{"ref":"fcf8e381-ea56-43ea-a83f-c2059a3aa329", "code": "000001", "title":"Об убытии в служебные командировки"}
+{"ref":"fcf8e381-ea56-43ea-a83f-c2059a3aa329", "code": "УбытиеВСлужебнКомандировку", "title":"Об убытии в служебные командировки"}
 ]
 `
