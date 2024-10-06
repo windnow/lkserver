@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"database/sql"
 	"io"
 	"lkserver/internal/models"
 	"lkserver/internal/models/reports"
@@ -83,4 +84,9 @@ type EducationProvider interface {
 type ReportProvider interface {
 	GetTypes(ctx context.Context, codes []string) ([]*reports.ReportTypes, error)
 	SaveType(context.Context, *reports.ReportTypes) error
+}
+type ReportDetails interface {
+	Get(ref models.JSONByte, tx ...*sql.Tx) (any, error)
+	Save(tx *sql.Tx, ctx context.Context, report models.JSONByte, data any) error
+	Init() error
 }

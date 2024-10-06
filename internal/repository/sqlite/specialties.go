@@ -3,6 +3,7 @@ package sqlite
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	m "lkserver/internal/models"
 )
 
@@ -14,12 +15,12 @@ func (r *sqliteRepo) initSpecialties() (err error) {
 	s := &specialties{
 		source: r.db,
 	}
-	if err := s.source.Exec(`
-		CREATE TABLE IF NOT EXISTS specialties (
+	if err := s.source.Exec(fmt.Sprintf(`
+		CREATE TABLE IF NOT EXISTS %[1]s (
 			ref BLOB PRIMARY KEY,
 			title TEXT
 		)
-	`); err != nil {
+	`, tabSpecialties)); err != nil {
 		return m.HandleError(err, "sqliteRepo.initEducationInstitutions")
 	}
 
@@ -27,7 +28,7 @@ func (r *sqliteRepo) initSpecialties() (err error) {
 	json.Unmarshal([]byte(mockSpecialties), &specs)
 
 	var count int64
-	s.source.db.QueryRow(`select count(*) from specialties`).Scan(&count)
+	s.source.db.QueryRow(fmt.Sprintf(`select count(*) from %[1]s`, tabSpecialties)).Scan(&count)
 
 	if count == 0 {
 		for _, spec := range specs {
@@ -44,11 +45,11 @@ func (r *sqliteRepo) initSpecialties() (err error) {
 func (s *specialties) Get(key m.JSONByte) (*m.Specialties, error) {
 
 	spec := &m.Specialties{Key: key}
-	err := s.source.db.QueryRow(`
+	err := s.source.db.QueryRow(fmt.Sprintf(`
 		SELECT title
-		FROM specialties
+		FROM %[1]s
 		WHERE ref = ? 
-	`, spec.Key).Scan(
+	`, tabSpecialties), spec.Key).Scan(
 		&spec.Title,
 	)
 
@@ -78,7 +79,7 @@ func (s *specialties) Save(ctx context.Context, spec *m.Specialties) error {
 
 }
 
-var saveSpecQuery = `INSERT OR REPLACE INTO specialties (ref, title) VALUES (?, ?)`
+var saveSpecQuery = fmt.Sprintf(`INSERT OR REPLACE INTO %[1]s (ref, title) VALUES (?, ?)`, tabSpecialties)
 
 var mockSpecialties string = `
 [

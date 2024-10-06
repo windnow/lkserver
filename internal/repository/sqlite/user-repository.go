@@ -3,6 +3,7 @@ package sqlite
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	m "lkserver/internal/models"
 )
 
@@ -26,12 +27,12 @@ func (u *UserRepository) FindUser(iin, pin string) (*m.User, error) {
 }
 func (u *UserRepository) GetUser(iin string) (*m.User, error) {
 	user := &m.User{Iin: iin}
-	err := u.source.db.QueryRow(`
+	err := u.source.db.QueryRow(fmt.Sprintf(`
 		SELECT 
 			ref,
 			hash
-		FROM users 
-		WHERE iin=?`,
+		FROM %[1]s 
+		WHERE iin=?`, tabUsers),
 		user.Iin).Scan(&user.Key, &user.PasswordHash)
 	if err != nil {
 		return nil, m.HandleError(err, "UserRepository.GetUser")
@@ -49,22 +50,20 @@ func (r *sqliteRepo) initUserRepo() error {
 		repo:   r,
 	}
 
-	if err := userRepo.source.Exec(`
-		CREATE TABLE IF NOT EXISTS users (
+	if err := userRepo.source.Exec(fmt.Sprintf(`
+		CREATE TABLE IF NOT EXISTS %[1]s (
 			ref BLOB PRIMARY KEY,
 			iin TEXT UNIQUE,
 			individ BLOB,
 			hash BLOB,
 
-			FOREIGN KEY (individ) REFERENCES individuals(ref)
-		)
-	`); err != nil {
-		return m.HandleError(err, "sqliteRepo.initUserRepo")
-	}
-	if err := userRepo.source.Exec(`
-		CREATE INDEX IF NOT EXISTS idx_users_iin ON users(iin);
-		CREATE INDEX IF NOT EXISTS idx_users_individ ON users(individ);
-		`); err != nil {
+			FOREIGN KEY (individ) REFERENCES %[2]s(ref)
+		);
+
+		CREATE INDEX IF NOT EXISTS idx_%[1]s_iin ON %[1]s(iin);
+		CREATE INDEX IF NOT EXISTS idx_%[1]s_individ ON %[1]s(individ);
+
+	`, tabUsers, tabIndividuals)); err != nil {
 		return m.HandleError(err, "sqliteRepo.initUserRepo")
 	}
 
@@ -76,7 +75,7 @@ func (r *sqliteRepo) initUserRepo() error {
 	}
 
 	var count int64
-	userRepo.source.db.QueryRow(`select count(*) from users`).Scan(&count)
+	userRepo.source.db.QueryRow(fmt.Sprintf(`select count(*) from %[1]s`, tabUsers)).Scan(&count)
 	if count == 0 {
 		var mock_users []mockUser
 		json.Unmarshal([]byte(mockUserData), &mock_users)
@@ -108,7 +107,10 @@ func (r *sqliteRepo) initUserRepo() error {
 		}
 		userRepo.Save(context.Background(), &user)
 	}
-	userRepo.FindUser("821019000888", "82")
+	_, err := userRepo.FindUser("821019000888", "82")
+	if err != nil {
+		return m.HandleError(err, "sqliteRepo.initUserRepo")
+	}
 
 	r.userRepo = userRepo
 	return nil
@@ -135,7 +137,7 @@ func (u *UserRepository) Save(ctx context.Context, user *m.User) error {
 
 }
 
-var insertUserQuery string = `INSERT OR REPLACE INTO users(ref, individ, iin, hash) VALUES (?, ?, ?, ?)`
+var insertUserQuery string = fmt.Sprintf(`INSERT OR REPLACE INTO %[1]s(ref, individ, iin, hash) VALUES (?, ?, ?, ?)`, tabUsers)
 var mockUserData string = `[
     {
 		"key": "c9aba8d6-351a-4d85-a8b6-9427ea2f8c8e",

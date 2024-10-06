@@ -3,6 +3,7 @@ package sqlite
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	m "lkserver/internal/models"
 	"strings"
 )
@@ -17,36 +18,34 @@ func (s *sqliteRepo) initEducation() error {
 		source: s.db,
 		repo:   s,
 	}
-	err := edu.source.Exec(`
-		CREATE TABLE IF NOT EXISTS education (
+	query := fmt.Sprintf(`
+		CREATE TABLE IF NOT EXISTS %[1]s (
 			individ BLOB,
 			institut BLOB,
 			year INTEGER,
 			type TEXT,
 			specialty BLOB,
 
-			FOREIGN KEY (individ) REFERENCES individuals(ref),
-			FOREIGN KEY (institut) REFERENCES edu_institutions(ref),
-			FOREIGN KEY (specialty) REFERENCES specialties(ref)
-		)
-	`)
+			FOREIGN KEY (individ) REFERENCES %[2]s(ref),
+			FOREIGN KEY (institut) REFERENCES %[3]s(ref),
+			FOREIGN KEY (specialty) REFERENCES %[4]s(ref)
+
+		);
+
+		CREATE INDEX IF NOT EXISTS idx_%[1]s_individ ON    %[1]s(individ);
+		CREATE INDEX IF NOT EXISTS idx_%[1]s_institut ON   %[1]s(institut);
+		CREATE INDEX IF NOT EXISTS idx_%[1]s_specialty ON  %[1]s(specialty);
+		CREATE INDEX IF NOT EXISTS idx_%[1]s_type ON       %[1]s(type);
+	`, tabEducation, tabIndividuals, tabInstitutions, tabSpecialties)
+	err := edu.source.Exec(query)
 	if err != nil {
 		return m.HandleError(err, "sqliteRepo.initEducation")
-	}
-	err = edu.source.Exec(`
-		CREATE INDEX IF NOT EXISTS idx_education_individ ON education(individ);
-		CREATE INDEX IF NOT EXISTS idx_education_institut ON education(institut);
-		CREATE INDEX IF NOT EXISTS idx_education_specialty ON education(specialty);
-		CREATE INDEX IF NOT EXISTS idx_education_type ON education(type);
-	`)
-	if err != nil {
-		return m.HandleError(err, "sqliteRepo.initRankHistory")
 	}
 
 	var mockEdu []*draftEdu
 	json.Unmarshal([]byte(mockEducation), &mockEdu)
 	var count int64
-	edu.source.db.QueryRow(`select count(*) from education`).Scan(&count)
+	edu.source.db.QueryRow(fmt.Sprintf(`select count(*) from %[1]s`, tabEducation)).Scan(&count)
 	if count == 0 {
 		for _, row := range mockEdu {
 			record, err := row.update(edu.repo)
@@ -86,7 +85,7 @@ func (e *education) GetByIin(iin string) ([]*m.Education, error) {
 
 func (e *education) Get(ctx context.Context, individ *m.Individuals) ([]*m.Education, error) {
 
-	rows, err := e.source.db.QueryContext(ctx, "SELECT individ, institut, year, type, specialty FROM education WHERE individ = ?", individ.Key)
+	rows, err := e.source.db.QueryContext(ctx, fmt.Sprintf("SELECT individ, institut, year, type, specialty FROM %[1]s WHERE individ = ?", tabEducation), individ.Key)
 	if err != nil {
 		return nil, m.HandleError(err, "education.Get")
 	}
@@ -158,15 +157,15 @@ func (draft *draftEdu) update(r *sqliteRepo) (*m.Education, error) {
 	}, nil
 }
 
-var insertEduQuery string = `
-INSERT OR REPLACE INTO education (
+var insertEduQuery string = fmt.Sprintf(`
+INSERT OR REPLACE INTO %[1]s (
 			individ,
 			institut,
 			year,
 			type,
 			specialty)
 VALUES (?, ?, ?, ?, ?)
-`
+`, tabEducation)
 var mockEducation string = `
 [
     {"individual": "821019000888", "institution": "521451f0-1c6a-4647-b27d-d2204cd9e992", "year": 2007, "type": "civil", "specialty": "18fcf8f9-9705-460c-a15e-a7427c0d8f8c"},

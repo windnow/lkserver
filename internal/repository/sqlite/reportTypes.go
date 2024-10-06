@@ -9,8 +9,6 @@ import (
 	"strings"
 )
 
-var report_type = "report_types"
-
 func InitReportTypes(repo *reportsRepo) error {
 
 	query := fmt.Sprintf(`
@@ -21,7 +19,7 @@ func InitReportTypes(repo *reportsRepo) error {
 			title TEXT	
 		);
 		CREATE INDEX IF NOT EXISTS idx_%[1]s_code ON %[1]s(code);
-	`, report_type)
+	`, tabReportType)
 
 	if _, err := repo.source.db.Exec(query); err != nil {
 		return err
@@ -70,7 +68,7 @@ func (repo *reportsRepo) GetTypes(ctx context.Context, types []string) ([]*r.Rep
 		conditions = fmt.Sprintf(` WHERE code in(%s)`, strings.Join(placeholders, ", "))
 	}
 
-	rows, err := repo.source.db.QueryContext(ctx, fmt.Sprintf(`SELECT ref, parent, code, title from %[1]s%[2]s`, report_type, conditions), args...)
+	rows, err := repo.source.db.QueryContext(ctx, fmt.Sprintf(`SELECT ref, parent, code, title from %[1]s%[2]s`, tabReportType, conditions), args...)
 	if err != nil {
 		return nil, m.HandleError(err, "reportsRepo.GetTypes")
 	}
@@ -103,7 +101,8 @@ func (repo *reportsRepo) SaveType(ctx context.Context, rt *r.ReportTypes) error 
 	}
 
 	return m.HandleError(repo.source.ExecContextInTransaction(ctx,
-		fmt.Sprintf(`INSERT INTO %[1]s (ref, parent, code, title) VALUES (?, ?, ?, ?)`, report_type),
+		fmt.Sprintf(`INSERT OR REPLACE INTO %[1]s (ref, parent, code, title) VALUES (?, ?, ?, ?)`, tabReportType),
+
 		rt.Ref,
 		rt.ParentRef,
 		rt.Code,
@@ -114,6 +113,6 @@ func (repo *reportsRepo) SaveType(ctx context.Context, rt *r.ReportTypes) error 
 
 var mockReportTypesData = `
 [
-{"ref":"fcf8e381-ea56-43ea-a83f-c2059a3aa329", "code": "УбытиеВСлужебнКомандировку", "title":"Об убытии в служебные командировки"}
+{"ref":"fcf8e381-ea56-43ea-a83f-c2059a3aa329", "code": "0001", "title":"Об убытии в служебные командировки"}
 ]
 `

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	m "lkserver/internal/models"
 	"time"
 )
@@ -17,8 +18,8 @@ func (r *sqliteRepo) initIndividualsRepo() error {
 		source: r.db,
 	}
 	r.individuals = i
-	err := i.source.Exec(`
-		CREATE TABLE IF NOT EXISTS individuals(
+	err := i.source.Exec(fmt.Sprintf(`
+		CREATE TABLE IF NOT EXISTS %[1]s(
 			ref BLOB PRIMARY KEY,
 			iin TEXT UNIQUE,
 			code TEXT DEFAULT "" NOT NULL,
@@ -31,17 +32,17 @@ func (r *sqliteRepo) initIndividualsRepo() error {
 			birth_place TEXT,
 			personal_number TEXT
 		);
-		CREATE INDEX IF NOT EXISTS idx_individuals_iin ON individuals(iin);
-		CREATE INDEX IF NOT EXISTS idx_individuals_first_name ON individuals(first_name);
-		CREATE INDEX IF NOT EXISTS idx_individuals_last_name ON individuals(last_name);
-		CREATE INDEX IF NOT EXISTS idx_individuals_birth_date ON individuals(birth_date);
-	`)
+		CREATE INDEX IF NOT EXISTS idx_%[1]s_iin ON %[1]s(iin);
+		CREATE INDEX IF NOT EXISTS idx_%[1]s_first_name ON %[1]s(first_name);
+		CREATE INDEX IF NOT EXISTS idx_%[1]s_last_name ON %[1]s(last_name);
+		CREATE INDEX IF NOT EXISTS idx_%[1]s_birth_date ON %[1]s(birth_date);
+	`, tabIndividuals))
 	if err != nil {
 		return m.HandleError(err, "sqliteRepo.initIndividualsRepo")
 	}
 
 	var count int64
-	i.source.db.QueryRow(`select count(*) from individuals`).Scan(&count)
+	i.source.db.QueryRow(fmt.Sprintf(`select count(*) from %[1]s`, tabIndividuals)).Scan(&count)
 	var individuals []m.Individuals
 	if err := json.Unmarshal([]byte(data), &individuals); err != nil {
 		return m.HandleError(err, "sqliteRepo.initIndividualsRepo")
@@ -62,7 +63,7 @@ func (r *sqliteRepo) initIndividualsRepo() error {
 func (i *individualsRepo) Get(key m.JSONByte) (*m.Individuals, error) {
 
 	individ := &m.Individuals{Key: key}
-	err := i.source.db.QueryRow(`
+	err := i.source.db.QueryRow(fmt.Sprintf(`
 		SELECT iin,  
 			code,
 			nationality,
@@ -73,9 +74,9 @@ func (i *individualsRepo) Get(key m.JSONByte) (*m.Individuals, error) {
 			birth_date,
 			birth_place,
 			personal_number
-		FROM individuals
+		FROM %[1]s
 		WHERE ref = ? 
-	`, individ.Key).Scan(
+	`, tabIndividuals), individ.Key).Scan(
 		&individ.IndividualNumber,
 		&individ.Code,
 		&individ.Nationality,
@@ -98,7 +99,7 @@ func (i *individualsRepo) Get(key m.JSONByte) (*m.Individuals, error) {
 
 func (i *individualsRepo) GetByIin(iin string) (*m.Individuals, error) {
 	individ := &m.Individuals{IndividualNumber: iin}
-	err := i.source.db.QueryRow(`
+	err := i.source.db.QueryRow(fmt.Sprintf(`
 		SELECT ref,  
 			code,
 			nationality,
@@ -109,9 +110,9 @@ func (i *individualsRepo) GetByIin(iin string) (*m.Individuals, error) {
 			birth_date,
 			birth_place,
 			personal_number
-		FROM individuals
+		FROM %[1]s
 		WHERE iin = ? 
-	`, individ.IndividualNumber).Scan(
+	`, tabIndividuals), individ.IndividualNumber).Scan(
 		&individ.Key,
 		&individ.Code,
 		&individ.Nationality,
@@ -148,13 +149,13 @@ func (i *individualsRepo) Save(ctx context.Context, individ *m.Individuals) erro
 
 }
 
-var insertIndividQuery = `
-	INSERT INTO individuals(
+var insertIndividQuery = fmt.Sprintf(`
+	INSERT INTO %s(
 		ref, iin, code, nationality, first_name, last_name, patronymic, image, birth_date, birth_place, personal_number
 	) VALUES (
 	 	?,	  ?,   ?,	?,      		?,			?,			?,			?,	   ?,			?,			?
 	 )
-`
+`, tabIndividuals)
 
 var data string = `[
 {
