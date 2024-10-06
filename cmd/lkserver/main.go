@@ -21,7 +21,7 @@ func init() {
 func main() {
 	config, err := config.NewConfig(configPath)
 	if err != nil {
-		log.Fatal("Error loading config: ", err)
+		log.Fatal(err)
 	}
 
 	// repo, err := json.NewJSONProvider("data/json")
