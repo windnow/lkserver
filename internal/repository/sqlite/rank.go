@@ -64,7 +64,7 @@ func (r *rankRepo) Get(key m.JSONByte) (*m.Rank, error) {
 
 func (r *rankRepo) Save(ctx context.Context, rank *m.Rank) error {
 
-	return m.HandleError(r.source.ExecContextInTransaction(ctx, fmt.Sprintf(`INSERT OR REPLACE INTO %[1]s(ref, name) VALUES (?, ?)`, tabRanks),
+	return m.HandleError(r.source.ExecContextInTransaction(ctx, fmt.Sprintf(`INSERT OR REPLACE INTO %[1]s(ref, name) VALUES (?, ?)`, tabRanks), nil,
 		rank.Key,
 		rank.Name,
 	), "rankRepo.Save")

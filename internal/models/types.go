@@ -74,11 +74,11 @@ func (t JSONTime) Value() (driver.Value, error) {
 type JSONByte [16]byte
 
 func (uuid JSONByte) MarshalJSON() ([]byte, error) {
-	if len(uuid) != 16 {
-		return nil, &Error{ErrWrongLength, "JSONByte.MarshalJSON"}
+	if uuid.Blank() {
+		return json.Marshal("")
 	}
-	uuidStr := uuid.String()
 
+	uuidStr := uuid.String()
 	return json.Marshal(uuidStr)
 }
 
@@ -113,6 +113,11 @@ func (uuid *JSONByte) UnmarshalJSON(data []byte) error {
 	var uuidStr string
 	if err := json.Unmarshal(data, &uuidStr); err != nil {
 		return &Error{err, "JSONByte.UnmarsharJSON"}
+	}
+
+	if uuidStr == "" {
+		*uuid = JSONByte{}
+		return nil
 	}
 
 	re := regexp.MustCompile("^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$")

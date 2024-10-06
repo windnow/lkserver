@@ -79,9 +79,16 @@ func (s *lkserver) sessionDeleteValue(w http.ResponseWriter, r *http.Request, ke
 	s.sessionStore.Save(r, w, session)
 }
 
-func (s *lkserver) error(w http.ResponseWriter, code int, err error) {
+func (s *lkserver) error(w http.ResponseWriter, code int, err error, placeholder ...error) bool {
 
+	if err == nil {
+		return false
+	}
+	if len(placeholder) > 0 {
+		err = placeholder[0]
+	}
 	s.respond(w, code, map[string]string{"error": err.Error()})
+	return true
 
 }
 

@@ -14,19 +14,16 @@ func (s *lkserver) handleSessionCreate() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		req := &request{}
 
-		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
-			s.error(w, http.StatusBadRequest, err)
+		if s.error(w, http.StatusBadRequest, json.NewDecoder(r.Body).Decode(req)) {
 			return
 		}
 
 		u, err := s.repo.User.FindUser(req.Iin, req.Pin)
-		if err != nil {
-			s.error(w, http.StatusUnauthorized, err)
+		if s.error(w, http.StatusUnauthorized, err) {
 			return
 		}
 
-		if err := s.sessionAddValue(w, r, "user_iin", u.Iin); err != nil {
-			s.error(w, http.StatusInternalServerError, err)
+		if s.error(w, http.StatusInternalServerError, s.sessionAddValue(w, r, "user_iin", u.Iin)) {
 			return
 		}
 

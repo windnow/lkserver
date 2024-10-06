@@ -129,7 +129,7 @@ func (u *UserRepository) Save(ctx context.Context, user *m.User) error {
 		key = user.Individual.Key
 	}
 
-	return m.HandleError(u.source.ExecContextInTransaction(ctx, insertUserQuery,
+	return m.HandleError(u.source.ExecContextInTransaction(ctx, insertUserQuery, nil,
 		user.Key,
 		key,
 		user.Iin,

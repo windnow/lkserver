@@ -82,8 +82,12 @@ type EducationProvider interface {
 }
 
 type ReportProvider interface {
-	GetTypes(ctx context.Context, codes []string) ([]*reports.ReportTypes, error)
+	GetTransaction(ctx context.Context) (*sql.Tx, error)
+	GetTypes(codes []string) ([]*reports.ReportTypes, error)
 	SaveType(context.Context, *reports.ReportTypes) error
+	Save(tx *sql.Tx, ctx context.Context, report *models.Report) error
+	SaveCoordinators(tx *sql.Tx, ctx context.Context, coordinators []*reports.Coordinators) error
+	SaveDetails(tx *sql.Tx, ctx context.Context, report *models.Report, data any) error
 }
 type ReportDetails interface {
 	Get(ref models.JSONByte, tx ...*sql.Tx) (any, error)

@@ -96,7 +96,7 @@ func (s *sqliteRepo) initRankHistory() error {
 }
 
 func (r *rankHistoryRepo) Save(ctx context.Context, rh *m.RankHistory) error {
-	return m.HandleError(r.source.ExecContextInTransaction(ctx, fmt.Sprintf(`INSERT OR REPLACE INTO %[1]s (date, rank, individual) VALUES (?, ?, ?)`, tabRankHistory),
+	return m.HandleError(r.source.ExecContextInTransaction(ctx, fmt.Sprintf(`INSERT OR REPLACE INTO %[1]s (date, rank, individual) VALUES (?, ?, ?)`, tabRankHistory), nil,
 		time.Time(rh.Date).Unix(), rh.Rank.Key, rh.Individual.Key,
 	), "rankHistoryRepo.Save")
 }

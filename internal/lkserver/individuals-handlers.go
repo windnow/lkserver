@@ -14,13 +14,11 @@ type individuals struct {
 func (s *lkserver) handleIndividualsByIIN() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		iin, err := getParam("iin", r)
-		if err != nil {
-			s.error(w, http.StatusBadRequest, err)
+		if s.error(w, http.StatusBadRequest, err) {
 			return
 		}
 		individ, err := s.repo.Individuals.GetByIin(iin)
-		if err != nil {
-			s.error(w, http.StatusNotFound, err)
+		if s.error(w, http.StatusNotFound, err) {
 			return
 		}
 		LastRank, _ := s.repo.RanksHistory.GetLastByIin(iin)
@@ -39,17 +37,14 @@ func (s *lkserver) handleIndividualsByIIN() http.HandlerFunc {
 func (s *lkserver) handleEducationByIIN() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		iin, err := getParam("iin", r)
-		if err != nil {
-			s.error(w, http.StatusBadRequest, err)
+		if s.error(w, http.StatusBadRequest, err) {
 			return
 		}
 		edu, err := s.repo.Education.GetByIin(iin)
-		if err != nil {
-			s.error(w, http.StatusNotFound, err)
+		if s.error(w, http.StatusNotFound, err) {
 			return
 		}
-		if len(edu) == 0 {
-			s.error(w, http.StatusNotFound, err)
+		if s.error(w, http.StatusNotFound, err) {
 			return
 		}
 

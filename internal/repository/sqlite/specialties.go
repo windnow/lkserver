@@ -72,7 +72,7 @@ func (s *specialties) Save(ctx context.Context, spec *m.Specialties) error {
 		spec.Key = k
 	}
 
-	return m.HandleError(s.source.ExecContextInTransaction(ctx, saveSpecQuery,
+	return m.HandleError(s.source.ExecContextInTransaction(ctx, saveSpecQuery, nil,
 		spec.Key,
 		spec.Title,
 	))
