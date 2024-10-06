@@ -3,7 +3,7 @@ package sqlite
 import (
 	"context"
 	"encoding/json"
-	"lkserver/internal/models"
+	"fmt"
 	m "lkserver/internal/models"
 )
 
@@ -16,16 +16,16 @@ func (r *sqliteRepo) initEducationInstitutions() (err error) {
 		source: r.db,
 	}
 
-	if err := eduRepo.source.Exec(`
-		CREATE TABLE IF NOT EXISTS edu_institutions (
-			guid BLOB PRIMARY KEY,
+	if err := eduRepo.source.Exec(fmt.Sprintf(`
+		CREATE TABLE IF NOT EXISTS %[1]s (
+			ref BLOB PRIMARY KEY,
 			title TEXT
 		)
-	`); err != nil {
+	`, tabInstitutions)); err != nil {
 		return m.HandleError(err, "sqliteRepo.initEducationInstitutions")
 	}
 	var count int64
-	eduRepo.source.db.QueryRow(`select count(*) from edu_institutions`).Scan(&count)
+	eduRepo.source.db.QueryRow(fmt.Sprintf(`select count(*) from %[1]s`, tabInstitutions)).Scan(&count)
 	var eduInst []m.EducationInstitution
 	json.Unmarshal([]byte(mockInstitutions), &eduInst)
 	if count == 0 {
@@ -46,11 +46,11 @@ func (eduRepo *eduInstitutions) Close() {}
 func (i *eduInstitutions) Get(key m.JSONByte) (*m.EducationInstitution, error) {
 
 	institut := &m.EducationInstitution{Key: key}
-	err := i.source.db.QueryRow(`
+	err := i.source.db.QueryRow(fmt.Sprintf(`
 		SELECT title
-		FROM edu_institutions
-		WHERE guid = ? 
-	`, institut.Key).Scan(
+		FROM %[1]s
+		WHERE ref = ? 
+	`, tabInstitutions), institut.Key).Scan(
 		&institut.Title,
 	)
 
@@ -62,7 +62,7 @@ func (i *eduInstitutions) Get(key m.JSONByte) (*m.EducationInstitution, error) {
 
 }
 
-func (eduRepo *eduInstitutions) Save(ctx context.Context, ei *models.EducationInstitution) error {
+func (eduRepo *eduInstitutions) Save(ctx context.Context, ei *m.EducationInstitution) error {
 
 	if ei.Key.Blank() {
 		k, err := m.GenerateUUID()
@@ -78,7 +78,7 @@ func (eduRepo *eduInstitutions) Save(ctx context.Context, ei *models.EducationIn
 	))
 }
 
-var saveQuery string = `INSERT OR REPLACE INTO edu_institutions (guid, title) VALUES (?, ?)`
+var saveQuery string = fmt.Sprintf(`INSERT OR REPLACE INTO %[1]s (ref, title) VALUES (?, ?)`, tabInstitutions)
 var mockInstitutions string = `
 [
     {"key": "521451f0-1c6a-4647-b27d-d2204cd9e992", "title": "РГКП «Актауский государственный университет имени Ш. Есенова»"},

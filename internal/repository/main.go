@@ -2,8 +2,10 @@ package repository
 
 import (
 	"context"
+	"database/sql"
 	"io"
 	"lkserver/internal/models"
+	"lkserver/internal/models/reports"
 )
 
 type Repo struct {
@@ -15,6 +17,7 @@ type Repo struct {
 	EducationInstitution EducationInstitutionProvider
 	Specialties          SpecialtiesProvider
 	Education            EducationProvider
+	Reports              ReportProvider
 }
 
 func (r *Repo) Close() {
@@ -76,4 +79,14 @@ type EducationProvider interface {
 	GetByIin(individIin string) ([]*models.Education, error)
 	Save(ctx context.Context, ei *models.Education) error
 	Close()
+}
+
+type ReportProvider interface {
+	GetTypes(ctx context.Context, codes []string) ([]*reports.ReportTypes, error)
+	SaveType(context.Context, *reports.ReportTypes) error
+}
+type ReportDetails interface {
+	Get(ref models.JSONByte, tx ...*sql.Tx) (any, error)
+	Save(tx *sql.Tx, ctx context.Context, report models.JSONByte, data any) error
+	Init() error
 }

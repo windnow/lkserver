@@ -32,7 +32,7 @@ func (t *JSONTime) UnmarshalJSON(b []byte) error {
 
 	var dateStr string
 	if err := json.Unmarshal(b, &dateStr); err != nil {
-		return HandleError(err)
+		return &Error{err, "JSONTime.UnmarshalJSON"}
 	}
 
 	result, err := ParseTime(dateStr)
@@ -58,11 +58,11 @@ func (t *JSONTime) Scan(value any) error {
 	case string:
 		result, err := ParseTime(v)
 		if err != nil {
-			return HandleError(err, "JSONTime.Scan")
+			return &Error{err, "JSONTime.Scan"}
 		}
 		*t = result
 	default:
-		return HandleError(fmt.Errorf("UNSUPPORTED TYPE FOR JSONTime: %T", v))
+		return &Error{fmt.Errorf("UNSUPPORTED TYPE FOR JSONTime: %T", v), "JSONTime.Scan"}
 	}
 	return nil
 }
@@ -75,7 +75,7 @@ type JSONByte [16]byte
 
 func (uuid JSONByte) MarshalJSON() ([]byte, error) {
 	if len(uuid) != 16 {
-		return nil, HandleError(ErrWrongLength, "JSONByte.MarshalJSON")
+		return nil, &Error{ErrWrongLength, "JSONByte.MarshalJSON"}
 	}
 	uuidStr := uuid.String()
 
@@ -93,7 +93,7 @@ func (uuid JSONByte) String() string {
 
 func (uuid JSONByte) Value() (driver.Value, error) {
 	if len(uuid) != 16 {
-		return nil, HandleError(ErrWrongLength, "JSONByte.Value")
+		return nil, &Error{ErrWrongLength, "JSONByte.Value"}
 	}
 	return uuid[:], nil
 }
@@ -101,10 +101,10 @@ func (uuid JSONByte) Value() (driver.Value, error) {
 func (uuid *JSONByte) Scan(src any) error {
 	b, ok := src.([]byte)
 	if !ok {
-		return fmt.Errorf("cannot scan nonbyte value into JSONByte value")
+		return &Error{fmt.Errorf("cannot scan nonbyte value into JSONByte value"), "JSONByte.Scan"}
 	}
 	if len(b) != 16 {
-		return fmt.Errorf("wrong GUID length: expected 16 bytes, got %d", len(b))
+		return &Error{fmt.Errorf("wrong GUID length: expected 16 bytes, got %d", len(b)), "JSONByte.Scan"}
 	}
 	copy(uuid[:], b)
 	return nil
@@ -112,19 +112,19 @@ func (uuid *JSONByte) Scan(src any) error {
 func (uuid *JSONByte) UnmarshalJSON(data []byte) error {
 	var uuidStr string
 	if err := json.Unmarshal(data, &uuidStr); err != nil {
-		return HandleError(err, "JSONByte.UnmarsharJSON")
+		return &Error{err, "JSONByte.UnmarsharJSON"}
 	}
 
 	re := regexp.MustCompile("^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$")
 	if !re.MatchString(uuidStr) {
-		return HandleError(errors.ErrUnsupported, "JSONByte.UnmarsharJSON")
+		return &Error{errors.ErrUnsupported, "JSONByte.UnmarsharJSON"}
 
 	}
 
 	noDashes := uuidStr[0:8] + uuidStr[9:13] + uuidStr[14:18] + uuidStr[19:23] + uuidStr[24:]
 	parsedUUID, err := hex.DecodeString(noDashes)
 	if err != nil {
-		return HandleError(err, "JSONByte.UnmarsharJSON")
+		return &Error{err, "JSONByte.UnmarsharJSON"}
 	}
 	*uuid = JSONByte(parsedUUID)
 

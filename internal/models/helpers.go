@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"lkserver/internal/lkserver/config"
+	"strings"
 	"time"
 )
 
@@ -16,22 +17,43 @@ func handleQueryError(err error) error {
 	return err
 }
 
-func HandleError(err error, text ...string) error {
-	if err == nil {
-		return err
-	}
-	err = handleQueryError(err)
-	var resultStr string
-	for _, str := range text {
-		resultStr += str
-	}
-	return fmt.Errorf("%w\n%s", err, resultStr)
+type Error struct {
+	Err         error
+	Description string
 }
+
+func (e *Error) Error() string {
+	if e.Description == "" {
+		return e.Err.Error()
+	}
+
+	return fmt.Sprintf("%s: %v", e.Description, e.Err)
+}
+
+func (e *Error) Unwrap() error {
+	return e.Err
+}
+
+func HandleError(err error, description ...string) error {
+	if err == nil {
+		return nil
+	}
+	var desc string
+	if len(description) > 0 {
+		desc = strings.Join(description, ", ")
+	}
+
+	return &Error{
+		Err:         fmt.Errorf("%w", err),
+		Description: desc,
+	}
+}
+
 func GenerateUUID() (JSONByte, error) {
 	uuid := make([]byte, 16)
 	_, err := rand.Read(uuid)
 	if err != nil {
-		return JSONByte{}, HandleError(err, "GenerageUUID")
+		return JSONByte{}, &Error{err, "GenerageUUID"}
 	}
 
 	// Устанавливаем версию (4) и вариант UUID

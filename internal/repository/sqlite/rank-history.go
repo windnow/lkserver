@@ -46,26 +46,30 @@ func (s *sqliteRepo) initRankHistory() error {
 		repo:   s,
 	}
 
-	err := rh.source.Exec(`
-		CREATE TABLE IF NOT EXISTS rank_history (
+	err := rh.source.Exec(fmt.Sprintf(`
+		CREATE TABLE IF NOT EXISTS %[1]s (
 			date INTEGER,
 			rank BLOB,
-			individual BLOB
-		)
-	`)
+			individual BLOB,
+
+			FOREIGN KEY (rank) REFERENCES %[2]s(ref),
+			FOREIGN KEY (individual) REFERENCES %[3]s(ref)
+		);
+
+		CREATE INDEX IF NOT EXISTS idx_%[1]s_date ON %[1]s(date);
+		CREATE INDEX IF NOT EXISTS idx_%[1]s_individ ON %[1]s(individual);
+	`, tabRankHistory, tabRanks, tabIndividuals))
 	if err != nil {
 		return m.HandleError(err, "sqliteRepo.initRankHistory")
 	}
 	err = rh.source.Exec(`
-		CREATE INDEX IF NOT EXISTS idx_rank_history_date ON rank_history(date);
-		CREATE INDEX IF NOT EXISTS idx_rank_history_individ ON rank_history(individual);
 	`)
 	if err != nil {
 		return m.HandleError(err, "sqliteRepo.initRankHistory")
 	}
 
 	var count int64
-	rh.source.db.QueryRow(`select count(*) from rank_history`).Scan(&count)
+	rh.source.db.QueryRow(fmt.Sprintf(`select count(*) from %[1]s`, tabRankHistory)).Scan(&count)
 	if count == 0 {
 		var result *[]draftRH
 		if err := json.Unmarshal([]byte(mockData), &result); err != nil {
@@ -92,7 +96,7 @@ func (s *sqliteRepo) initRankHistory() error {
 }
 
 func (r *rankHistoryRepo) Save(ctx context.Context, rh *m.RankHistory) error {
-	return m.HandleError(r.source.ExecContextInTransaction(ctx, `INSERT OR REPLACE INTO rank_history (date, rank, individual) VALUES (?, ?, ?)`,
+	return m.HandleError(r.source.ExecContextInTransaction(ctx, fmt.Sprintf(`INSERT OR REPLACE INTO %[1]s (date, rank, individual) VALUES (?, ?, ?)`, tabRankHistory),
 		time.Time(rh.Date).Unix(), rh.Rank.Key, rh.Individual.Key,
 	), "rankHistoryRepo.Save")
 }
@@ -138,7 +142,7 @@ func (r *rankHistoryRepo) GetLastByIin(individIin string) (*m.RankHistory, error
 
 func (r *rankHistoryRepo) GetHistory(ctx context.Context, individ *m.Individuals) ([]*m.RankHistory, error) {
 
-	rows, err := r.source.db.QueryContext(ctx, "SELECT date, rank FROM rank_history WHERE individual = ?", individ.Key)
+	rows, err := r.source.db.QueryContext(ctx, fmt.Sprintf("SELECT date, rank FROM %[1]s WHERE individual = ?", tabRankHistory), individ.Key)
 	if err != nil {
 		return nil, m.HandleError(err, "rankHistoryRepo.getHistory")
 	}

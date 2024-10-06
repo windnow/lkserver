@@ -15,17 +15,17 @@ func (s *sqliteRepo) initRankRepo() error {
 	r := &rankRepo{
 		source: s.db,
 	}
-	if err := r.source.Exec(`
-		CREATE TABLE IF NOT EXISTS ranks(
-			guid BLOB PRIMARY KEY,
+	if err := r.source.Exec(fmt.Sprintf(`
+		CREATE TABLE IF NOT EXISTS %[1]s(
+			ref BLOB PRIMARY KEY,
 			name TEXT
 		)
-	`); err != nil {
+	`, tabRanks)); err != nil {
 		return m.HandleError(err, "initRankRepo")
 	}
 
 	var count int64
-	r.source.db.QueryRow(`select count(*) from ranks`).Scan(&count)
+	r.source.db.QueryRow(fmt.Sprintf(`select count(*) from %[1]s`, tabRanks)).Scan(&count)
 	var ranks []m.Rank
 	if err := json.Unmarshal([]byte(rankMock), &ranks); err != nil {
 		return m.HandleError(err, "initRankRepo")
@@ -50,9 +50,9 @@ func (s *sqliteRepo) initRankRepo() error {
 func (r *rankRepo) Get(key m.JSONByte) (*m.Rank, error) {
 
 	rank := &m.Rank{Key: key}
-	err := r.source.db.QueryRow(`
-		SELECT name from ranks WHERE guid = ?	
-	`, key).Scan(&rank.Name)
+	err := r.source.db.QueryRow(fmt.Sprintf(`
+		SELECT name from %[1]s WHERE ref = ?	
+	`, tabRanks), key).Scan(&rank.Name)
 	if err != nil {
 		value := fmt.Sprint(key)
 		return nil, m.HandleError(err, "rankRepo.Get ", value)
@@ -64,7 +64,7 @@ func (r *rankRepo) Get(key m.JSONByte) (*m.Rank, error) {
 
 func (r *rankRepo) Save(ctx context.Context, rank *m.Rank) error {
 
-	return m.HandleError(r.source.ExecContextInTransaction(ctx, `INSERT OR REPLACE INTO ranks(guid, name) VALUES (?, ?)`,
+	return m.HandleError(r.source.ExecContextInTransaction(ctx, fmt.Sprintf(`INSERT OR REPLACE INTO %[1]s(ref, name) VALUES (?, ?)`, tabRanks),
 		rank.Key,
 		rank.Name,
 	), "rankRepo.Save")
