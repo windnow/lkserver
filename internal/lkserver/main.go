@@ -94,8 +94,9 @@ func (s *lkserver) configureRouter() {
 	private.HandleFunc("/ind/{iin}", s.handleIndividualsByIIN()).Methods("GET")
 	private.HandleFunc("/edu/{iin}", s.handleEducationByIIN()).Methods("GET")
 
-	// reports
-	private.HandleFunc("/reports/types", s.handleGetReportTypes()).Methods("GET")
+	reports := private.PathPrefix("/reports").Subrouter()
+	reports.HandleFunc("/types", s.handleGetReportTypes()).Methods("GET")
+	reports.HandleFunc("/save", s.handleSaveReport()).Methods("POST")
 
 	s.router.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, s.config.StaticFilesPath+"/index.html")

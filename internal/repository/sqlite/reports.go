@@ -7,6 +7,7 @@ import (
 	m "lkserver/internal/models"
 	"lkserver/internal/models/reports"
 	"lkserver/internal/repository"
+	"time"
 )
 
 type reportFactory struct {
@@ -89,10 +90,10 @@ func (repo *reportsRepo) Save(tx *sql.Tx, ctx context.Context, report *m.Report)
 		report.Ref = guid
 	}
 
-	return m.HandleError(repo.source.ExecContextInTransaction(ctx, saveRepoQuery, nil,
+	return m.HandleError(repo.source.ExecContextInTransaction(ctx, saveReportQuery, nil,
 		report.Ref,
 		report.Type,
-		report.Date,
+		time.Time(report.Date).Unix(),
 		report.Number,
 		report.RegNumber,
 		report.Author,
@@ -113,9 +114,9 @@ func (repo *reportsRepo) SaveCoordinators(tx *sql.Tx, ctx context.Context, coord
 		placeholders = append(placeholders, "(?, ?, ?, ?, ?)")
 		values = append(values, c.Ref, c.ReportRef, c.CoordinatorRef, c.WhoAuthor, c.WhenAdded)
 	}
-	query += fmt.Sprintf("%s;", placeholders[0])
+	query += fmt.Sprintf("%s", placeholders[0])
 	for i := 1; i < len(placeholders); i++ {
-		query += fmt.Sprintf(" %s,", placeholders[i])
+		query += fmt.Sprintf(",%s", placeholders[i])
 	}
 
 	_, err := tx.ExecContext(ctx, query, values...)
@@ -126,6 +127,17 @@ func (repo *reportsRepo) SaveCoordinators(tx *sql.Tx, ctx context.Context, coord
 	return nil
 
 }
+
+func (repo *reportsRepo) GetStructure(reportType string) (interface{}, error) {
+
+	processor, err := repo.factory.GetReportProcessor(reportType)
+	if err != nil {
+		return nil, err
+	}
+
+	return processor.GetStructure(), nil
+}
+
 func (repo *reportsRepo) SaveDetails(tx *sql.Tx, ctx context.Context, report *m.Report, data any) error {
 
 	reportType, err := repo.GetTypeCode(report.Ref)
@@ -161,8 +173,8 @@ func InitReports(repo *reportsRepo) error {
 	return nil
 }
 
-var saveRepoQuery = `
+var saveReportQuery = fmt.Sprintf(`
     INSERT OR REPLACE INTO %[1]s (
         ref, type, date, number, reg_number, author	 
-	) VALUES (?, ?, ?, ?, ?)
-`
+	) VALUES (?, ?, ?, ?, ?, ?)
+`, tabReport)

@@ -17,6 +17,11 @@ type DepartureOnBusinessTrip struct {
 	source *src
 }
 
+func (r *DepartureOnBusinessTrip) GetStructure() interface{} {
+	return &reports.ReportData{Details: &reports.BussinesTripDetails{}}
+
+}
+
 func (r *DepartureOnBusinessTrip) Get(ref m.JSONByte, tx ...*sql.Tx) (any, error) {
 	details := &reports.BussinesTripDetails{}
 	query := fmt.Sprintf(`

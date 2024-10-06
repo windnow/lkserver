@@ -6,7 +6,7 @@ import (
 )
 
 type ReportData struct {
-	Head         *models.Report
-	Coordinators []*reports.Coordinators
-	Details      any
+	Head         *models.Report          `json:"head"`
+	Coordinators []*reports.Coordinators `json:"coordinators"`
+	Details      any                     `json:"details"`
 }
