@@ -3,18 +3,21 @@ package sqlite
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"fmt"
 	m "lkserver/internal/models"
 	"lkserver/internal/models/reports"
 )
 
 var (
-	ErrWrongType = fmt.Errorf("Invalid report data type")
+	ErrWrongType = fmt.Errorf("INVALID REPORT DATA TYPE")
 )
 
 type DepartureOnBusinessTrip struct {
 	source *src
+}
+
+func (r *DepartureOnBusinessTrip) GetStructure() interface{} {
+	return &reports.ReportData{Details: &reports.BussinesTripDetails{}}
 }
 
 func (r *DepartureOnBusinessTrip) Get(ref m.JSONByte, tx ...*sql.Tx) (any, error) {
@@ -51,12 +54,17 @@ func (r *DepartureOnBusinessTrip) Save(tx *sql.Tx, ctx context.Context, report m
 	) VALUES (?, ?, ?, ?, ?)
 	`, tabBusinessTrip)
 
-	_, err := tx.ExecContext(ctx, query, report,
-		details.Supervisor)
+	_, err := tx.ExecContext(ctx, query,
+		report,
+		details.Supervisor,
+		details.ActingSupervisor,
+		details.Basis,
+		details.TransportType,
+	)
 	if err != nil {
-		m.HandleError(ErrWrongType, "DepartureOnBusinessTrip.Save")
+		return m.HandleError(err, "DepartureOnBusinessTrip.Save")
 	}
-	return errors.ErrUnsupported
+	return nil
 }
 func (r *DepartureOnBusinessTrip) Init() error {
 
@@ -77,7 +85,7 @@ func (r *DepartureOnBusinessTrip) Init() error {
 
 	err := r.source.Exec(query)
 	if err != nil {
-		return m.HandleError(err, "sqliteRepo.initEducation")
+		return m.HandleError(err, "DepartureOnBusinessTrip.Init")
 	}
 	return nil
 }

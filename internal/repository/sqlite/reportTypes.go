@@ -30,7 +30,7 @@ func InitReportTypes(repo *reportsRepo) error {
 		return m.HandleError(err, "sqliteRepo.InitReportTypes")
 	}
 	ctx := context.Background()
-	dbTypes, err := repo.GetTypes(ctx, []string{"УбытиеВСлужебнКомандировку"})
+	dbTypes, err := repo.GetTypes([]string{"УбытиеВСлужебнКомандировку"})
 	if err != nil {
 		return m.HandleError(err, "sqliteRepo.InitReportTypes")
 	}
@@ -53,7 +53,18 @@ func InitReportTypes(repo *reportsRepo) error {
 
 }
 
-func (repo *reportsRepo) GetTypes(ctx context.Context, types []string) ([]*r.ReportTypes, error) {
+func (r *reportsRepo) GetTypeCode(guid m.JSONByte) (string, error) {
+
+	var result string
+	if err := r.source.db.QueryRow(fmt.Sprintf("select code from %[1]s WHERE ref = ?", tabReportType), guid).Scan(&result); err != nil {
+		return "", err
+	}
+
+	return result, nil
+
+}
+
+func (repo *reportsRepo) GetTypes(types []string) ([]*r.ReportTypes, error) {
 
 	var conditions = ""
 	var args []any
@@ -68,7 +79,7 @@ func (repo *reportsRepo) GetTypes(ctx context.Context, types []string) ([]*r.Rep
 		conditions = fmt.Sprintf(` WHERE code in(%s)`, strings.Join(placeholders, ", "))
 	}
 
-	rows, err := repo.source.db.QueryContext(ctx, fmt.Sprintf(`SELECT ref, parent, code, title from %[1]s%[2]s`, tabReportType, conditions), args...)
+	rows, err := repo.source.db.Query(fmt.Sprintf(`SELECT ref, parent, code, title from %[1]s%[2]s`, tabReportType, conditions), args...)
 	if err != nil {
 		return nil, m.HandleError(err, "reportsRepo.GetTypes")
 	}
@@ -101,8 +112,7 @@ func (repo *reportsRepo) SaveType(ctx context.Context, rt *r.ReportTypes) error 
 	}
 
 	return m.HandleError(repo.source.ExecContextInTransaction(ctx,
-		fmt.Sprintf(`INSERT OR REPLACE INTO %[1]s (ref, parent, code, title) VALUES (?, ?, ?, ?)`, tabReportType),
-
+		fmt.Sprintf(`INSERT OR REPLACE INTO %[1]s (ref, parent, code, title) VALUES (?, ?, ?, ?)`, tabReportType), nil,
 		rt.Ref,
 		rt.ParentRef,
 		rt.Code,

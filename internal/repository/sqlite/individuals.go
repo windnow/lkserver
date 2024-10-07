@@ -134,7 +134,7 @@ func (i *individualsRepo) GetByIin(iin string) (*m.Individuals, error) {
 
 func (i *individualsRepo) Save(ctx context.Context, individ *m.Individuals) error {
 
-	return i.source.ExecContextInTransaction(ctx, insertIndividQuery,
+	return i.source.ExecContextInTransaction(ctx, insertIndividQuery, nil,
 		individ.Key,
 		individ.IndividualNumber,
 		individ.Code,

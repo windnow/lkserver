@@ -4,6 +4,7 @@ import (
 	"errors"
 	"lkserver/internal/lkserver/config"
 	"lkserver/internal/repository"
+	"lkserver/internal/services"
 	"log"
 	"net/http"
 
@@ -17,12 +18,13 @@ var errUnautorized = errors.New("NOT AUTORIZED")
 var errNotFound = errors.New("NOT Found")
 
 type lkserver struct {
-	repo         *repository.Repo
-	fileStore    repository.FileProvider
-	router       *mux.Router
-	config       *config.Config
-	logger       *logrus.Logger
-	sessionStore sessions.Store
+	repo           *repository.Repo
+	reportsService *services.ReportService
+	fileStore      repository.FileProvider
+	router         *mux.Router
+	config         *config.Config
+	logger         *logrus.Logger
+	sessionStore   sessions.Store
 }
 
 func (s *lkserver) Start() error {
@@ -39,12 +41,13 @@ func New(r *repository.Repo, fileStore repository.FileProvider, config *config.C
 	sessionStore.Options.MaxAge = config.SessionMaxAge
 
 	s := &lkserver{
-		config:       config,
-		repo:         r,
-		fileStore:    fileStore,
-		logger:       logger,
-		sessionStore: sessionStore,
-		router:       mux.NewRouter(),
+		config:         config,
+		repo:           r,
+		fileStore:      fileStore,
+		logger:         logger,
+		sessionStore:   sessionStore,
+		router:         mux.NewRouter(),
+		reportsService: services.NewReportService(r),
 	}
 	s.configureRouter()
 	return s
@@ -90,6 +93,12 @@ func (s *lkserver) configureRouter() {
 	private.HandleFunc("/file/{id}", s.handleFile()).Methods("GET")
 	private.HandleFunc("/ind/{iin}", s.handleIndividualsByIIN()).Methods("GET")
 	private.HandleFunc("/edu/{iin}", s.handleEducationByIIN()).Methods("GET")
+
+	reports := private.PathPrefix("/reports").Subrouter()
+	reports.HandleFunc("/types", s.handleGetReportTypes()).Methods("GET")
+	reports.HandleFunc("/{type}/save", s.handleSaveReport()).Methods("POST")
+	reports.HandleFunc("/", s.handleReportsList()).Methods("GET") //  Список рапортов текущего пользователя х
+	reports.HandleFunc("/approvals", nil).Methods("GET")          // Список рапортов для согласования
 
 	s.router.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, s.config.StaticFilesPath+"/index.html")

@@ -72,7 +72,7 @@ func (eduRepo *eduInstitutions) Save(ctx context.Context, ei *m.EducationInstitu
 		ei.Key = k
 	}
 
-	return m.HandleError(eduRepo.source.ExecContextInTransaction(ctx, saveQuery,
+	return m.HandleError(eduRepo.source.ExecContextInTransaction(ctx, saveQuery, nil,
 		ei.Key,
 		ei.Title,
 	))

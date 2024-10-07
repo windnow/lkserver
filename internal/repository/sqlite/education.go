@@ -113,7 +113,7 @@ func (e *education) Get(ctx context.Context, individ *m.Individuals) ([]*m.Educa
 }
 
 func (e *education) Save(ctx context.Context, edu *m.Education) error {
-	return m.HandleError(e.source.ExecContextInTransaction(ctx, insertEduQuery,
+	return m.HandleError(e.source.ExecContextInTransaction(ctx, insertEduQuery, nil,
 		edu.Individual.Key,
 		edu.EducationInstitution.Key,
 		edu.YearOfCompletion,

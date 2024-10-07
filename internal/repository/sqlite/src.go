@@ -29,25 +29,40 @@ func newDB(file string) (*src, error) {
 
 }
 
-func (s *src) ExecContextInTransaction(ctx context.Context, query string, args ...any) error {
-	tx, err := s.db.BeginTx(ctx, nil)
-	if err != nil {
-		return err
+func (s *src) ExecContextInTransaction(ctx context.Context, query string, tx *sql.Tx, args ...any) error {
+	var err error
+	localTx := false
+	if tx == nil {
+		tx, err = s.db.BeginTx(ctx, nil)
+		if err != nil {
+			return err
+		}
+		localTx = true
 	}
+	defer func() {
+		if localTx {
+			tx.Rollback()
+		}
+	}()
 	_, err = tx.ExecContext(ctx,
 		query,
 		args...)
 	if err != nil {
-		tx.Rollback()
+		if localTx {
+			tx.Rollback()
+		}
 		return m.HandleError(err, "src.ExecContextInTransaction")
 	}
-	select {
-	case <-ctx.Done():
-		tx.Rollback()
-		return m.HandleError(ctx.Err(), "src.ExecContextInTransaction")
-	default:
-		return m.HandleError(tx.Commit(), "src.ExecContextInTransaction")
+	if localTx {
+		select {
+		case <-ctx.Done():
+			tx.Rollback()
+			return m.HandleError(ctx.Err(), "src.ExecContextInTransaction")
+		default:
+			return m.HandleError(tx.Commit(), "src.ExecContextInTransaction")
+		}
 	}
+	return nil
 }
 
 func (s *src) Exec(query string, args ...any) error {
