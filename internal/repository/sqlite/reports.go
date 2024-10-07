@@ -151,6 +151,26 @@ func (repo *reportsRepo) SaveDetails(tx *sql.Tx, ctx context.Context, report *m.
 
 	return nil
 }
+
+func (repo *reportsRepo) List(ctx context.Context, userKey m.JSONByte) ([]*m.Report, error) {
+
+	query := fmt.Sprintf("SELECT ref, type, date, number, reg_number, author FROM %[1]s WHERE author = ?", tabReport)
+
+	rows, err := repo.source.db.QueryContext(ctx, query, userKey)
+	if err != nil {
+		return nil, err
+	}
+	var result []*m.Report
+	for rows.Next() {
+		report := &m.Report{}
+		if err = rows.Scan(&report.Ref, &report.Type, &report.Date, &report.Number, &report.RegNumber, &report.Author); err != nil {
+			return nil, err
+		}
+		result = append(result, report)
+	}
+
+	return result, nil
+}
 func InitReports(repo *reportsRepo) error {
 	query := fmt.Sprintf(`
 		CREATE TABLE IF NOT EXISTS %[1]s (

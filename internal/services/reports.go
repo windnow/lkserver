@@ -28,11 +28,26 @@ func (s *ReportService) GetStructure(reportType string) (interface{}, error) {
 	return s.reports.GetStructure(reportType)
 }
 
+func getContextUser(ctx context.Context) (*models.User, error) {
+
+	user, ok := ctx.Value(models.CtxKey("user")).(*models.User)
+	if !ok {
+		return nil, errors.New("ERROR ON GET USER")
+	}
+
+	return user, nil
+
+}
+
 func (s *ReportService) Save(ctx context.Context, data interface{}) error {
 
 	reportData, ok := data.(*reports.ReportData)
 	if !ok {
 		return fmt.Errorf("INCORRECT DATA STRUCTURE")
+	}
+	user, err := getContextUser(ctx)
+	if err != nil {
+		return err
 	}
 
 	tx, err := s.reports.GetTransaction(ctx)
@@ -52,11 +67,6 @@ func (s *ReportService) Save(ctx context.Context, data interface{}) error {
 	err = s.reports.Save(tx, ctx, reportData.Head)
 	if err != nil {
 		return err
-	}
-
-	user, ok := ctx.Value("user").(*models.User)
-	if !ok {
-		return errors.New("ERROR ON GET USER")
 	}
 
 	for _, coordinator := range reportData.Coordinators {
@@ -98,5 +108,18 @@ func (s *ReportService) Save(ctx context.Context, data interface{}) error {
 	}
 
 	return errors.ErrUnsupported
+}
 
+func (s *ReportService) List(ctx context.Context) ([]*models.Report, error) {
+	user, err := getContextUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	reports, err := s.reports.List(ctx, user.Key)
+	if err != nil {
+		return nil, err
+	}
+
+	return reports, nil
 }

@@ -6,6 +6,8 @@ import (
 	"errors"
 	"lkserver/internal/models"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 func (s *lkserver) handleGetReportTypes() http.HandlerFunc {
@@ -29,14 +31,15 @@ func (s *lkserver) handleGetReportTypes() http.HandlerFunc {
 
 func (s *lkserver) handleSaveReport() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		reportType := r.Header.Get("X-Report-Type")
-		user, err := s.getSessionUser(w, r)
-		if s.error(w, http.StatusBadRequest, err) {
+		vars := mux.Vars(r)
+		reportType := vars["type"]
+		if reportType == "" {
+			s.error(w, http.StatusBadRequest, errors.New("MISSING REPORT TYPE"))
 			return
 		}
-		ctx := context.WithValue(r.Context(), "user", user)
-		if reportType == "" {
-			s.error(w, http.StatusBadRequest, errors.New("MISSING REPORT TYPE (X-Report-Type)"))
+
+		ctx, err := s.getUserContext(w, r)
+		if s.error(w, http.StatusBadRequest, err) {
 			return
 		}
 
@@ -55,4 +58,20 @@ func (s *lkserver) handleSaveReport() http.HandlerFunc {
 		s.respond(w, http.StatusAccepted, incomingData)
 
 	}
+}
+
+func (s *lkserver) handleReportsList() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+	}
+}
+
+func (s *lkserver) getUserContext(w http.ResponseWriter, r *http.Request) (context.Context, error) {
+	user, err := s.getSessionUser(w, r)
+	if err != nil {
+		return nil, err
+	}
+	ctx := context.WithValue(r.Context(), models.CtxKey("user"), user)
+
+	return ctx, nil
 }

@@ -89,6 +89,7 @@ type ReportProvider interface {
 	SaveCoordinators(tx *sql.Tx, ctx context.Context, coordinators []*reports.Coordinators) error
 	SaveDetails(tx *sql.Tx, ctx context.Context, report *models.Report, data any) error
 	GetStructure(reportType string) (interface{}, error)
+	List(context.Context, models.JSONByte) ([]*models.Report, error)
 }
 type ReportDetails interface {
 	Get(ref models.JSONByte, tx ...*sql.Tx) (any, error)

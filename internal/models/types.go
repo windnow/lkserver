@@ -11,6 +11,8 @@ import (
 	"time"
 )
 
+type CtxKey string
+
 type JSONTime time.Time
 
 var (
