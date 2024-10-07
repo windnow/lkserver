@@ -114,7 +114,7 @@ func (repo *reportsRepo) SaveCoordinators(tx *sql.Tx, ctx context.Context, coord
 		placeholders = append(placeholders, "(?, ?, ?, ?, ?)")
 		values = append(values, c.Ref, c.ReportRef, c.CoordinatorRef, c.WhoAuthor, c.WhenAdded)
 	}
-	query += fmt.Sprintf("%s", placeholders[0])
+	query += placeholders[0] //fmt.Sprintf("%s", placeholders[0])
 	for i := 1; i < len(placeholders); i++ {
 		query += fmt.Sprintf(",%s", placeholders[i])
 	}
@@ -125,7 +125,6 @@ func (repo *reportsRepo) SaveCoordinators(tx *sql.Tx, ctx context.Context, coord
 	}
 
 	return nil
-
 }
 
 func (repo *reportsRepo) GetStructure(reportType string) (interface{}, error) {

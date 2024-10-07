@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	ErrWrongType = fmt.Errorf("Invalid report data type")
+	ErrWrongType = fmt.Errorf("INVALID REPORT DATA TYPE")
 )
 
 type DepartureOnBusinessTrip struct {
@@ -19,7 +19,6 @@ type DepartureOnBusinessTrip struct {
 
 func (r *DepartureOnBusinessTrip) GetStructure() interface{} {
 	return &reports.ReportData{Details: &reports.BussinesTripDetails{}}
-
 }
 
 func (r *DepartureOnBusinessTrip) Get(ref m.JSONByte, tx ...*sql.Tx) (any, error) {

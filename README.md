@@ -100,3 +100,28 @@ curl -b cookie.txt --request GET http://localhost:8080/i/ind/821019000888 | pyth
 }
 
 ```
+
+**Создание рапорта**
+```
+curl -b cookie.txt -H "Content-Type: application/json" -H "X-Report-Type: 0001" --data @mockData.json http://localhost:8080/i/reports/save
+```
+
+**Содержимое `mockData.json`**
+
+```json
+{
+  "head": {
+    "type": "fcf8e381-ea56-43ea-a83f-c2059a3aa329",
+    "date": "2024.10.06 18:06:00"
+  },
+  "coordinators": [
+    {"coordinator_ref": "8c272f7c-6c2c-4dba-bba5-4062005b2400"},
+    {"coordinator_ref": "f31c6a0f-b07c-4632-8949-2f24fde4fc26"}
+  ],
+  "details": {
+    "supervisor": "19db2753-68f9-4b5d-998a-727e347a958a",
+    "basis": "Распоряжение руководства",
+    "transport_type": "Железная дорога"
+  }
+}
+```
