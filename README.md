@@ -103,7 +103,7 @@ curl -b cookie.txt --request GET http://localhost:8080/i/ind/821019000888 | pyth
 
 **Создание рапорта**
 ```
-curl -b cookie.txt -H "Content-Type: application/json" -H "X-Report-Type: 0001" --data @mockData.json http://localhost:8080/i/reports/save
+curl -b cookie.txt --data @mockData.json http://localhost:8080/i/reports/0001/save
 ```
 
 **Содержимое `mockData.json`**
