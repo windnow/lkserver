@@ -112,7 +112,7 @@ func (repo *reportsRepo) SaveCoordinators(tx *sql.Tx, ctx context.Context, coord
 
 	for _, c := range coordinators {
 		placeholders = append(placeholders, "(?, ?, ?, ?, ?)")
-		values = append(values, c.Ref, c.ReportRef, c.CoordinatorRef, c.WhoAuthor, c.WhenAdded)
+		values = append(values, c.Ref, c.ReportRef, c.CoordinatorRef, c.WhoAuthor, time.Time(c.WhenAdded).Unix())
 	}
 	query += placeholders[0] //fmt.Sprintf("%s", placeholders[0])
 	for i := 1; i < len(placeholders); i++ {

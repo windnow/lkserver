@@ -38,7 +38,7 @@ func (s *lkserver) handleSaveReport() http.HandlerFunc {
 			return
 		}
 
-		ctx, err := s.getUserContext(w, r)
+		ctx, err := s.setUserContext(w, r)
 		if s.error(w, http.StatusBadRequest, err) {
 			return
 		}
@@ -62,11 +62,22 @@ func (s *lkserver) handleSaveReport() http.HandlerFunc {
 
 func (s *lkserver) handleReportsList() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		ctx, err := s.setUserContext(w, r)
+		if s.error(w, http.StatusBadRequest, err) {
+			return
+		}
+
+		list, err := s.reportsService.List(ctx)
+		if s.error(w, http.StatusInternalServerError, err) {
+			return
+		}
+
+		s.respond(w, http.StatusOK, list)
 
 	}
 }
 
-func (s *lkserver) getUserContext(w http.ResponseWriter, r *http.Request) (context.Context, error) {
+func (s *lkserver) setUserContext(w http.ResponseWriter, r *http.Request) (context.Context, error) {
 	user, err := s.getSessionUser(w, r)
 	if err != nil {
 		return nil, err

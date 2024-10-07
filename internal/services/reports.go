@@ -79,7 +79,10 @@ func (s *ReportService) Save(ctx context.Context, reportType string, data interf
 	if err != nil {
 		return err
 	}
-	proc.Check(data)
+
+	if err := proc.Check(data); err != nil {
+		return err
+	}
 
 	user, err := getContextUser(ctx)
 	if err != nil {
@@ -149,7 +152,7 @@ func (s *ReportService) Save(ctx context.Context, reportType string, data interf
 		}
 	}
 
-	return errors.ErrUnsupported
+	return nil
 }
 
 func (s *ReportService) List(ctx context.Context) ([]*models.Report, error) {
