@@ -56,8 +56,8 @@ func InitReportTypes(repo *reportsRepo) error {
 func (r *reportsRepo) GetTypeCode(guid m.JSONByte) (string, error) {
 
 	var result string
-	if err := r.source.db.QueryRow(fmt.Sprintf("select code from %[1]s", tabReportType)).Scan(&result); err != nil {
-		return "", nil
+	if err := r.source.db.QueryRow(fmt.Sprintf("select code from %[1]s WHERE ref = ?", tabReportType), guid).Scan(&result); err != nil {
+		return "", err
 	}
 
 	return result, nil

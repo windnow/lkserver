@@ -119,7 +119,7 @@ curl -b cookie.txt -H "Content-Type: application/json" -H "X-Report-Type: 0001" 
     {"coordinator_ref": "f31c6a0f-b07c-4632-8949-2f24fde4fc26"}
   ],
   "details": {
-    "supervisor": "19db2753-68f9-4b5d-998a-727e347a958a",
+    "supervisor": "f31c6a0f-b07c-4632-8949-2f24fde4fc26",
     "basis": "Распоряжение руководства",
     "transport_type": "Железная дорога"
   }

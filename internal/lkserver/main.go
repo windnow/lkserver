@@ -96,7 +96,7 @@ func (s *lkserver) configureRouter() {
 
 	reports := private.PathPrefix("/reports").Subrouter()
 	reports.HandleFunc("/types", s.handleGetReportTypes()).Methods("GET")
-	reports.HandleFunc("/save", s.handleSaveReport()).Methods("POST")
+	reports.HandleFunc("/{type}/save", s.handleSaveReport()).Methods("POST")
 	reports.HandleFunc("/", s.handleReportsList()).Methods("GET") //  Список рапортов текущего пользователя х
 	reports.HandleFunc("/approvals", nil).Methods("GET")          // Список рапортов для согласования
 

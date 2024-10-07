@@ -97,6 +97,9 @@ func (uuid JSONByte) Value() (driver.Value, error) {
 	if len(uuid) != 16 {
 		return nil, &Error{ErrWrongLength, "JSONByte.Value"}
 	}
+	if uuid.Blank() {
+		return nil, nil
+	}
 	return uuid[:], nil
 }
 

@@ -10,13 +10,42 @@ import (
 	"time"
 )
 
+type ReportProcessor interface {
+	Check(any) error
+}
+
+type processorsFactory struct {
+	processorsMap map[string]ReportProcessor
+}
+
 type ReportService struct {
-	reports repository.ReportProvider
+	reports    repository.ReportProvider
+	processors processorsFactory
+}
+
+func (f *processorsFactory) GetProcessor(reportType string) (ReportProcessor, error) {
+
+	proc, ok := f.processorsMap[reportType]
+	if !ok {
+		return nil, fmt.Errorf("НЕ ОБНАРУЖЕН ОБРАБОТЧИК (%s)", reportType)
+	}
+
+	return proc, nil
+
+}
+
+func NewProcessors() processorsFactory {
+	return processorsFactory{
+		processorsMap: map[string]ReportProcessor{
+			"0001": &porocessorBusinesTrip{},
+		},
+	}
 }
 
 func NewReportService(repo *repository.Repo) *ReportService {
 	return &ReportService{
-		reports: repo.Reports,
+		reports:    repo.Reports,
+		processors: NewProcessors(),
 	}
 }
 
@@ -39,12 +68,19 @@ func getContextUser(ctx context.Context) (*models.User, error) {
 
 }
 
-func (s *ReportService) Save(ctx context.Context, data interface{}) error {
+func (s *ReportService) Save(ctx context.Context, reportType string, data interface{}) error {
 
 	reportData, ok := data.(*reports.ReportData)
 	if !ok {
 		return fmt.Errorf("INCORRECT DATA STRUCTURE")
 	}
+
+	proc, err := s.processors.GetProcessor(reportType)
+	if err != nil {
+		return err
+	}
+	proc.Check(data)
+
 	user, err := getContextUser(ctx)
 	if err != nil {
 		return err
@@ -54,7 +90,9 @@ func (s *ReportService) Save(ctx context.Context, data interface{}) error {
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback()
+	defer func() {
+		tx.Rollback()
+	}()
 
 	if reportData.Head.Ref.Blank() {
 		uuid, err := models.GenerateUUID()
@@ -64,9 +102,8 @@ func (s *ReportService) Save(ctx context.Context, data interface{}) error {
 		reportData.Head.Ref = uuid
 	}
 
-	err = s.reports.Save(tx, ctx, reportData.Head)
-	if err != nil {
-		return err
+	if reportData.Head.Author.Blank() {
+		reportData.Head.Author = user.Key
 	}
 
 	for _, coordinator := range reportData.Coordinators {
@@ -87,11 +124,16 @@ func (s *ReportService) Save(ctx context.Context, data interface{}) error {
 		}
 	}
 
+	err = s.reports.Save(tx, ctx, reportData.Head)
+	if err != nil {
+		return err
+	}
+
 	err = s.reports.SaveCoordinators(tx, ctx, reportData.Coordinators)
 	if err != nil {
 		return err
 	}
-	err = s.reports.SaveDetails(tx, ctx, reportData.Head, reportData.Details)
+	err = s.reports.SaveDetails(tx, ctx, reportType, reportData.Head, reportData.Details)
 	if err != nil {
 		return err
 	}

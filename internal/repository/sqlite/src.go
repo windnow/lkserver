@@ -31,7 +31,7 @@ func newDB(file string) (*src, error) {
 
 func (s *src) ExecContextInTransaction(ctx context.Context, query string, tx *sql.Tx, args ...any) error {
 	var err error
-	localTx := true
+	localTx := false
 	if tx == nil {
 		tx, err = s.db.BeginTx(ctx, nil)
 		if err != nil {
@@ -39,6 +39,11 @@ func (s *src) ExecContextInTransaction(ctx context.Context, query string, tx *sq
 		}
 		localTx = true
 	}
+	defer func() {
+		if localTx {
+			tx.Rollback()
+		}
+	}()
 	_, err = tx.ExecContext(ctx,
 		query,
 		args...)

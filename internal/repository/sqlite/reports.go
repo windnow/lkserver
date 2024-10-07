@@ -90,7 +90,7 @@ func (repo *reportsRepo) Save(tx *sql.Tx, ctx context.Context, report *m.Report)
 		report.Ref = guid
 	}
 
-	return m.HandleError(repo.source.ExecContextInTransaction(ctx, saveReportQuery, nil,
+	return m.HandleError(repo.source.ExecContextInTransaction(ctx, saveReportQuery, tx,
 		report.Ref,
 		report.Type,
 		time.Time(report.Date).Unix(),
@@ -137,19 +137,20 @@ func (repo *reportsRepo) GetStructure(reportType string) (interface{}, error) {
 	return processor.GetStructure(), nil
 }
 
-func (repo *reportsRepo) SaveDetails(tx *sql.Tx, ctx context.Context, report *m.Report, data any) error {
+func (repo *reportsRepo) SaveDetails(tx *sql.Tx, ctx context.Context, reportType string, report *m.Report, data any) error {
 
-	reportType, err := repo.GetTypeCode(report.Ref)
+	reportTypeByKey, err := repo.GetTypeCode(report.Type)
 	if err != nil {
 		return err
+	}
+	if reportTypeByKey != reportType {
+		return ErrWrongType
 	}
 	processor, err := repo.factory.GetReportProcessor(reportType)
 	if err != nil {
 		return err
 	}
-	processor.Save(tx, ctx, report.Ref, data)
-
-	return nil
+	return processor.Save(tx, ctx, report.Ref, data)
 }
 
 func (repo *reportsRepo) List(ctx context.Context, userKey m.JSONByte) ([]*m.Report, error) {

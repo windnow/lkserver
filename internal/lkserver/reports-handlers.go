@@ -51,7 +51,7 @@ func (s *lkserver) handleSaveReport() http.HandlerFunc {
 			return
 		}
 
-		if s.error(w, http.StatusBadRequest, s.reportsService.Save(ctx, incomingData)) {
+		if s.error(w, http.StatusBadRequest, s.reportsService.Save(ctx, reportType, incomingData)) {
 			return
 		}
 
