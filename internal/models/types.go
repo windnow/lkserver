@@ -104,6 +104,9 @@ func (uuid JSONByte) Value() (driver.Value, error) {
 }
 
 func (uuid *JSONByte) Scan(src any) error {
+	if src == nil {
+		return nil
+	}
 	b, ok := src.([]byte)
 	if !ok {
 		return &Error{fmt.Errorf("cannot scan nonbyte value into JSONByte value"), "JSONByte.Scan"}
