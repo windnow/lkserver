@@ -102,6 +102,23 @@ curl -b cookie.txt http://localhost:8080/i/reports/types
 ]
 ```
 
+### Получение данных по одному типу
+
+```sh
+curl -b cookie.txt http://localhost:8080/i/reports/types/fcf8e381-ea56-43ea-a83f-c2059a3aa329
+```
+
+**Ответ**:
+
+```json
+{
+    "ref": "fcf8e381-ea56-43ea-a83f-c2059a3aa329",
+    "parent": "",
+    "code": "0001",
+    "title": "Об убытии в служебные командировки"
+}
+```
+
 ### Создание рапорта
 ```sh
 curl -b cookie.txt --data @mockData.json http://localhost:8080/i/reports/0001/save
