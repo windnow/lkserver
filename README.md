@@ -11,11 +11,11 @@ curl --header "Content-Type: application/json" --cookie-jar cookie.txt -b cookie
 {"key":"c9aba8d6-351a-4d85-a8b6-9427ea2f8c8e","iin":"821019000888","individ":null}
 ```
 
-### Who Am I:
+### Who Am I
 ```sh
 curl -b cookie.txt --request GET http://localhost:8080/wai
 ```
-**Ответ**
+**Ответ**:
 ```
 {"key":"c9aba8d6-351a-4d85-a8b6-9427ea2f8c8e","iin":"821019000888","individ":null}
 ```
@@ -90,7 +90,7 @@ curl -b cookie.txt --request GET http://localhost:8080/i/ind/821019000888 | pyth
 curl -b cookie.txt http://localhost:8080/i/reports/types
 ```
 
-**Ответ**
+**Ответ**:
 ```json
 [
     {
@@ -107,7 +107,7 @@ curl -b cookie.txt http://localhost:8080/i/reports/types
 curl -b cookie.txt --data @mockData.json http://localhost:8080/i/reports/0001/save
 ```
 
-**Содержимое `mockData.json`**
+**Содержимое `mockData.json`**:
 
 ```json
 {
@@ -133,7 +133,7 @@ curl -b cookie.txt --data @mockData.json http://localhost:8080/i/reports/0001/sa
 curl -b cookie.txt http://localhost:8080/i/reports/
 ```
 
-**Ответ**
+**Ответ**:
 ```json
 [
     {
