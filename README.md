@@ -1,43 +1,26 @@
 # Mock backend for lk project
 
-Пример файла хранения списка пользователей
-```json
-[
-    {
-        "name": "Саркелова Арайлым",
-        "iin": "1122",
-        "pin": "2211",
-        "birth_date": "2001-11-22"
-    },
-    {
-        "name": "Арсенов Арман",
-        "iin": "22",
-        "pin": "11",
-        "birth_date": "1993-11-21"
-    }
-]
-```
-Пример с curl:
+## Примеры с curl:
 
-**Создание сессии**:
+### Создание сессии
 ```sh
 curl --header "Content-Type: application/json" --cookie-jar cookie.txt -b cookie.txt --request POST --data '{"iin": "821019000888", "pin":"82"}' http://localhost:8080/session
 ```
-Ответ:
+**Ответ**:
 ```
 {"key":"c9aba8d6-351a-4d85-a8b6-9427ea2f8c8e","iin":"821019000888","individ":null}
 ```
 
-**Who Am I**:
+### Who Am I:
 ```sh
 curl -b cookie.txt --request GET http://localhost:8080/wai
 ```
-Ответ:
+**Ответ**
 ```
 {"key":"c9aba8d6-351a-4d85-a8b6-9427ea2f8c8e","iin":"821019000888","individ":null}
 ```
 
-**Получение деталей**:
+### Получение деталей
 ```sh
 curl -b cookie.txt --request GET http://localhost:8080/i/ind/821019000888 | python3 -c 'import sys, json; print(json.dumps(json.load(sys.stdin), ensure_ascii=False, indent=4))'
 ```
@@ -101,14 +84,26 @@ curl -b cookie.txt --request GET http://localhost:8080/i/ind/821019000888 | pyth
 
 ```
 
-**Получение списка типов рапортов**
+### Получение списка типов рапортов
 
-```
+```sh
 curl -b cookie.txt http://localhost:8080/i/reports/types
 ```
 
-**Создание рапорта**
+**Ответ**
+```json
+[
+    {
+        "ref": "fcf8e381-ea56-43ea-a83f-c2059a3aa329",
+        "parent": "",
+        "code": "0001",
+        "title": "Об убытии в служебные командировки"
+    }
+]
 ```
+
+### Создание рапорта
+```sh
 curl -b cookie.txt --data @mockData.json http://localhost:8080/i/reports/0001/save
 ```
 
@@ -134,11 +129,11 @@ curl -b cookie.txt --data @mockData.json http://localhost:8080/i/reports/0001/sa
 
 ### Получение рапортов **всех** типов 
 
-```
+```sh
 curl -b cookie.txt http://localhost:8080/i/reports/
 ```
 
-Ответ:
+**Ответ**
 ```json
 [
     {
