@@ -2,20 +2,11 @@ package models
 
 import (
 	"crypto/rand"
-	"database/sql"
-	"errors"
 	"fmt"
 	"lkserver/internal/lkserver/config"
 	"strings"
 	"time"
 )
-
-func handleQueryError(err error) error {
-	if errors.Is(err, sql.ErrNoRows) {
-		return ErrNotFound
-	}
-	return err
-}
 
 type Error struct {
 	Err         error
