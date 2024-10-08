@@ -101,6 +101,12 @@ curl -b cookie.txt --request GET http://localhost:8080/i/ind/821019000888 | pyth
 
 ```
 
+**Получение списка типов рапортов**
+
+```
+curl -b cookie.txt http://localhost:8080/i/reports/types
+```
+
 **Создание рапорта**
 ```
 curl -b cookie.txt --data @mockData.json http://localhost:8080/i/reports/0001/save
