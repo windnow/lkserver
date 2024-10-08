@@ -131,3 +131,47 @@ curl -b cookie.txt --data @mockData.json http://localhost:8080/i/reports/0001/sa
   }
 }
 ```
+
+### Получение рапортов **всех** типов 
+
+```
+curl -b cookie.txt http://localhost:8080/i/reports/
+```
+
+Ответ:
+```json
+[
+    {
+        "ref": "8d624514-7eda-4b6f-a350-5cce76b58870",
+        "type": "fcf8e381-ea56-43ea-a83f-c2059a3aa329",
+        "date": "2024.10.06 23:06:00",
+        "number": "",
+        "reg_number": "",
+        "author": "c9aba8d6-351a-4d85-a8b6-9427ea2f8c8e"
+    },
+    {
+        "ref": "2b843c2d-c3e9-4ec7-abff-499fe08aae59",
+        "type": "fcf8e381-ea56-43ea-a83f-c2059a3aa329",
+        "date": "2024.10.06 23:06:00",
+        "number": "",
+        "reg_number": "",
+        "author": "c9aba8d6-351a-4d85-a8b6-9427ea2f8c8e"
+    },
+    {
+        "ref": "cafb6d75-8a45-4d78-b116-26cfb74f1205",
+        "type": "fcf8e381-ea56-43ea-a83f-c2059a3aa329",
+        "date": "2024.10.06 23:06:00",
+        "number": "",
+        "reg_number": "",
+        "author": "c9aba8d6-351a-4d85-a8b6-9427ea2f8c8e"
+    },
+    {
+        "ref": "64faa2af-d3ec-4536-91a8-adab0cfa2966",
+        "type": "fcf8e381-ea56-43ea-a83f-c2059a3aa329",
+        "date": "2024.10.06 23:06:00",
+        "number": "",
+        "reg_number": "",
+        "author": "c9aba8d6-351a-4d85-a8b6-9427ea2f8c8e"
+    }
+]
+```
