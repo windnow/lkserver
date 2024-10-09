@@ -123,25 +123,36 @@ func (uuid *JSONByte) UnmarshalJSON(data []byte) error {
 		return &Error{err, "JSONByte.UnmarsharJSON"}
 	}
 
+	parsed, err := ParseJSONByteFromString(uuidStr)
+	if err != nil {
+		return &Error{err, "JSONByte.UnmarsharJSON"}
+	}
+
+	*uuid = parsed
+
+	return nil
+
+}
+
+func ParseJSONByteFromString(uuidStr string) (JSONByte, error) {
 	if uuidStr == "" {
-		*uuid = JSONByte{}
-		return nil
+		return JSONByte{}, nil
 	}
 
 	re := regexp.MustCompile("^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$")
 	if !re.MatchString(uuidStr) {
-		return &Error{errors.ErrUnsupported, "JSONByte.UnmarsharJSON"}
+		return JSONByte{}, &Error{errors.ErrUnsupported, "ParseJSONByteFromString"}
 
 	}
 
 	noDashes := uuidStr[0:8] + uuidStr[9:13] + uuidStr[14:18] + uuidStr[19:23] + uuidStr[24:]
 	parsedUUID, err := hex.DecodeString(noDashes)
 	if err != nil {
-		return &Error{err, "JSONByte.UnmarsharJSON"}
+		return JSONByte{}, &Error{err, "ParseJSONByteFromString"}
 	}
-	*uuid = JSONByte(parsedUUID)
 
-	return nil
+	return JSONByte(parsedUUID), nil
+
 }
 
 func (left JSONByte) Equal(righ JSONByte) bool {

@@ -33,6 +33,11 @@ func (u *User) compile() (*models.User, error) {
 	}, nil
 }
 
+func (u *userRepo) Get(guid models.JSONByte) (*models.User, error) {
+
+	return nil, errors.ErrUnsupported
+
+}
 func (r *userRepo) GetUser(iin string) (*models.User, error) {
 
 	for _, user := range r.users {

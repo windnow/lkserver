@@ -20,6 +20,23 @@ curl -b cookie.txt --request GET http://localhost:8080/wai
 {"key":"c9aba8d6-351a-4d85-a8b6-9427ea2f8c8e","iin":"821019000888","individ":null}
 ```
 
+### Получение данных о пользователе
+
+```
+curl -b cookie.txt --request GET http://localhost:8080/i/users/c9aba8d6-351a-4d85-a8b6-9427ea2f8c8e
+```
+
+**Ответ**:
+```json
+{
+    "key": "c9aba8d6-351a-4d85-a8b6-9427ea2f8c8e",
+    "individKey": "27f74b66-cba7-486d-a263-81b6cb9a3e57",
+    "iin": "821019000888",
+    "login": "821019000888",
+    "name": "Усенбаев Дархан Жаксылыкович"
+}
+```
+
 ### Получение деталей
 ```sh
 curl -b cookie.txt --request GET http://localhost:8080/i/ind/821019000888 | python3 -c 'import sys, json; print(json.dumps(json.load(sys.stdin), ensure_ascii=False, indent=4))'

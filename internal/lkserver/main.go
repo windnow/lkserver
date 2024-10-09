@@ -20,6 +20,7 @@ var errNotFound = errors.New("NOT Found")
 type lkserver struct {
 	repo           *repository.Repo
 	reportsService *services.ReportService
+	usersService   *services.UserService
 	fileStore      repository.FileProvider
 	router         *mux.Router
 	config         *config.Config
@@ -48,6 +49,7 @@ func New(r *repository.Repo, fileStore repository.FileProvider, config *config.C
 		sessionStore:   sessionStore,
 		router:         mux.NewRouter(),
 		reportsService: services.NewReportService(r),
+		usersService:   services.NewUsersService(r),
 	}
 	s.configureRouter()
 	return s
@@ -93,6 +95,9 @@ func (s *lkserver) configureRouter() {
 	private.HandleFunc("/file/{id}", s.handleFile()).Methods("GET")
 	private.HandleFunc("/ind/{iin}", s.handleIndividualsByIIN()).Methods("GET")
 	private.HandleFunc("/edu/{iin}", s.handleEducationByIIN()).Methods("GET")
+
+	users := private.PathPrefix("/users").Subrouter()
+	users.HandleFunc("/{guid}", s.handleGetUserInfo()).Methods("GET")
 
 	reports := private.PathPrefix("/reports").Subrouter()
 	reports.HandleFunc("/types", s.handleGetReportTypes()).Methods("GET")

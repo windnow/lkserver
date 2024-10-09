@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"lkserver/internal/models"
 	"net/http"
 
@@ -21,9 +20,7 @@ func (s *lkserver) handleGetReportType() http.HandlerFunc {
 			return
 		}
 
-		var GUID models.JSONByte
-		guid = fmt.Sprintf("\"%s\"", guid)
-		err := json.Unmarshal([]byte(guid), &GUID)
+		GUID, err := models.ParseJSONByteFromString(guid)
 		if err != nil {
 			s.error(w, http.StatusBadRequest, errors.New("WRONG GUID FORMAT"))
 			return

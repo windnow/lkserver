@@ -25,6 +25,22 @@ func (u *UserRepository) FindUser(iin, pin string) (*m.User, error) {
 	return user, nil
 
 }
+
+func (u *UserRepository) Get(guid m.JSONByte) (*m.User, error) {
+
+	user := &m.User{
+		Key: guid,
+	}
+
+	query := fmt.Sprintf("SELECT iin, individ from %[1]s WHERE ref = ?", tabUsers)
+	if err := u.source.db.QueryRow(query, user.Key).Scan(&user.Iin, &user.Individual); err != nil {
+		return nil, m.HandleError(err, "UserRepository.Get")
+	}
+
+	return user, nil
+
+}
+
 func (u *UserRepository) GetUser(iin string) (*m.User, error) {
 	user := &m.User{Iin: iin}
 	err := u.source.db.QueryRow(fmt.Sprintf(`
@@ -67,29 +83,12 @@ func (r *sqliteRepo) initUserRepo() error {
 		return m.HandleError(err, "sqliteRepo.initUserRepo")
 	}
 
-	type mockUser struct {
-		Key        m.JSONByte `json:"key"`
-		Iin        string     `json:"iin"`
-		Pin        string     `json:"pin,omitempty"`
-		Individual m.JSONByte `json:"individ"`
-	}
-
 	var count int64
 	userRepo.source.db.QueryRow(fmt.Sprintf(`select count(*) from %[1]s`, tabUsers)).Scan(&count)
 	if count == 0 {
-		var mock_users []mockUser
-		json.Unmarshal([]byte(mockUserData), &mock_users)
-		for _, mock_user := range mock_users {
-			Individ, err := userRepo.repo.individuals.Get(mock_user.Individual)
-			if err != nil {
-				return m.HandleError(err, "sqliteRepo.initUserRepo")
-			}
-			user := m.User{
-				Key:        mock_user.Key,
-				Iin:        mock_user.Iin,
-				Pin:        mock_user.Pin,
-				Individual: Individ,
-			}
+		var users []m.User
+		json.Unmarshal([]byte(mockUserData), &users)
+		for _, user := range users {
 			if err := user.GeneratePasswordHash(); err != nil {
 				return m.HandleError(err, "sqliteRepo.initUserRepo")
 			}
@@ -124,14 +123,10 @@ func (u *UserRepository) Save(ctx context.Context, user *m.User) error {
 		}
 		user.Key = Key
 	}
-	var key m.JSONByte
-	if user.Individual != nil {
-		key = user.Individual.Key
-	}
 
 	return m.HandleError(u.source.ExecContextInTransaction(ctx, insertUserQuery, nil,
 		user.Key,
-		key,
+		user.Individual,
 		user.Iin,
 		user.PasswordHash[:]))
 
