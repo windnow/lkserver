@@ -61,8 +61,7 @@ func (s *lkserver) handleGetReportTypes() http.HandlerFunc {
 
 func (s *lkserver) handleSaveReport() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		reportType := vars["type"]
+		reportType := mux.Vars(r)["type"]
 		if reportType == "" {
 			s.error(w, http.StatusBadRequest, errors.New("MISSING REPORT TYPE"))
 			return
@@ -103,6 +102,29 @@ func (s *lkserver) handleReportsList() http.HandlerFunc {
 		}
 
 		s.respond(w, http.StatusOK, list)
+
+	}
+}
+
+func (s *lkserver) handleReportData() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		guid := mux.Vars(r)["guid"]
+		if guid == "" {
+			s.error(w, http.StatusBadRequest, errors.New("REPORT GUID IS MISSING"))
+			return
+		}
+
+		GUID, err := models.ParseJSONByteFromString(guid)
+		if s.error(w, http.StatusBadRequest, err) {
+			return
+		}
+
+		data, err := s.reportsService.GetReportData(GUID)
+		if s.error(w, http.StatusBadRequest, err) {
+			return
+		}
+
+		s.respond(w, http.StatusOK, data)
 
 	}
 }

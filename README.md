@@ -161,6 +161,24 @@ curl -b cookie.txt --data @mockData.json http://localhost:8080/i/reports/0001/sa
 }
 ```
 
+### Получение данных одного рапорта
+
+```sh
+curl -b cookie.txt --request GET http://localhost:8080/i/reports/77ff0fd3-22bc-4cd3-be79-f778f4b1845d
+```
+
+**Ответ**:
+```json
+{
+    "ref": "77ff0fd3-22bc-4cd3-be79-f778f4b1845d",
+    "type": "fcf8e381-ea56-43ea-a83f-c2059a3aa329",
+    "date": "2024.10.06 23:06:00",
+    "number": "000009",
+    "reg_number": "000009",
+    "author": "c9aba8d6-351a-4d85-a8b6-9427ea2f8c8e"
+}
+```
+
 ### Получение рапортов **всех** типов 
 
 ```sh

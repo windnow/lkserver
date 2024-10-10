@@ -19,7 +19,7 @@ type processorsFactory struct {
 }
 
 type ReportService struct {
-	reports    repository.ReportProvider
+	provider   *repository.Repo
 	processors processorsFactory
 }
 
@@ -44,17 +44,27 @@ func NewProcessors() processorsFactory {
 
 func NewReportService(repo *repository.Repo) *ReportService {
 	return &ReportService{
-		reports:    repo.Reports,
+		provider:   repo,
 		processors: NewProcessors(),
 	}
 }
 
 func (s *ReportService) GetTypes(types []string) ([]*reports.ReportTypes, error) {
-	return s.reports.GetTypes(types)
+	return s.provider.Reports.GetTypes(types)
 }
 
 func (s *ReportService) GetStructure(reportType string) (interface{}, error) {
-	return s.reports.GetStructure(reportType)
+	return s.provider.Reports.GetStructure(reportType)
+}
+
+func (s *ReportService) GetReportData(guid models.JSONByte) (any, error) {
+
+	reportData, err := s.provider.Reports.Get(guid)
+	if err != nil {
+		return nil, err
+	}
+
+	return reportData, nil
 }
 
 func getContextUser(ctx context.Context) (*models.User, error) {
@@ -65,7 +75,6 @@ func getContextUser(ctx context.Context) (*models.User, error) {
 	}
 
 	return user, nil
-
 }
 
 func (s *ReportService) Save(ctx context.Context, reportType string, data interface{}) error {
@@ -89,7 +98,7 @@ func (s *ReportService) Save(ctx context.Context, reportType string, data interf
 		return err
 	}
 
-	tx, err := s.reports.GetTransaction(ctx)
+	tx, err := s.provider.Reports.GetTransaction(ctx)
 	if err != nil {
 		return err
 	}
@@ -127,16 +136,16 @@ func (s *ReportService) Save(ctx context.Context, reportType string, data interf
 		}
 	}
 
-	err = s.reports.Save(tx, ctx, reportData.Head)
+	err = s.provider.Reports.Save(tx, ctx, reportData.Head)
 	if err != nil {
 		return err
 	}
 
-	err = s.reports.SaveCoordinators(tx, ctx, reportData.Coordinators)
+	err = s.provider.Reports.SaveCoordinators(tx, ctx, reportData.Coordinators)
 	if err != nil {
 		return err
 	}
-	err = s.reports.SaveDetails(tx, ctx, reportType, reportData.Head, reportData.Details)
+	err = s.provider.Reports.SaveDetails(tx, ctx, reportType, reportData.Head, reportData.Details)
 	if err != nil {
 		return err
 	}
@@ -161,7 +170,7 @@ func (s *ReportService) List(ctx context.Context) ([]*models.Report, error) {
 		return nil, err
 	}
 
-	reports, err := s.reports.List(ctx, user.Key)
+	reports, err := s.provider.Reports.List(ctx, user.Key)
 	if err != nil {
 		return nil, err
 	}

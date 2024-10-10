@@ -172,6 +172,28 @@ func (repo *reportsRepo) List(ctx context.Context, userKey m.JSONByte) ([]*m.Rep
 
 	return result, nil
 }
+
+func (repo *reportsRepo) Get(guid m.JSONByte) (any, error) {
+	query := fmt.Sprintf(`
+		SELECT type, date, number, reg_number, author
+		FROM %[1]s
+		WHERE ref = ?
+	`, tabReport)
+	report := &m.Report{Ref: guid}
+
+	if err := repo.source.db.QueryRow(query, guid).Scan(
+		&report.Type,
+		&report.Date,
+		&report.Number,
+		&report.RegNumber,
+		&report.Author,
+	); err != nil {
+		return nil, err
+	}
+
+	return report, nil
+}
+
 func InitReports(repo *reportsRepo) error {
 	query := fmt.Sprintf(`
 		CREATE TABLE IF NOT EXISTS %[1]s (

@@ -103,8 +103,9 @@ func (s *lkserver) configureRouter() {
 	reports.HandleFunc("/types", s.handleGetReportTypes()).Methods("GET")
 	reports.HandleFunc("/types/{guid}", s.handleGetReportType()).Methods("GET")
 	reports.HandleFunc("/{type}/save", s.handleSaveReport()).Methods("POST")
-	reports.HandleFunc("/", s.handleReportsList()).Methods("GET") //  Список рапортов текущего пользователя х
-	reports.HandleFunc("/approvals", nil).Methods("GET")          // Список рапортов для согласования
+	reports.HandleFunc("/", s.handleReportsList()).Methods("GET")      // Список рапортов текущего пользователя х
+	reports.HandleFunc("/{guid}", s.handleReportData()).Methods("GET") // Данные рапорта
+	reports.HandleFunc("/approvals", nil).Methods("GET")               // Список рапортов для согласования
 
 	s.router.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, s.config.StaticFilesPath+"/index.html")
