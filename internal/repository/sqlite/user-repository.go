@@ -46,10 +46,11 @@ func (u *UserRepository) GetUser(iin string) (*m.User, error) {
 	err := u.source.db.QueryRow(fmt.Sprintf(`
 		SELECT 
 			ref,
+			individ,
 			hash
 		FROM %[1]s 
 		WHERE iin=?`, tabUsers),
-		user.Iin).Scan(&user.Key, &user.PasswordHash)
+		user.Iin).Scan(&user.Key, &user.Individual, &user.PasswordHash)
 	if err != nil {
 		return nil, m.HandleError(err, "UserRepository.GetUser")
 	}
