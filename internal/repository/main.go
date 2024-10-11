@@ -88,13 +88,15 @@ type ReportProvider interface {
 	SaveType(context.Context, *reports.ReportTypes) error
 	Save(tx *sql.Tx, ctx context.Context, report *models.Report) error
 	SaveCoordinators(tx *sql.Tx, ctx context.Context, coordinators []*reports.Coordinators) error
-	SaveDetails(tx *sql.Tx, ctx context.Context, reportType string, report *models.Report, data any) error
+	SaveDetails(tx *sql.Tx, ctx context.Context, report *models.Report, data any) error
 	GetStructure(reportType string) (any, error)
-	Get(guid models.JSONByte) (any, error)
+	Get(guid models.JSONByte) (*models.Report, error)
+	GetCoordinators(ctx context.Context, report *models.Report) ([]*reports.Coordinators, error)
+	GetDetails(ctx context.Context, report *models.Report) (any, error)
 	List(context.Context, models.JSONByte) ([]*models.Report, error)
 }
 type ReportDetails interface {
-	Get(ref models.JSONByte, tx ...*sql.Tx) (any, error)
+	Get(ctx context.Context, ref models.JSONByte, tx ...*sql.Tx) (any, error)
 	Save(tx *sql.Tx, ctx context.Context, report models.JSONByte, data any) error
 	Init() error
 	GetStructure() interface{}
