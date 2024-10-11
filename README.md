@@ -170,12 +170,37 @@ curl -b cookie.txt --request GET http://localhost:8080/i/reports/77ff0fd3-22bc-4
 **Ответ**:
 ```json
 {
-    "ref": "77ff0fd3-22bc-4cd3-be79-f778f4b1845d",
-    "type": "fcf8e381-ea56-43ea-a83f-c2059a3aa329",
-    "date": "2024.10.06 23:06:00",
-    "number": "000009",
-    "reg_number": "000009",
-    "author": "c9aba8d6-351a-4d85-a8b6-9427ea2f8c8e"
+    "head": {
+        "ref": "77ff0fd3-22bc-4cd3-be79-f778f4b1845d",
+        "type": "fcf8e381-ea56-43ea-a83f-c2059a3aa329",
+        "date": "2024.10.06 23:06:00",
+        "number": "000009",
+        "reg_number": "000009",
+        "author": "c9aba8d6-351a-4d85-a8b6-9427ea2f8c8e"
+    },
+    "coordinators": [
+        {
+            "ref": "b9b418c0-c46e-449b-9a2c-e6816fb569ef",
+            "report_ref": "77ff0fd3-22bc-4cd3-be79-f778f4b1845d",
+            "coordinator_ref": "8c272f7c-6c2c-4dba-bba5-4062005b2400",
+            "who_author_ref": "c9aba8d6-351a-4d85-a8b6-9427ea2f8c8e",
+            "when_added_ref": "2024.10.07 20:29:06"
+        },
+        {
+            "ref": "907f7d8b-2a62-4484-aee6-4e63ded6c402",
+            "report_ref": "77ff0fd3-22bc-4cd3-be79-f778f4b1845d",
+            "coordinator_ref": "f31c6a0f-b07c-4632-8949-2f24fde4fc26",
+            "who_author_ref": "c9aba8d6-351a-4d85-a8b6-9427ea2f8c8e",
+            "when_added_ref": "2024.10.07 20:29:06"
+        }
+    ],
+    "details": {
+        "report_ref": "77ff0fd3-22bc-4cd3-be79-f778f4b1845d",
+        "supervisor": "f31c6a0f-b07c-4632-8949-2f24fde4fc26",
+        "acting_supervisor": "",
+        "basis": "Распоряжение руководства",
+        "transport_type": "Железная дорога"
+    }
 }
 ```
 

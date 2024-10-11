@@ -57,14 +57,26 @@ func (s *ReportService) GetStructure(reportType string) (interface{}, error) {
 	return s.provider.Reports.GetStructure(reportType)
 }
 
-func (s *ReportService) GetReportData(guid models.JSONByte) (any, error) {
+func (s *ReportService) GetReportData(ctx context.Context, guid models.JSONByte) (any, error) {
 
-	reportData, err := s.provider.Reports.Get(guid)
+	reportHead, err := s.provider.Reports.Get(guid)
 	if err != nil {
 		return nil, err
 	}
+	reportCoordinators, err := s.provider.Reports.GetCoordinators(ctx, reportHead)
+	if err != nil {
+		return nil, models.HandleError(err, "ReportService.GetReportData")
+	}
+	reportDetails, err := s.provider.Reports.GetDetails(ctx, reportHead)
+	if err != nil {
+		return nil, models.HandleError(err, "ReportService.GetReportData")
+	}
 
-	return reportData, nil
+	return &reports.ReportData{
+		Head:         reportHead,
+		Coordinators: reportCoordinators,
+		Details:      reportDetails,
+	}, nil
 }
 
 func getContextUser(ctx context.Context) (*models.User, error) {
@@ -145,7 +157,7 @@ func (s *ReportService) Save(ctx context.Context, reportType string, data interf
 	if err != nil {
 		return err
 	}
-	err = s.provider.Reports.SaveDetails(tx, ctx, reportType, reportData.Head, reportData.Details)
+	err = s.provider.Reports.SaveDetails(tx, ctx, reportData.Head, reportData.Details)
 	if err != nil {
 		return err
 	}

@@ -119,7 +119,7 @@ func (s *lkserver) handleReportData() http.HandlerFunc {
 			return
 		}
 
-		data, err := s.reportsService.GetReportData(GUID)
+		data, err := s.reportsService.GetReportData(r.Context(), GUID)
 		if s.error(w, http.StatusBadRequest, err) {
 			return
 		}

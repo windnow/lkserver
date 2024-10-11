@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"fmt"
 	m "lkserver/internal/models"
-	"lkserver/internal/models/reports"
 	"lkserver/internal/repository"
 	"time"
 )
@@ -100,33 +99,6 @@ func (repo *reportsRepo) Save(tx *sql.Tx, ctx context.Context, report *m.Report)
 	), "reportRepo.Save")
 }
 
-func (repo *reportsRepo) SaveCoordinators(tx *sql.Tx, ctx context.Context, coordinators []*reports.Coordinators) error {
-
-	if len(coordinators) == 0 {
-		return nil
-	}
-
-	query := fmt.Sprintf("INSERT INTO %[1]s (ref, report, coordinator, author, when_added) VALUES ", tabCoordinators)
-	values := []interface{}{}
-	placeholders := []string{}
-
-	for _, c := range coordinators {
-		placeholders = append(placeholders, "(?, ?, ?, ?, ?)")
-		values = append(values, c.Ref, c.ReportRef, c.CoordinatorRef, c.WhoAuthor, time.Time(c.WhenAdded).Unix())
-	}
-	query += placeholders[0] //fmt.Sprintf("%s", placeholders[0])
-	for i := 1; i < len(placeholders); i++ {
-		query += fmt.Sprintf(",%s", placeholders[i])
-	}
-
-	_, err := tx.ExecContext(ctx, query, values...)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (repo *reportsRepo) GetStructure(reportType string) (interface{}, error) {
 
 	processor, err := repo.factory.GetReportProcessor(reportType)
@@ -135,22 +107,6 @@ func (repo *reportsRepo) GetStructure(reportType string) (interface{}, error) {
 	}
 
 	return processor.GetStructure(), nil
-}
-
-func (repo *reportsRepo) SaveDetails(tx *sql.Tx, ctx context.Context, reportType string, report *m.Report, data any) error {
-
-	reportTypeByKey, err := repo.GetTypeCode(report.Type)
-	if err != nil {
-		return err
-	}
-	if reportTypeByKey != reportType {
-		return ErrWrongType
-	}
-	processor, err := repo.factory.GetReportProcessor(reportType)
-	if err != nil {
-		return err
-	}
-	return processor.Save(tx, ctx, report.Ref, data)
 }
 
 func (repo *reportsRepo) List(ctx context.Context, userKey m.JSONByte) ([]*m.Report, error) {
@@ -173,7 +129,7 @@ func (repo *reportsRepo) List(ctx context.Context, userKey m.JSONByte) ([]*m.Rep
 	return result, nil
 }
 
-func (repo *reportsRepo) Get(guid m.JSONByte) (any, error) {
+func (repo *reportsRepo) Get(guid m.JSONByte) (*m.Report, error) {
 	query := fmt.Sprintf(`
 		SELECT type, date, number, reg_number, author
 		FROM %[1]s

@@ -20,19 +20,19 @@ func (r *DepartureOnBusinessTrip) GetStructure() interface{} {
 	return &reports.ReportData{Details: &reports.BussinesTripDetails{}}
 }
 
-func (r *DepartureOnBusinessTrip) Get(ref m.JSONByte, tx ...*sql.Tx) (any, error) {
+func (r *DepartureOnBusinessTrip) Get(ctx context.Context, ref m.JSONByte, tx ...*sql.Tx) (any, error) {
 	details := &reports.BussinesTripDetails{}
 	query := fmt.Sprintf(`
 	SELECT report, supervisor, acting_supervisor, basis, transport_type
 	FROM %[1]s WHERE report = ?
 	`, tabBusinessTrip)
 
-	row := r.source.db.QueryRow
+	row := r.source.db.QueryRowContext
 	if len(tx) > 0 && tx[0] != nil {
-		row = tx[0].QueryRow
+		row = tx[0].QueryRowContext
 	}
 
-	if err := row(query, ref).Scan(
+	if err := row(ctx, query, ref).Scan(
 		&details.ReportRef,
 		&details.Supervisor,
 		&details.ActingSupervisor,
