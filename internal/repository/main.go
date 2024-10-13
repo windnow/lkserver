@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"io"
 	"lkserver/internal/models"
+	"lkserver/internal/models/cato"
 	"lkserver/internal/models/reports"
 )
 
@@ -18,6 +19,7 @@ type Repo struct {
 	Specialties          SpecialtiesProvider
 	Education            EducationProvider
 	Reports              ReportProvider
+	Cato                 CatoProvider
 }
 
 func (r *Repo) Close() {
@@ -100,4 +102,10 @@ type ReportDetails interface {
 	Save(tx *sql.Tx, ctx context.Context, report models.JSONByte, data any) error
 	Init() error
 	GetStructure() interface{}
+}
+
+type CatoProvider interface {
+	Get(ctx context.Context, Ref models.JSONByte) (*cato.Cato, error)
+	List(ctx context.Context, parentRef models.JSONByte, limits ...int64) ([]*cato.Cato, error)
+	Find(ctx context.Context, description string, limits ...int64) ([]*cato.Cato, error)
 }

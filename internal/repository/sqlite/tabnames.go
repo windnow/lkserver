@@ -8,6 +8,7 @@ const (
 	tabRankHistory  = "rank_history"
 	tabInstitutions = "institutions"
 	tabEducation    = "education"
+	tabCato         = "cato"
 
 	// Reports
 	tabReportType   = "report_type"

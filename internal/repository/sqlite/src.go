@@ -26,7 +26,6 @@ func newDB(file string) (*src, error) {
 	return &src{
 		db: db,
 	}, nil
-
 }
 
 func (s *src) ExecContextInTransaction(ctx context.Context, query string, tx *sql.Tx, args ...any) error {

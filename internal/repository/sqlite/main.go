@@ -42,6 +42,9 @@ func NewSQLiteProvider(dataFile string) (*repository.Repo, error) {
 	if err := repo.initReports(); err != nil {
 		return nil, m.HandleError(err, "NewSQLiteProvider")
 	}
+	if err := repo.initCato(); err != nil {
+		return nil, m.HandleError(err, "NewSQLiteProvider")
+	}
 
 	return &repository.Repo{
 		User:                 repo.userRepo,
@@ -53,5 +56,6 @@ func NewSQLiteProvider(dataFile string) (*repository.Repo, error) {
 		Specialties:          repo.specialties,
 		Education:            repo.education,
 		Reports:              repo.reports,
+		Cato:                 repo.cato,
 	}, nil
 }

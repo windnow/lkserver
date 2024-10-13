@@ -3,7 +3,6 @@ package sqlite
 import (
 	"context"
 	"database/sql"
-	"lkserver/internal/models"
 	m "lkserver/internal/models"
 	"lkserver/internal/repository"
 )
@@ -32,7 +31,7 @@ func (repo *reportsRepo) SaveDetails(tx *sql.Tx, ctx context.Context, report *m.
 	return processor.Save(tx, ctx, report.Ref, data)
 }
 
-func (repo *reportsRepo) GetDetails(ctx context.Context, report *models.Report) (any, error) {
+func (repo *reportsRepo) GetDetails(ctx context.Context, report *m.Report) (any, error) {
 
 	processor, err := repo.getReportProcessor(report.Type)
 	if err != nil {
