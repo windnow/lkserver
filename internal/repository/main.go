@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"io"
 	"lkserver/internal/models"
-	"lkserver/internal/models/cato"
+	"lkserver/internal/models/catalogs"
 	"lkserver/internal/models/reports"
 )
 
@@ -19,7 +19,12 @@ type Repo struct {
 	Specialties          SpecialtiesProvider
 	Education            EducationProvider
 	Reports              ReportProvider
-	Cato                 CatoProvider
+	Catalogs             *Catalogs
+}
+
+type Catalogs struct {
+	Cato CatoProvider
+	Vus  VusProvider
 }
 
 func (r *Repo) Close() {
@@ -105,7 +110,16 @@ type ReportDetails interface {
 }
 
 type CatoProvider interface {
-	Get(ctx context.Context, Ref models.JSONByte) (*cato.Cato, error)
-	List(ctx context.Context, parentRef models.JSONByte, limits ...int64) ([]*cato.Cato, error)
-	Find(ctx context.Context, description string, limits ...int64) ([]*cato.Cato, error)
+	Get(ctx context.Context, Ref models.JSONByte) (*catalogs.Cato, error)
+	List(ctx context.Context, parentRef models.JSONByte, limits ...int64) ([]*catalogs.Cato, error)
+	Find(ctx context.Context, description string, limits ...int64) ([]*catalogs.Cato, error)
+	Count(ctx context.Context) int64
+}
+
+type VusProvider interface {
+	Get(ctx context.Context, Ref models.JSONByte) (*catalogs.Vus, error)
+	List(ctx context.Context, limits ...int64) ([]*catalogs.Vus, error)
+	Find(ctx context.Context, pattern string, limits ...int64) ([]*catalogs.Vus, error)
+	Save(ctx context.Context, vus *catalogs.Vus, tx *sql.Tx) error
+	Count(ctx context.Context) int64
 }

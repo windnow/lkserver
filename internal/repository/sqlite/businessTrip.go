@@ -6,6 +6,7 @@ import (
 	"fmt"
 	m "lkserver/internal/models"
 	"lkserver/internal/models/reports"
+	"lkserver/internal/models/types"
 )
 
 var (
@@ -25,7 +26,7 @@ func (r *DepartureOnBusinessTrip) Get(ctx context.Context, ref m.JSONByte, tx ..
 	query := fmt.Sprintf(`
 	SELECT report, supervisor, acting_supervisor, basis, transport_type
 	FROM %[1]s WHERE report = ?
-	`, tabBusinessTrip)
+	`, types.BusinessTrip)
 
 	row := r.source.db.QueryRowContext
 	if len(tx) > 0 && tx[0] != nil {
@@ -52,7 +53,7 @@ func (r *DepartureOnBusinessTrip) Save(tx *sql.Tx, ctx context.Context, report m
 	INSERT OR REPLACE INTO %[1]s (
 		report, supervisor, acting_supervisor, basis, transport_type	
 	) VALUES (?, ?, ?, ?, ?)
-	`, tabBusinessTrip)
+	`, types.BusinessTrip)
 
 	_, err := tx.ExecContext(ctx, query,
 		report,
@@ -81,7 +82,7 @@ func (r *DepartureOnBusinessTrip) Init() error {
 		);
 	
 		CREATE INDEX IF NOT EXISTS idx_%[1]s_report ON    %[1]s(report);
-		`, tabBusinessTrip, tabReport, tabUsers)
+		`, types.BusinessTrip, types.Report, types.Users)
 
 	err := r.source.Exec(query)
 	if err != nil {

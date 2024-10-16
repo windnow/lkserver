@@ -8,7 +8,7 @@ curl --header "Content-Type: application/json" --cookie-jar cookie.txt -b cookie
 ```
 **Ответ**:
 ```
-{"key":"c9aba8d6-351a-4d85-a8b6-9427ea2f8c8e","iin":"821019000888","individ":null}
+{"key":"c9aba8d6-351a-4d85-a8b6-9427ea2f8c8e","iin":"821019000888","individ":"27f74b66-cba7-486d-a263-81b6cb9a3e57"}
 ```
 
 ### Who Am I
@@ -17,7 +17,7 @@ curl -b cookie.txt --request GET http://localhost:8080/wai
 ```
 **Ответ**:
 ```
-{"key":"c9aba8d6-351a-4d85-a8b6-9427ea2f8c8e","iin":"821019000888","individ":null}
+{"key":"c9aba8d6-351a-4d85-a8b6-9427ea2f8c8e","iin":"821019000888","individ":"27f74b66-cba7-486d-a263-81b6cb9a3e57"}
 ```
 
 ### Получение данных о пользователе
@@ -100,6 +100,160 @@ curl -b cookie.txt --request GET http://localhost:8080/i/ind/821019000888 | pyth
 }
 
 ```
+
+### Получение КАТО
+
+**Получение деталей одной записи**:
+```sh
+curl -b cookie.txt --request GET "http://localhost:8080/i/cat/cato/9f4436e0-80c0-11ef-8da5-000c29e050f8"
+```
+**Ответ**:
+```json
+{
+  "data": {
+    "ref": "9f4436e0-80c0-11ef-8da5-000c29e050f8",
+    "parentRef": "",
+    "code": "610000000",
+    "k1": "61",
+    "k2": "00",
+    "k3": "00",
+    "k4": "000",
+    "k5": "0",
+    "description": "Туркестанская область",
+    "title": "Туркестанская область"
+  },
+  "len": 1,
+  "rows": 16272,
+  "meta": {
+    "code": "string",
+    "description": "string",
+    "k1": "string",
+    "k2": "string",
+    "k3": "string",
+    "k4": "string",
+    "k5": "string",
+    "parentRef": "catalog_cato",
+    "ref": "catalog_cato",
+    "title": "string"
+  }
+}
+```
+
+**Получение списка**:
+```sh
+curl -b cookie.txt --request GET http://localhost:8080/i/cat/cato
+```
+#### Параметры
+
+ - `limit`: Максимальное количество получаемых записей - по умолчанию: 20
+ - `offset`: Количество пропускаемых записей - по умолчанию: 0
+ - `search`: Строка поиска
+ - `parent`: Идентификатор родителя. Не имеет смысла при установке `search`
+
+**Пример**
+
+```sh
+curl -b cookie.txt --request GET "http://localhost:8080/i/cat/cato?parent=9f4436e0-80c0-11ef-8da5-000c29e050f8&limit=3"
+```
+**Ответ**:
+```json
+{
+  "data": [
+    {
+      "ref": "9f4436e1-80c0-11ef-8da5-000c29e050f8",
+      "parentRef": "9f4436e0-80c0-11ef-8da5-000c29e050f8",
+      "code": "611000000",
+      "k1": "61",
+      "k2": "10",
+      "k3": "00",
+      "k4": "000",
+      "k5": "1",
+      "description": "Туркестан Г.А.",
+      "title": "Туркестанская область, Туркестан Г.А."
+    },
+    {
+      "ref": "9f4436e3-80c0-11ef-8da5-000c29e050f8",
+      "parentRef": "9f4436e0-80c0-11ef-8da5-000c29e050f8",
+      "code": "611600000",
+      "k1": "61",
+      "k2": "16",
+      "k3": "00",
+      "k4": "000",
+      "k5": "3",
+      "description": "Арысь Г.А.",
+      "title": "Туркестанская область, Арысь Г.А."
+    },
+    {
+      "ref": "ab756119-80c0-11ef-8da5-000c29e050f8",
+      "parentRef": "9f4436e0-80c0-11ef-8da5-000c29e050f8",
+      "code": "612000000",
+      "k1": "61",
+      "k2": "20",
+      "k3": "00",
+      "k4": "000",
+      "k5": "3",
+      "description": "Кентау Г.А.",
+      "title": "Туркестанская область, Кентау Г.А."
+    }
+  ],
+  "len": 3,
+  "rows": 16272,
+  "meta": {
+    "code": "string",
+    "description": "string",
+    "k1": "string",
+    "k2": "string",
+    "k3": "string",
+    "k4": "string",
+    "k5": "string",
+    "parentRef": "catalog_cato",
+    "ref": "catalog_cato",
+    "title": "string"
+  }
+}
+```
+
+### Получеие ВУС
+
+**Получение деталей одной записи**
+```sh
+curl -b cookie.txt --request GET "http://localhost:8080/i/cat/vus/5e982366-826f-4b16-804d-178dac0b4ff9"
+```
+
+**Ответ**:
+```json
+{
+  "data": {
+    "ref": "5e982366-826f-4b16-804d-178dac0b4ff9",
+    "code": "7654321",
+    "title": "Применение подразделений автоматизированных средств управления зенитными ракетными комплексами и зенитной артиллерией войсковой противовоздушной обороны"
+  },
+  "len": 1,
+  "rows": 1,
+  "meta": {
+    "code": "string",
+    "description": "string",
+    "k1": "string",
+    "k2": "string",
+    "k3": "string",
+    "k4": "string",
+    "k5": "string",
+    "parentRef": "catalog_cato",
+    "ref": "catalog_cato",
+    "title": "string"
+  }
+}
+```
+
+
+```sh
+curl -b cookie.txt --request GET "http://localhost:8080/i/cat/vus"
+```
+#### Параметры
+
+ - `limit`: Максимальное количество получаемых записей - по умолчанию: 20
+ - `offset`: Количество пропускаемых записей - по умолчанию: 0
+ - `search`: Строка поиска
 
 ### Получение списка типов рапортов
 

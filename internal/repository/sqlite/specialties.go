@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	m "lkserver/internal/models"
+	"lkserver/internal/models/types"
 )
 
 type specialties struct {
@@ -20,7 +21,7 @@ func (r *sqliteRepo) initSpecialties() (err error) {
 			ref BLOB PRIMARY KEY,
 			title TEXT
 		)
-	`, tabSpecialties)); err != nil {
+	`, types.Specialties)); err != nil {
 		return m.HandleError(err, "sqliteRepo.initEducationInstitutions")
 	}
 
@@ -28,7 +29,7 @@ func (r *sqliteRepo) initSpecialties() (err error) {
 	json.Unmarshal([]byte(mockSpecialties), &specs)
 
 	var count int64
-	s.source.db.QueryRow(fmt.Sprintf(`select count(*) from %[1]s`, tabSpecialties)).Scan(&count)
+	s.source.db.QueryRow(fmt.Sprintf(`select count(*) from %[1]s`, types.Specialties)).Scan(&count)
 
 	if count == 0 {
 		for _, spec := range specs {
@@ -49,7 +50,7 @@ func (s *specialties) Get(key m.JSONByte) (*m.Specialties, error) {
 		SELECT title
 		FROM %[1]s
 		WHERE ref = ? 
-	`, tabSpecialties), spec.Key).Scan(
+	`, types.Specialties), spec.Key).Scan(
 		&spec.Title,
 	)
 
@@ -79,7 +80,7 @@ func (s *specialties) Save(ctx context.Context, spec *m.Specialties) error {
 
 }
 
-var saveSpecQuery = fmt.Sprintf(`INSERT OR REPLACE INTO %[1]s (ref, title) VALUES (?, ?)`, tabSpecialties)
+var saveSpecQuery = fmt.Sprintf(`INSERT OR REPLACE INTO %[1]s (ref, title) VALUES (?, ?)`, types.Specialties)
 
 var mockSpecialties string = `
 [

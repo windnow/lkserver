@@ -12,4 +12,5 @@ type Individuals struct {
 	BirthDate        JSONTime `json:"birth_date"`
 	BirthPlace       string   `json:"birth_place"`
 	PersonalNumber   string   `json:"personal_number"`
+	Vus              JSONByte `json:"vus"`
 }

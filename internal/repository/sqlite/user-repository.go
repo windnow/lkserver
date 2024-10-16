@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	m "lkserver/internal/models"
+	"lkserver/internal/models/types"
 )
 
 type UserRepository struct {
@@ -32,7 +33,7 @@ func (u *UserRepository) Get(guid m.JSONByte) (*m.User, error) {
 		Key: guid,
 	}
 
-	query := fmt.Sprintf("SELECT iin, individ from %[1]s WHERE ref = ?", tabUsers)
+	query := fmt.Sprintf("SELECT iin, individ from %[1]s WHERE ref = ?", types.Users)
 	if err := u.source.db.QueryRow(query, user.Key).Scan(&user.Iin, &user.Individual); err != nil {
 		return nil, m.HandleError(err, "UserRepository.Get")
 	}
@@ -49,7 +50,7 @@ func (u *UserRepository) GetUser(iin string) (*m.User, error) {
 			individ,
 			hash
 		FROM %[1]s 
-		WHERE iin=?`, tabUsers),
+		WHERE iin=?`, types.Users),
 		user.Iin).Scan(&user.Key, &user.Individual, &user.PasswordHash)
 	if err != nil {
 		return nil, m.HandleError(err, "UserRepository.GetUser")
@@ -80,12 +81,12 @@ func (r *sqliteRepo) initUserRepo() error {
 		CREATE INDEX IF NOT EXISTS idx_%[1]s_iin ON %[1]s(iin);
 		CREATE INDEX IF NOT EXISTS idx_%[1]s_individ ON %[1]s(individ);
 
-	`, tabUsers, tabIndividuals)); err != nil {
+	`, types.Users, types.Individuals)); err != nil {
 		return m.HandleError(err, "sqliteRepo.initUserRepo")
 	}
 
 	var count int64
-	userRepo.source.db.QueryRow(fmt.Sprintf(`select count(*) from %[1]s`, tabUsers)).Scan(&count)
+	userRepo.source.db.QueryRow(fmt.Sprintf(`select count(*) from %[1]s`, types.Users)).Scan(&count)
 	if count == 0 {
 		var users []m.User
 		json.Unmarshal([]byte(mockUserData), &users)
@@ -133,7 +134,7 @@ func (u *UserRepository) Save(ctx context.Context, user *m.User) error {
 
 }
 
-var insertUserQuery string = fmt.Sprintf(`INSERT OR REPLACE INTO %[1]s(ref, individ, iin, hash) VALUES (?, ?, ?, ?)`, tabUsers)
+var insertUserQuery string = fmt.Sprintf(`INSERT OR REPLACE INTO %[1]s(ref, individ, iin, hash) VALUES (?, ?, ?, ?)`, types.Users)
 var mockUserData string = `[
     {
 		"key": "c9aba8d6-351a-4d85-a8b6-9427ea2f8c8e",

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	m "lkserver/internal/models"
+	"lkserver/internal/models/types"
 	"strings"
 )
 
@@ -36,7 +37,7 @@ func (s *sqliteRepo) initEducation() error {
 		CREATE INDEX IF NOT EXISTS idx_%[1]s_institut ON   %[1]s(institut);
 		CREATE INDEX IF NOT EXISTS idx_%[1]s_specialty ON  %[1]s(specialty);
 		CREATE INDEX IF NOT EXISTS idx_%[1]s_type ON       %[1]s(type);
-	`, tabEducation, tabIndividuals, tabInstitutions, tabSpecialties)
+	`, types.Education, types.Individuals, types.Institutions, types.Specialties)
 	err := edu.source.Exec(query)
 	if err != nil {
 		return m.HandleError(err, "sqliteRepo.initEducation")
@@ -45,7 +46,7 @@ func (s *sqliteRepo) initEducation() error {
 	var mockEdu []*draftEdu
 	json.Unmarshal([]byte(mockEducation), &mockEdu)
 	var count int64
-	edu.source.db.QueryRow(fmt.Sprintf(`select count(*) from %[1]s`, tabEducation)).Scan(&count)
+	edu.source.db.QueryRow(fmt.Sprintf(`select count(*) from %[1]s`, types.Education)).Scan(&count)
 	if count == 0 {
 		for _, row := range mockEdu {
 			record, err := row.update(edu.repo)
@@ -85,7 +86,7 @@ func (e *education) GetByIin(iin string) ([]*m.Education, error) {
 
 func (e *education) Get(ctx context.Context, individ *m.Individuals) ([]*m.Education, error) {
 
-	rows, err := e.source.db.QueryContext(ctx, fmt.Sprintf("SELECT individ, institut, year, type, specialty FROM %[1]s WHERE individ = ?", tabEducation), individ.Key)
+	rows, err := e.source.db.QueryContext(ctx, fmt.Sprintf("SELECT individ, institut, year, type, specialty FROM %[1]s WHERE individ = ?", types.Education), individ.Key)
 	if err != nil {
 		return nil, m.HandleError(err, "education.Get")
 	}
@@ -165,7 +166,7 @@ INSERT OR REPLACE INTO %[1]s (
 			type,
 			specialty)
 VALUES (?, ?, ?, ?, ?)
-`, tabEducation)
+`, types.Education)
 var mockEducation string = `
 [
     {"individual": "821019000888", "institution": "521451f0-1c6a-4647-b27d-d2204cd9e992", "year": 2007, "type": "civil", "specialty": "18fcf8f9-9705-460c-a15e-a7427c0d8f8c"},

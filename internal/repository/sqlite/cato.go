@@ -7,9 +7,9 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"lkserver/internal/models"
 	m "lkserver/internal/models"
-	mc "lkserver/internal/models/cato"
+	"lkserver/internal/models/catalogs"
+	"lkserver/internal/models/types"
 	"os"
 )
 
@@ -22,21 +22,21 @@ func (repo *sqliteRepo) initCato() error {
 	src := &cato{
 		source: repo.db,
 	}
-	query := fmt.Sprintf(createCatoQuery, tabCato)
+	query := fmt.Sprintf(createCatoQuery, types.Cato)
 
 	if err := src.source.Exec(query); err != nil {
 		return m.HandleError(err, "sqliteRepo.initCato")
 	}
 
 	var count int64
-	src.source.db.QueryRow(fmt.Sprintf(`select count(*) from %[1]s`, tabCato)).Scan(&count)
+	src.source.db.QueryRow(fmt.Sprintf(`select count(*) from %[1]s`, types.Cato)).Scan(&count)
 	if count == 0 {
 		if err := src.loadData("data/cato.json"); err != nil {
 			return m.HandleError(err, "sqliteRepo.initCato")
 		}
 	}
 
-	repo.cato = src
+	repo.catalogs.Cato = src
 	return nil
 }
 
@@ -50,7 +50,7 @@ func (c *cato) loadData(path string) error {
 	if err != nil {
 		return m.HandleError(err, "cato.loadData")
 	}
-	data := []*mc.Cato{}
+	data := []*catalogs.Cato{}
 	if err := json.Unmarshal(bytes, &data); err != nil {
 		return m.HandleError(err, "cato.loadData")
 	}
@@ -75,8 +75,8 @@ func (c *cato) loadData(path string) error {
 	return m.HandleError(tx.Commit(), "cato.loadData")
 }
 
-func saveData(tx *sql.Tx, data []*mc.Cato) error {
-	query := fmt.Sprintf("INSERT INTO %[1]s (ref, parentRef, code, description, title, k1, k2, k3, k4, k5) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", tabCato)
+func saveData(tx *sql.Tx, data []*catalogs.Cato) error {
+	query := fmt.Sprintf("INSERT INTO %[1]s (ref, parentRef, code, description, title, k1, k2, k3, k4, k5) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", types.Cato)
 
 	stmt, err := tx.Prepare(query)
 	if err != nil {
@@ -94,9 +94,9 @@ func saveData(tx *sql.Tx, data []*mc.Cato) error {
 	return nil
 }
 
-func (c *cato) Get(ctx context.Context, Ref models.JSONByte) (*mc.Cato, error) {
+func (c *cato) Get(ctx context.Context, Ref m.JSONByte) (*catalogs.Cato, error) {
 
-	query := fmt.Sprintf(`SELECT parentRef, code, description, title, k1, k2, k3, k4, k5 FROM %[1]s WHERE ref = ?`, tabCato)
+	query := fmt.Sprintf(`SELECT ref, parentRef, code, description, title, k1, k2, k3, k4, k5 FROM %[1]s WHERE ref = ?`, types.Cato)
 
 	result, err := c.query(ctx, query, Ref)
 	if err != nil {
@@ -109,11 +109,21 @@ func (c *cato) Get(ctx context.Context, Ref models.JSONByte) (*mc.Cato, error) {
 	return result[0], nil
 }
 
-func (c *cato) List(ctx context.Context, parentRef m.JSONByte, limits ...int64) ([]*mc.Cato, error) {
+func (c *cato) List(ctx context.Context, parentRef m.JSONByte, limits ...int64) ([]*catalogs.Cato, error) {
 
-	query := fmt.Sprintf(`SELECT ref, parentRef, code, description, title, k1, k2, k3, k4, k5 FROM %[1]s WHERE parentRef = ?`, tabCato)
+	limit, offset := limitations(limits)
 
-	result, err := c.query(ctx, query, parentRef)
+	var result []*catalogs.Cato
+	var err error
+
+	if parentRef.Blank() {
+		query := fmt.Sprintf(`SELECT ref, parentRef, code, description, title, k1, k2, k3, k4, k5 FROM %[1]s WHERE parentRef IS NULL LIMIT %[2]d OFFSET %[3]d`, types.Cato, limit, offset)
+		result, err = c.query(ctx, query)
+	} else {
+		query := fmt.Sprintf(`SELECT ref, parentRef, code, description, title, k1, k2, k3, k4, k5 FROM %[1]s WHERE parentRef = ? LIMIT %[2]d OFFSET %[3]d`, types.Cato, limit, offset)
+		result, err = c.query(ctx, query, parentRef)
+	}
+
 	if err != nil {
 		return nil, m.HandleError(err, "cato.List")
 	}
@@ -121,19 +131,26 @@ func (c *cato) List(ctx context.Context, parentRef m.JSONByte, limits ...int64) 
 
 }
 
-func (c *cato) Find(ctx context.Context, title string, limits ...int64) ([]*mc.Cato, error) {
+func (c *cato) Count(ctx context.Context) int64 {
+	var count int64
+	c.source.db.QueryRow(fmt.Sprintf(`select count(ref) from %[1]s`, types.Cato)).Scan(&count)
+	return count
+}
+
+func (c *cato) Find(ctx context.Context, title string, limits ...int64) ([]*catalogs.Cato, error) {
 
 	limit, offset := limitations(limits)
-	query := fmt.Sprintf(`SELECT ref, parentRef, code, description, title, k1, k2, k3, k4, k5 FROM %[1]s WHERE title like ? LIMIT %[2]d OFFSET %[3]d`, tabCato, limit, offset)
+	query := fmt.Sprintf(`SELECT ref, parentRef, code, description, title, k1, k2, k3, k4, k5 FROM %[1]s WHERE title like ? LIMIT %[2]d OFFSET %[3]d`, types.Cato, limit, offset)
 	result, err := c.query(ctx, query, "%"+title+"%")
 	if err != nil {
 		return nil, m.HandleError(err, "cato.Find")
 	}
+
 	return result, nil
 
 }
 
-func (c *cato) query(ctx context.Context, query string, args ...any) ([]*mc.Cato, error) {
+func (c *cato) query(ctx context.Context, query string, args ...any) ([]*catalogs.Cato, error) {
 	stmt, err := c.source.db.Prepare(query)
 	if err != nil {
 		return nil, m.HandleError(err, "cato.query")
@@ -144,9 +161,9 @@ func (c *cato) query(ctx context.Context, query string, args ...any) ([]*mc.Cato
 		return nil, m.HandleError(err, "cato.query")
 	}
 	defer rows.Close()
-	var result []*mc.Cato
+	var result []*catalogs.Cato
 	for rows.Next() {
-		record := &mc.Cato{}
+		record := &catalogs.Cato{}
 		if err := rows.Scan(
 			&record.Ref,
 			&record.ParentRef,
@@ -159,7 +176,7 @@ func (c *cato) query(ctx context.Context, query string, args ...any) ([]*mc.Cato
 			&record.K4,
 			&record.K5,
 		); err != nil {
-			return nil, m.HandleError(err, "cato.Scan")
+			return nil, m.HandleError(err, "cato.query")
 		}
 		result = append(result, record)
 	}
