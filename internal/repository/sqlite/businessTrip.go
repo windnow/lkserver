@@ -21,7 +21,7 @@ func (r *DepartureOnBusinessTrip) GetStructure() interface{} {
 	return &reports.ReportData{Details: &reports.BussinesTripDetails{}}
 }
 
-func (r *DepartureOnBusinessTrip) Get(ctx context.Context, ref m.JSONByte, tx ...*sql.Tx) (any, error) {
+func (r *DepartureOnBusinessTrip) Get(ctx context.Context, ref m.JSONByte, tx ...*sql.Tx) (any, m.META, error) {
 	details := &reports.BussinesTripDetails{}
 	query := fmt.Sprintf(`
 	SELECT report, supervisor, acting_supervisor, basis, transport_type
@@ -40,9 +40,9 @@ func (r *DepartureOnBusinessTrip) Get(ctx context.Context, ref m.JSONByte, tx ..
 		&details.Basis,
 		&details.TransportType,
 	); err != nil {
-		return nil, m.HandleError(err)
+		return nil, nil, m.HandleError(err)
 	}
-	return details, nil
+	return details, reports.BussinesTripDetailsMeta, nil
 }
 func (r *DepartureOnBusinessTrip) Save(tx *sql.Tx, ctx context.Context, report m.JSONByte, data any) error {
 	details, ok := data.(*reports.BussinesTripDetails)

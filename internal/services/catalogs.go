@@ -4,6 +4,7 @@ import (
 	"context"
 	m "lkserver/internal/models"
 	"lkserver/internal/models/catalogs"
+	"lkserver/internal/models/types"
 	"lkserver/internal/repository"
 )
 
@@ -16,10 +17,10 @@ func NewCatalogsService(r *repository.Repo) *CatalogsService {
 }
 
 type Result struct {
-	Data any    `json:"data"`
-	Len  int    `json:"len"`
-	Rows int64  `json:"rows"`
-	Meta m.META `json:"meta"`
+	Data any               `json:"data"`
+	Len  int               `json:"len"`
+	Rows int64             `json:"rows"`
+	Meta map[string]m.META `json:"meta"`
 }
 
 func (c *CatalogsService) GetCato(ctx context.Context, ref m.JSONByte) (*Result, error) {
@@ -31,7 +32,7 @@ func (c *CatalogsService) GetCato(ctx context.Context, ref m.JSONByte) (*Result,
 		Data: data,
 		Len:  1,
 		Rows: c.provider.Catalogs.Cato.Count(ctx),
-		Meta: catalogs.CatoMETA,
+		Meta: map[string]m.META{types.Cato: catalogs.CatoMETA},
 	}, nil
 }
 
@@ -50,7 +51,7 @@ func (c *CatalogsService) CatoList(ctx context.Context, parent m.JSONByte, searc
 		Data: result,
 		Len:  len(result),
 		Rows: c.provider.Catalogs.Cato.Count(ctx),
-		Meta: catalogs.CatoMETA,
+		Meta: map[string]m.META{types.Cato: catalogs.CatoMETA},
 	}, nil
 }
 
@@ -63,7 +64,7 @@ func (c *CatalogsService) GetVus(ctx context.Context, ref m.JSONByte) (*Result, 
 		Data: data,
 		Len:  1,
 		Rows: c.provider.Catalogs.Vus.Count(ctx),
-		Meta: catalogs.CatoMETA,
+		Meta: map[string]m.META{types.Vus: catalogs.CatoMETA},
 	}, nil
 }
 
@@ -84,6 +85,6 @@ func (c *CatalogsService) VusList(ctx context.Context, search string, limits ...
 		Data: result,
 		Len:  len(result),
 		Rows: c.provider.Catalogs.Vus.Count(ctx),
-		Meta: catalogs.VusMETA,
+		Meta: map[string]m.META{types.Vus: catalogs.VusMETA},
 	}, nil
 }
