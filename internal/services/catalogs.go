@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-	"lkserver/internal/models"
 	m "lkserver/internal/models"
 	"lkserver/internal/models/catalogs"
 	"lkserver/internal/repository"
@@ -17,16 +16,16 @@ func NewCatalogsService(r *repository.Repo) *CatalogsService {
 }
 
 type Result struct {
-	Data any         `json:"data"`
-	Len  int         `json:"len"`
-	Rows int64       `json:"rows"`
-	Meta models.META `json:"meta"`
+	Data any    `json:"data"`
+	Len  int    `json:"len"`
+	Rows int64  `json:"rows"`
+	Meta m.META `json:"meta"`
 }
 
-func (c *CatalogsService) GetCato(ctx context.Context, ref models.JSONByte) (*Result, error) {
+func (c *CatalogsService) GetCato(ctx context.Context, ref m.JSONByte) (*Result, error) {
 	data, err := c.provider.Catalogs.Cato.Get(ctx, ref)
 	if err != nil {
-		return nil, models.HandleError(err, "CatalogsService.GetCato")
+		return nil, m.HandleError(err, "CatalogsService.GetCato")
 	}
 	return &Result{
 		Data: data,
@@ -36,7 +35,7 @@ func (c *CatalogsService) GetCato(ctx context.Context, ref models.JSONByte) (*Re
 	}, nil
 }
 
-func (c *CatalogsService) CatoList(ctx context.Context, parent models.JSONByte, search string, limits ...int64) (*Result, error) {
+func (c *CatalogsService) CatoList(ctx context.Context, parent m.JSONByte, search string, limits ...int64) (*Result, error) {
 	var result []*catalogs.Cato
 	var err error
 	if search != "" {
@@ -55,10 +54,10 @@ func (c *CatalogsService) CatoList(ctx context.Context, parent models.JSONByte, 
 	}, nil
 }
 
-func (c *CatalogsService) GetVus(ctx context.Context, ref models.JSONByte) (*Result, error) {
+func (c *CatalogsService) GetVus(ctx context.Context, ref m.JSONByte) (*Result, error) {
 	data, err := c.provider.Catalogs.Vus.Get(ctx, ref)
 	if err != nil {
-		return nil, models.HandleError(err, "CatalogsService.GetVus")
+		return nil, m.HandleError(err, "CatalogsService.GetVus")
 	}
 	return &Result{
 		Data: data,
