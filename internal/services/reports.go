@@ -57,7 +57,7 @@ func (s *ReportService) GetStructure(reportType string) (interface{}, error) {
 	return s.provider.Reports.GetStructure(reportType)
 }
 
-func (s *ReportService) GetReportData(ctx context.Context, guid models.JSONByte) (any, error) {
+func (s *ReportService) GetReportData(ctx context.Context, guid models.JSONByte) (*Result, error) {
 
 	reportHead, err := s.provider.Reports.Get(guid)
 	if err != nil {
@@ -72,10 +72,14 @@ func (s *ReportService) GetReportData(ctx context.Context, guid models.JSONByte)
 		return nil, models.HandleError(err, "ReportService.GetReportData")
 	}
 
-	return &reports.ReportData{
+	return &Result{Data: &reports.ReportData{
 		Head:         reportHead,
 		Coordinators: reportCoordinators,
 		Details:      reportDetails,
+	},
+		Len:  1,
+		Rows: -1,
+		Meta: models.ReportMETA,
 	}, nil
 }
 

@@ -301,7 +301,8 @@ curl -b cookie.txt --data @mockData.json http://localhost:8080/i/reports/0001/sa
 {
   "head": {
     "type": "fcf8e381-ea56-43ea-a83f-c2059a3aa329",
-    "date": "2024.10.06 18:06:00"
+    "date": "2024.10.06 18:06:00",
+    "number": "0001"
   },
   "coordinators": [
     {"coordinator_ref": "8c272f7c-6c2c-4dba-bba5-4062005b2400"},
@@ -324,36 +325,48 @@ curl -b cookie.txt --request GET http://localhost:8080/i/reports/77ff0fd3-22bc-4
 **Ответ**:
 ```json
 {
-    "head": {
-        "ref": "77ff0fd3-22bc-4cd3-be79-f778f4b1845d",
-        "type": "fcf8e381-ea56-43ea-a83f-c2059a3aa329",
-        "date": "2024.10.06 23:06:00",
-        "number": "000009",
-        "reg_number": "000009",
-        "author": "c9aba8d6-351a-4d85-a8b6-9427ea2f8c8e"
-    },
-    "coordinators": [
-        {
-            "ref": "b9b418c0-c46e-449b-9a2c-e6816fb569ef",
-            "report_ref": "77ff0fd3-22bc-4cd3-be79-f778f4b1845d",
-            "coordinator_ref": "8c272f7c-6c2c-4dba-bba5-4062005b2400",
-            "who_author_ref": "c9aba8d6-351a-4d85-a8b6-9427ea2f8c8e",
-            "when_added_ref": "2024.10.07 20:29:06"
+    "data": {
+        "head": {
+            "ref": "7ee27642-170c-45e8-9fdb-d4855653c63e",
+            "type": "fcf8e381-ea56-43ea-a83f-c2059a3aa329",
+            "date": "2024.10.06 23:06:00",
+            "number": "0001",
+            "reg_number": "",
+            "author": "c9aba8d6-351a-4d85-a8b6-9427ea2f8c8e"
         },
-        {
-            "ref": "907f7d8b-2a62-4484-aee6-4e63ded6c402",
-            "report_ref": "77ff0fd3-22bc-4cd3-be79-f778f4b1845d",
-            "coordinator_ref": "f31c6a0f-b07c-4632-8949-2f24fde4fc26",
-            "who_author_ref": "c9aba8d6-351a-4d85-a8b6-9427ea2f8c8e",
-            "when_added_ref": "2024.10.07 20:29:06"
+        "coordinators": [
+            {
+                "ref": "90228de8-2292-4920-8d4d-7f48db4e4b71",
+                "report_ref": "7ee27642-170c-45e8-9fdb-d4855653c63e",
+                "coordinator_ref": "8c272f7c-6c2c-4dba-bba5-4062005b2400",
+                "who_author_ref": "c9aba8d6-351a-4d85-a8b6-9427ea2f8c8e",
+                "when_added_ref": "2024.10.16 17:30:58"
+            },
+            {
+                "ref": "758a58c2-0446-4cbd-8cd6-93f3f0f096e7",
+                "report_ref": "7ee27642-170c-45e8-9fdb-d4855653c63e",
+                "coordinator_ref": "f31c6a0f-b07c-4632-8949-2f24fde4fc26",
+                "who_author_ref": "c9aba8d6-351a-4d85-a8b6-9427ea2f8c8e",
+                "when_added_ref": "2024.10.16 17:30:58"
+            }
+        ],
+        "details": {
+            "report_ref": "7ee27642-170c-45e8-9fdb-d4855653c63e",
+            "supervisor": "f31c6a0f-b07c-4632-8949-2f24fde4fc26",
+            "acting_supervisor": "",
+            "basis": "Распоряжение руководства",
+            "transport_type": "Железная дорога"
         }
-    ],
-    "details": {
-        "report_ref": "77ff0fd3-22bc-4cd3-be79-f778f4b1845d",
-        "supervisor": "f31c6a0f-b07c-4632-8949-2f24fde4fc26",
-        "acting_supervisor": "",
-        "basis": "Распоряжение руководства",
-        "transport_type": "Железная дорога"
+    },
+    "len": 1,
+    "rows": -1,
+    "meta": {
+        "author": "users",
+        "date": "date",
+        "number": "string",
+        "ref": "report",
+        "reg_number": "string",
+        "type": "report_type"
     }
 }
 ```
@@ -366,38 +379,19 @@ curl -b cookie.txt http://localhost:8080/i/reports/
 
 **Ответ**:
 ```json
-[
-    {
-        "ref": "8d624514-7eda-4b6f-a350-5cce76b58870",
-        "type": "fcf8e381-ea56-43ea-a83f-c2059a3aa329",
-        "date": "2024.10.06 23:06:00",
-        "number": "",
-        "reg_number": "",
-        "author": "c9aba8d6-351a-4d85-a8b6-9427ea2f8c8e"
-    },
-    {
-        "ref": "2b843c2d-c3e9-4ec7-abff-499fe08aae59",
-        "type": "fcf8e381-ea56-43ea-a83f-c2059a3aa329",
-        "date": "2024.10.06 23:06:00",
-        "number": "",
-        "reg_number": "",
-        "author": "c9aba8d6-351a-4d85-a8b6-9427ea2f8c8e"
-    },
-    {
-        "ref": "cafb6d75-8a45-4d78-b116-26cfb74f1205",
-        "type": "fcf8e381-ea56-43ea-a83f-c2059a3aa329",
-        "date": "2024.10.06 23:06:00",
-        "number": "",
-        "reg_number": "",
-        "author": "c9aba8d6-351a-4d85-a8b6-9427ea2f8c8e"
-    },
-    {
-        "ref": "64faa2af-d3ec-4536-91a8-adab0cfa2966",
-        "type": "fcf8e381-ea56-43ea-a83f-c2059a3aa329",
-        "date": "2024.10.06 23:06:00",
-        "number": "",
-        "reg_number": "",
-        "author": "c9aba8d6-351a-4d85-a8b6-9427ea2f8c8e"
-    }
-]
+{
+    "data": [
+        {
+            "ref": "7ee27642-170c-45e8-9fdb-d4855653c63e",
+            "type": "fcf8e381-ea56-43ea-a83f-c2059a3aa329",
+            "date": "2024.10.06 23:06:00",
+            "number": "0001",
+            "reg_number": "",
+            "author": "c9aba8d6-351a-4d85-a8b6-9427ea2f8c8e"
+        }
+    ],
+    "len": 1,
+    "rows": -1,
+    "meta": null
+}
 ```
