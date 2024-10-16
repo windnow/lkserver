@@ -6,6 +6,7 @@ import (
 	"fmt"
 	m "lkserver/internal/models"
 	"lkserver/internal/models/reports"
+	"lkserver/internal/models/types"
 	"time"
 )
 
@@ -25,7 +26,7 @@ func InitCoordinators(repo *reportsRepo) error {
 			);
 
 			CREATE INDEX IF NOT EXISTS idx_%[1]s_report ON    %[1]s(report);
-			`, tabCoordinators, tabReport, tabUsers)
+			`, types.Coordinators, types.Report, types.Users)
 
 	err := repo.source.Exec(query)
 	if err != nil {
@@ -41,7 +42,7 @@ func (repo *reportsRepo) SaveCoordinators(tx *sql.Tx, ctx context.Context, coord
 		return nil
 	}
 
-	query := fmt.Sprintf("INSERT INTO %[1]s (ref, report, coordinator, author, when_added) VALUES ", tabCoordinators)
+	query := fmt.Sprintf("INSERT INTO %[1]s (ref, report, coordinator, author, when_added) VALUES ", types.Coordinators)
 	values := []interface{}{}
 	placeholders := []string{}
 
@@ -63,7 +64,7 @@ func (repo *reportsRepo) SaveCoordinators(tx *sql.Tx, ctx context.Context, coord
 }
 
 func (repo *reportsRepo) GetCoordinators(ctx context.Context, report *m.Report) ([]*reports.Coordinators, error) {
-	query := fmt.Sprintf("SELECT ref, report, coordinator, author, when_added FROM %[1]s WHERE report = ?", tabCoordinators)
+	query := fmt.Sprintf("SELECT ref, report, coordinator, author, when_added FROM %[1]s WHERE report = ?", types.Coordinators)
 	rows, err := repo.source.db.QueryContext(ctx, query, report.Ref)
 	if err != nil {
 		return nil, m.HandleError(err, "reportsRepo.GetCoordinators")

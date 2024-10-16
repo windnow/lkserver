@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	m "lkserver/internal/models"
+	"lkserver/internal/models/types"
 	"time"
 )
 
@@ -30,19 +31,20 @@ func (r *sqliteRepo) initIndividualsRepo() error {
 			image TEXT,
 			birth_date INTEGER,
 			birth_place TEXT,
-			personal_number TEXT
+			personal_number TEXT,
+			vus BLOB
 		);
 		CREATE INDEX IF NOT EXISTS idx_%[1]s_iin ON %[1]s(iin);
 		CREATE INDEX IF NOT EXISTS idx_%[1]s_first_name ON %[1]s(first_name);
 		CREATE INDEX IF NOT EXISTS idx_%[1]s_last_name ON %[1]s(last_name);
 		CREATE INDEX IF NOT EXISTS idx_%[1]s_birth_date ON %[1]s(birth_date);
-	`, tabIndividuals))
+	`, types.Individuals))
 	if err != nil {
 		return m.HandleError(err, "sqliteRepo.initIndividualsRepo")
 	}
 
 	var count int64
-	i.source.db.QueryRow(fmt.Sprintf(`select count(*) from %[1]s`, tabIndividuals)).Scan(&count)
+	i.source.db.QueryRow(fmt.Sprintf(`select count(*) from %[1]s`, types.Individuals)).Scan(&count)
 	var individuals []m.Individuals
 	if err := json.Unmarshal([]byte(data), &individuals); err != nil {
 		return m.HandleError(err, "sqliteRepo.initIndividualsRepo")
@@ -76,7 +78,7 @@ func (i *individualsRepo) Get(key m.JSONByte) (*m.Individuals, error) {
 			personal_number
 		FROM %[1]s
 		WHERE ref = ? 
-	`, tabIndividuals), individ.Key).Scan(
+	`, types.Individuals), individ.Key).Scan(
 		&individ.IndividualNumber,
 		&individ.Code,
 		&individ.Nationality,
@@ -109,10 +111,11 @@ func (i *individualsRepo) GetByIin(iin string) (*m.Individuals, error) {
 			image,
 			birth_date,
 			birth_place,
-			personal_number
+			personal_number,
+			vus
 		FROM %[1]s
 		WHERE iin = ? 
-	`, tabIndividuals), individ.IndividualNumber).Scan(
+	`, types.Individuals), individ.IndividualNumber).Scan(
 		&individ.Key,
 		&individ.Code,
 		&individ.Nationality,
@@ -123,6 +126,7 @@ func (i *individualsRepo) GetByIin(iin string) (*m.Individuals, error) {
 		&individ.BirthDate,
 		&individ.BirthPlace,
 		&individ.PersonalNumber,
+		&individ.Vus,
 	)
 
 	if err != nil {
@@ -145,17 +149,18 @@ func (i *individualsRepo) Save(ctx context.Context, individ *m.Individuals) erro
 		individ.Image,
 		time.Time(individ.BirthDate).Unix(),
 		individ.BirthPlace,
-		individ.PersonalNumber)
+		individ.PersonalNumber,
+		individ.Vus)
 
 }
 
 var insertIndividQuery = fmt.Sprintf(`
 	INSERT INTO %s(
-		ref, iin, code, nationality, first_name, last_name, patronymic, image, birth_date, birth_place, personal_number
+		ref, iin, code, nationality, first_name, last_name, patronymic, image, birth_date, birth_place, personal_number, vus
 	) VALUES (
-	 	?,	  ?,   ?,	?,      		?,			?,			?,			?,	   ?,			?,			?
+	 	?,	  ?,   ?,	?,      		?,			?,			?,			?,	   ?,			?,			?,          ?
 	 )
-`, tabIndividuals)
+`, types.Individuals)
 
 var data string = `[
 {
@@ -169,7 +174,8 @@ var data string = `[
         "image": "821019000888",
         "birth_date": "1981.11.19",
         "birth_place": "с. Баканас Балхашского района Алма-Атинской области",
-        "personal_number": "А-000001"
+        "personal_number": "А-000001",
+		"vus": "5e982366-826f-4b16-804d-178dac0b4ff9"
     },
     {
 		"key":"52efc72d-ba0d-4f87-ae73-e902936395fe",
@@ -181,7 +187,8 @@ var data string = `[
         "patronymic": "Дастанулы",
         "birth_date": "1991.09.20",
         "birth_place": "с. Баканас Жанааркинского района Карагандинской области",
-        "personal_number": "А-000002"
+        "personal_number": "А-000002",
+		"vus": "5e982366-826f-4b16-804d-178dac0b4ff9"
     },
     {
 		"key":"19db2753-68f9-4b5d-998a-727e347a958a",
@@ -193,5 +200,6 @@ var data string = `[
         "patronymic": "Ганиевич",
         "birth_date": "1985.11.04",
         "birth_place": "с. Октябрьское район М.Жумабаева Северо-Казахстанской области",
-        "personal_number": "А-000003"
+        "personal_number": "А-000003",
+		"vus": "5e982366-826f-4b16-804d-178dac0b4ff9"
     }]`

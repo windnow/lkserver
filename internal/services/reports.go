@@ -176,7 +176,7 @@ func (s *ReportService) Save(ctx context.Context, reportType string, data interf
 	return nil
 }
 
-func (s *ReportService) List(ctx context.Context) ([]*models.Report, error) {
+func (s *ReportService) List(ctx context.Context) (*Result, error) {
 	user, err := getContextUser(ctx)
 	if err != nil {
 		return nil, err
@@ -187,5 +187,10 @@ func (s *ReportService) List(ctx context.Context) ([]*models.Report, error) {
 		return nil, err
 	}
 
-	return reports, nil
+	return &Result{
+		Data: reports,
+		Len:  len(reports),
+		Rows: -1,
+	}, nil
+
 }

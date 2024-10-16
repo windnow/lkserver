@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	m "lkserver/internal/models"
+	"lkserver/internal/models/types"
 	"time"
 )
 
@@ -58,7 +59,7 @@ func (s *sqliteRepo) initRankHistory() error {
 
 		CREATE INDEX IF NOT EXISTS idx_%[1]s_date ON %[1]s(date);
 		CREATE INDEX IF NOT EXISTS idx_%[1]s_individ ON %[1]s(individual);
-	`, tabRankHistory, tabRanks, tabIndividuals))
+	`, types.RankHistory, types.Ranks, types.Individuals))
 	if err != nil {
 		return m.HandleError(err, "sqliteRepo.initRankHistory")
 	}
@@ -69,7 +70,7 @@ func (s *sqliteRepo) initRankHistory() error {
 	}
 
 	var count int64
-	rh.source.db.QueryRow(fmt.Sprintf(`select count(*) from %[1]s`, tabRankHistory)).Scan(&count)
+	rh.source.db.QueryRow(fmt.Sprintf(`select count(*) from %[1]s`, types.RankHistory)).Scan(&count)
 	if count == 0 {
 		var result *[]draftRH
 		if err := json.Unmarshal([]byte(mockData), &result); err != nil {
@@ -96,7 +97,7 @@ func (s *sqliteRepo) initRankHistory() error {
 }
 
 func (r *rankHistoryRepo) Save(ctx context.Context, rh *m.RankHistory) error {
-	return m.HandleError(r.source.ExecContextInTransaction(ctx, fmt.Sprintf(`INSERT OR REPLACE INTO %[1]s (date, rank, individual) VALUES (?, ?, ?)`, tabRankHistory), nil,
+	return m.HandleError(r.source.ExecContextInTransaction(ctx, fmt.Sprintf(`INSERT OR REPLACE INTO %[1]s (date, rank, individual) VALUES (?, ?, ?)`, types.RankHistory), nil,
 		time.Time(rh.Date).Unix(), rh.Rank.Key, rh.Individual.Key,
 	), "rankHistoryRepo.Save")
 }
@@ -142,7 +143,7 @@ func (r *rankHistoryRepo) GetLastByIin(individIin string) (*m.RankHistory, error
 
 func (r *rankHistoryRepo) GetHistory(ctx context.Context, individ *m.Individuals) ([]*m.RankHistory, error) {
 
-	rows, err := r.source.db.QueryContext(ctx, fmt.Sprintf("SELECT date, rank FROM %[1]s WHERE individual = ?", tabRankHistory), individ.Key)
+	rows, err := r.source.db.QueryContext(ctx, fmt.Sprintf("SELECT date, rank FROM %[1]s WHERE individual = ?", types.RankHistory), individ.Key)
 	if err != nil {
 		return nil, m.HandleError(err, "rankHistoryRepo.getHistory")
 	}

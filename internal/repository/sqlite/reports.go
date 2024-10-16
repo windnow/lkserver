@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	m "lkserver/internal/models"
+	"lkserver/internal/models/types"
 	"lkserver/internal/repository"
 	"time"
 )
@@ -111,7 +112,7 @@ func (repo *reportsRepo) GetStructure(reportType string) (interface{}, error) {
 
 func (repo *reportsRepo) List(ctx context.Context, userKey m.JSONByte) ([]*m.Report, error) {
 
-	query := fmt.Sprintf("SELECT ref, type, date, number, reg_number, author FROM %[1]s WHERE author = ?", tabReport)
+	query := fmt.Sprintf("SELECT ref, type, date, number, reg_number, author FROM %[1]s WHERE author = ?", types.Report)
 
 	rows, err := repo.source.db.QueryContext(ctx, query, userKey)
 	if err != nil {
@@ -134,7 +135,7 @@ func (repo *reportsRepo) Get(guid m.JSONByte) (*m.Report, error) {
 		SELECT type, date, number, reg_number, author
 		FROM %[1]s
 		WHERE ref = ?
-	`, tabReport)
+	`, types.Report)
 	report := &m.Report{Ref: guid}
 
 	if err := repo.source.db.QueryRow(query, guid).Scan(
@@ -163,7 +164,7 @@ func InitReports(repo *reportsRepo) error {
 			FOREIGN KEY (type) REFERENCES %[2]s(ref)
 			FOREIGN KEY (author) REFERENCES %[3]s(ref)
 		)
-	`, tabReport, tabReportType, tabUsers)
+	`, types.Report, types.ReportType, types.Users)
 
 	if err := repo.source.Exec(query); err != nil {
 		return m.HandleError(err, "reportsRepo.InitReports")
@@ -175,4 +176,4 @@ var saveReportQuery = fmt.Sprintf(`
     INSERT OR REPLACE INTO %[1]s (
         ref, type, date, number, reg_number, author	 
 	) VALUES (?, ?, ?, ?, ?, ?)
-`, tabReport)
+`, types.Report)

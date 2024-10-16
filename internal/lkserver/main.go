@@ -18,14 +18,15 @@ var errUnautorized = errors.New("NOT AUTORIZED")
 var errNotFound = errors.New("NOT Found")
 
 type lkserver struct {
-	repo           *repository.Repo
-	reportsService *services.ReportService
-	usersService   *services.UserService
-	fileStore      repository.FileProvider
-	router         *mux.Router
-	config         *config.Config
-	logger         *logrus.Logger
-	sessionStore   sessions.Store
+	repo            *repository.Repo
+	reportsService  *services.ReportService
+	usersService    *services.UserService
+	catalogsService *services.CatalogsService
+	fileStore       repository.FileProvider
+	router          *mux.Router
+	config          *config.Config
+	logger          *logrus.Logger
+	sessionStore    sessions.Store
 }
 
 func (s *lkserver) Start() error {
@@ -42,14 +43,15 @@ func New(r *repository.Repo, fileStore repository.FileProvider, config *config.C
 	sessionStore.Options.MaxAge = config.SessionMaxAge
 
 	s := &lkserver{
-		config:         config,
-		repo:           r,
-		fileStore:      fileStore,
-		logger:         logger,
-		sessionStore:   sessionStore,
-		router:         mux.NewRouter(),
-		reportsService: services.NewReportService(r),
-		usersService:   services.NewUsersService(r),
+		config:          config,
+		repo:            r,
+		fileStore:       fileStore,
+		logger:          logger,
+		sessionStore:    sessionStore,
+		router:          mux.NewRouter(),
+		reportsService:  services.NewReportService(r),
+		usersService:    services.NewUsersService(r),
+		catalogsService: services.NewCatalogsService(r),
 	}
 	s.configureRouter()
 	return s
@@ -99,16 +101,31 @@ func (s *lkserver) configureRouter() {
 	users := private.PathPrefix("/users").Subrouter()
 	users.HandleFunc("/{guid}", s.handleGetUserInfo()).Methods("GET")
 
-	reports := private.PathPrefix("/reports").Subrouter()
+	s.catalogsRoutes(private)
+	s.reportsRoutes(private)
+
+	s.router.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, s.config.StaticFilesPath+"/index.html")
+	})
+	s.handleFileServerIfExists()
+}
+
+func (s *lkserver) catalogsRoutes(route *mux.Router) {
+
+	catalogs := route.PathPrefix("/cat").Subrouter()
+	catalogs.HandleFunc("/cato", s.handleCatoList()).Methods("GET")
+	catalogs.HandleFunc("/cato/{guid}", s.handleGetCato()).Methods("GET")
+	catalogs.HandleFunc("/vus", s.handleVusList()).Methods("GET")
+	catalogs.HandleFunc("/vus/{guid}", s.handleGetVus()).Methods("GET")
+}
+
+func (s *lkserver) reportsRoutes(route *mux.Router) {
+
+	reports := route.PathPrefix("/reports").Subrouter()
 	reports.HandleFunc("/types", s.handleGetReportTypes()).Methods("GET")
 	reports.HandleFunc("/types/{guid}", s.handleGetReportType()).Methods("GET")
 	reports.HandleFunc("/{type}/save", s.handleSaveReport()).Methods("POST")
 	reports.HandleFunc("/", s.handleReportsList()).Methods("GET")      // Список рапортов текущего пользователя х
 	reports.HandleFunc("/{guid}", s.handleReportData()).Methods("GET") // Данные рапорта
 	reports.HandleFunc("/approvals", nil).Methods("GET")               // Список рапортов для согласования
-
-	s.router.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, s.config.StaticFilesPath+"/index.html")
-	})
-	s.handleFileServerIfExists()
 }

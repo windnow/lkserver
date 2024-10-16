@@ -1,5 +1,7 @@
 package sqlite
 
+import "lkserver/internal/repository"
+
 type sqliteRepo struct {
 	db           *src
 	userRepo     *UserRepository
@@ -11,5 +13,5 @@ type sqliteRepo struct {
 	specialties  *specialties
 	education    *education
 	reports      *reportsRepo
-	cato         *cato
+	catalogs     *repository.Catalogs
 }
