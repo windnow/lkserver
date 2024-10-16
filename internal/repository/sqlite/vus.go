@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"lkserver/internal/models"
 	m "lkserver/internal/models"
 	"lkserver/internal/models/catalogs"
 	"lkserver/internal/models/types"
@@ -23,7 +22,7 @@ func (repo *sqliteRepo) initVus() error {
 
 	query := fmt.Sprintf(createVusQuery, types.Vus)
 	if err := src.source.Exec(query); err != nil {
-		return models.HandleError(err, "sqliteRepo.initVus")
+		return m.HandleError(err, "sqliteRepo.initVus")
 	}
 
 	var count int64
@@ -45,7 +44,7 @@ func (repo *sqliteRepo) initVus() error {
 	return nil
 }
 
-func (s *vus) Get(ctx context.Context, Ref models.JSONByte) (*catalogs.Vus, error) {
+func (s *vus) Get(ctx context.Context, Ref m.JSONByte) (*catalogs.Vus, error) {
 	query := fmt.Sprintf("SELECT ref, code, title from %[1]s WHERE ref = ?", types.Vus)
 	result, err := s.query(ctx, query, Ref)
 	if err != nil {
