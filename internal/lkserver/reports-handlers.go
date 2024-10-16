@@ -25,18 +25,12 @@ func (s *lkserver) handleGetReportType() http.HandlerFunc {
 			s.error(w, http.StatusBadRequest, errors.New("WRONG GUID FORMAT"))
 			return
 		}
-		result, err := s.reportsService.GetTypes([]string{})
+		result, err := s.reportsService.Get(GUID)
 		if s.error(w, http.StatusInternalServerError, err) {
 			return
 		}
-		for _, reportType := range result {
-			if reportType.Ref == GUID {
-				s.respond(w, http.StatusOK, reportType)
-				return
-			}
-		}
 
-		s.error(w, http.StatusNotFound, errNotFound)
+		s.respond(w, http.StatusOK, result)
 
 	}
 }
@@ -47,11 +41,6 @@ func (s *lkserver) handleGetReportTypes() http.HandlerFunc {
 
 		result, err := s.reportsService.GetTypes(queryParams)
 		if s.error(w, http.StatusInternalServerError, err) {
-			return
-		}
-
-		if len(result) == 0 {
-			s.error(w, http.StatusNotFound, models.ErrNotFound)
 			return
 		}
 

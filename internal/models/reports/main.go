@@ -1,8 +1,8 @@
 package reports
 
 import (
-	"lkserver/internal/models"
 	m "lkserver/internal/models"
+	"lkserver/internal/models/types"
 )
 
 type ReportTypes struct {
@@ -12,8 +12,15 @@ type ReportTypes struct {
 	Title     string     `json:"title"`
 }
 
+var ReportTypesMETA = m.META{
+	"ref":    types.ReportType,
+	"parent": types.ReportType,
+	"code":   types.String,
+	"title":  types.String,
+}
+
 type ReportData struct {
-	Head         *models.Report  `json:"head"`
+	Head         *m.Report       `json:"head"`
 	Coordinators []*Coordinators `json:"coordinators"`
 	Details      any             `json:"details"`
 }

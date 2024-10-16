@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"lkserver/internal/models"
 	"lkserver/internal/models/reports"
+	"lkserver/internal/models/types"
 	"lkserver/internal/repository"
 	"time"
 )
@@ -49,15 +50,52 @@ func NewReportService(repo *repository.Repo) *ReportService {
 	}
 }
 
-func (s *ReportService) GetTypes(types []string) ([]*reports.ReportTypes, error) {
-	return s.provider.Reports.GetTypes(types)
+func (s *ReportService) Get(guid models.JSONByte) (*Result, error) {
+
+	set, err := s.provider.Reports.GetTypes([]string{})
+	if err != nil {
+		return nil, models.HandleError(err, "ReportService.Get")
+	}
+	var result *reports.ReportTypes = nil
+	for _, row := range set {
+		if row.Ref.Equal(guid) {
+			result = row
+		}
+	}
+	if result == nil {
+		return nil, models.ErrNotFound
+	}
+
+	return &Result{
+		Data: result,
+		Rows: -1,
+		Len:  1,
+		Meta: map[string]models.META{types.ReportType: reports.ReportTypesMETA},
+	}, nil
+
+}
+
+func (s *ReportService) GetTypes(t []string) (*Result, error) {
+	result, err := s.provider.Reports.GetTypes(t)
+	if err != nil {
+		return nil, models.HandleError(err, "ReportService.GetTypes")
+	}
+
+	return &Result{
+		Data: result,
+		Len:  len(result),
+		Rows: -1,
+		Meta: map[string]models.META{
+			types.ReportType: reports.ReportTypesMETA,
+		},
+	}, nil
 }
 
 func (s *ReportService) GetStructure(reportType string) (interface{}, error) {
 	return s.provider.Reports.GetStructure(reportType)
 }
 
-func (s *ReportService) GetReportData(ctx context.Context, guid models.JSONByte) (any, error) {
+func (s *ReportService) GetReportData(ctx context.Context, guid models.JSONByte) (*Result, error) {
 
 	reportHead, err := s.provider.Reports.Get(guid)
 	if err != nil {
@@ -67,15 +105,23 @@ func (s *ReportService) GetReportData(ctx context.Context, guid models.JSONByte)
 	if err != nil {
 		return nil, models.HandleError(err, "ReportService.GetReportData")
 	}
-	reportDetails, err := s.provider.Reports.GetDetails(ctx, reportHead)
+	reportDetails, meta, err := s.provider.Reports.GetDetails(ctx, reportHead)
 	if err != nil {
 		return nil, models.HandleError(err, "ReportService.GetReportData")
 	}
 
-	return &reports.ReportData{
+	return &Result{Data: &reports.ReportData{
 		Head:         reportHead,
 		Coordinators: reportCoordinators,
 		Details:      reportDetails,
+	},
+		Len:  1,
+		Rows: -1,
+		Meta: map[string]models.META{
+			"head":         models.ReportMETA,
+			"coordinators": reports.CoordinatorsMETA,
+			"details":      meta,
+		},
 	}, nil
 }
 
