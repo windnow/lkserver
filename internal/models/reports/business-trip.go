@@ -14,9 +14,9 @@ type BussinesTripDetails struct {
 }
 
 var BussinesTripDetailsMeta m.META = m.META{
-	"report_ref":        types.Report,
-	"supervisor":        types.Users,
-	"acting_supervisor": types.Users,
-	"basis":             types.String,
-	"transport_type":    types.String,
+	"report_ref":        m.Description{Type: types.Report, Labels: map[string]string{"ru": "Идентификатор рапорта"}},
+	"supervisor":        m.Description{Type: types.Users, Labels: map[string]string{"ru": "Руководитель"}},
+	"acting_supervisor": m.Description{Type: types.Users, Labels: map[string]string{"ru": "ИО руководителя"}},
+	"basis":             m.Description{Type: types.String, Labels: map[string]string{"ru": "Основание"}},
+	"transport_type":    m.Description{Type: types.String, Labels: map[string]string{"ru": "Вид транспорта"}},
 }

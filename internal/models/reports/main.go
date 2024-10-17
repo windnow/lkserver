@@ -13,10 +13,10 @@ type ReportTypes struct {
 }
 
 var ReportTypesMETA = m.META{
-	"ref":    types.ReportType,
-	"parent": types.ReportType,
-	"code":   types.String,
-	"title":  types.String,
+	"ref":    m.Description{Type: types.ReportType, Labels: map[string]string{"ru": "Идентификатор"}},
+	"parent": m.Description{Type: types.ReportType, Labels: map[string]string{"ru": "Родитель"}},
+	"code":   m.Description{Type: types.String, Labels: map[string]string{"ru": "Код"}},
+	"title":  m.Description{Type: types.String, Labels: map[string]string{"ru": "Наименование"}},
 }
 
 type ReportData struct {
