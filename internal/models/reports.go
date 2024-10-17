@@ -1,6 +1,8 @@
 package models
 
-import "lkserver/internal/models/types"
+import (
+	"lkserver/internal/models/types"
+)
 
 type Report struct {
 	Ref       JSONByte `json:"ref"`
@@ -12,10 +14,10 @@ type Report struct {
 }
 
 var ReportMETA = META{
-	"ref":        types.Report,
-	"type":       types.ReportType,
-	"date":       types.Date,
-	"number":     types.String,
-	"reg_number": types.String,
-	"author":     types.Users,
+	"ref":        Description{Type: types.Report, Labels: map[string]string{"ru": "Идентификатор"}},
+	"type":       Description{Type: types.ReportType, Labels: map[string]string{"ru": "Вид рапорта"}},
+	"date":       Description{Type: types.Date, Labels: map[string]string{"ru": "Дата"}},
+	"number":     Description{Type: types.String, Labels: map[string]string{"ru": "Номер"}},
+	"reg_number": Description{Type: types.String, Labels: map[string]string{"ru": "Регистрационный номер"}},
+	"author":     Description{Type: types.Users, Labels: map[string]string{"ru": "Автор"}},
 }

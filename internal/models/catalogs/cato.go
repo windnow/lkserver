@@ -19,14 +19,14 @@ type Cato struct {
 }
 
 var CatoMETA = m.META{
-	"ref":         types.Cato,
-	"parentRef":   types.Cato,
-	"code":        types.String,
-	"k1":          types.String,
-	"k2":          types.String,
-	"k3":          types.String,
-	"k4":          types.String,
-	"k5":          types.String,
-	"description": types.String,
-	"title":       types.String,
+	"ref":         m.Description{Type: types.Cato, Labels: map[string]string{"ru": "Идентификатор"}},
+	"parentRef":   m.Description{Type: types.Cato, Labels: map[string]string{"ru": "Родитель"}},
+	"code":        m.Description{Type: types.String, Labels: map[string]string{"ru": "Код"}},
+	"k1":          m.Description{Type: types.String, Labels: map[string]string{"ru": "К1"}},
+	"k2":          m.Description{Type: types.String, Labels: map[string]string{"ru": "К2"}},
+	"k3":          m.Description{Type: types.String, Labels: map[string]string{"ru": "К3"}},
+	"k4":          m.Description{Type: types.String, Labels: map[string]string{"ru": "К4"}},
+	"k5":          m.Description{Type: types.String, Labels: map[string]string{"ru": "К5"}},
+	"description": m.Description{Type: types.String, Labels: map[string]string{"ru": "Краткое наименование"}},
+	"title":       m.Description{Type: types.String, Labels: map[string]string{"ru": "Полное наименование"}},
 }

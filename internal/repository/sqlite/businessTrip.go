@@ -69,20 +69,30 @@ func (r *DepartureOnBusinessTrip) Save(tx *sql.Tx, ctx context.Context, report m
 }
 func (r *DepartureOnBusinessTrip) Init() error {
 
-	query := fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %[1]s (
-			report				BLOB,
-			supervisor			BLOB,
-			acting_supervisor	BLOB,
-			basis				TEXT,
-			transport_type		TEXT,
+	query := fmt.Sprintf(`
+        CREATE TABLE IF NOT EXISTS %[1]s (
+			report             BLOB,
+			supervisor         BLOB,
+			acting_supervisor  BLOB,
+			basis              TEXT,
+			transport_type     TEXT,
 
-			FOREIGN KEY (report) REFERENCES %[2]s(ref),
-			FOREIGN KEY (supervisor) REFERENCES %[3]s(ref),
+			FOREIGN KEY (report)            REFERENCES %[2]s(ref),
+			FOREIGN KEY (supervisor)        REFERENCES %[3]s(ref),
 			FOREIGN KEY (acting_supervisor) REFERENCES %[3]s(ref)
 		);
 	
 		CREATE INDEX IF NOT EXISTS idx_%[1]s_report ON    %[1]s(report);
-		`, types.BusinessTrip, types.Report, types.Users)
+
+		CREATE TABLE IF NOT EXISTS %[4]s(
+		    report      BLOB,
+			destination BLOB,
+
+			FOREIGN KEY (report)      REFERENCES %[2]s(ref),
+			FOREIGN KEY (destination) REFERENCES %[5]s(ref)
+        );
+		CREATE INDEX IF NOT EXISTS idx_%[4]s_report ON    %[4]s(report);
+		`, types.BusinessTrip, types.Report, types.Users, types.BusinessTripDest, types.Cato)
 
 	err := r.source.Exec(query)
 	if err != nil {

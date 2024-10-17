@@ -237,6 +237,7 @@ func (s *ReportService) List(ctx context.Context) (*Result, error) {
 		Data: reports,
 		Len:  len(reports),
 		Rows: -1,
+		Meta: map[string]models.META{types.Report: models.ReportMETA},
 	}, nil
 
 }

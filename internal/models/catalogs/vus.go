@@ -12,7 +12,7 @@ type Vus struct {
 }
 
 var VusMETA = m.META{
-	"ref":   types.Vus,
-	"code":  types.Date,
-	"title": types.String,
+	"ref":   m.Description{Type: types.Vus, Labels: map[string]string{"ru": "Идентификатор"}},
+	"code":  m.Description{Type: types.Vus, Labels: map[string]string{"ru": "Код"}},
+	"title": m.Description{Type: types.Vus, Labels: map[string]string{"ru": "Наименование"}},
 }
