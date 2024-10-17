@@ -22,18 +22,82 @@ curl -b cookie.txt --request GET http://localhost:8080/wai
 
 ### Получение данных о пользователе
 
+**Получение списка**
+```sh
+curl -b cookie.txt http://localhost:8080/i/users/
 ```
+ 
+ **Параметры**:
+ - `limit`: Максимальное количество получаемых записей - по умолчанию: 20
+ - `offset`: Количество пропускаемых записей - по умолчанию: 0
+ - `search`: Строка поиска
+
+```json
+{
+    "data": [
+        {
+            "key": "c9aba8d6-351a-4d85-a8b6-9427ea2f8c8e",
+            "iin": "821019000888",
+            "name": "Усенбаев Дархан Жаксылыкович",
+            "individ": "27f74b66-cba7-486d-a263-81b6cb9a3e57"
+        },
+        {
+            "key": "8c272f7c-6c2c-4dba-bba5-4062005b2400",
+            "iin": "851204000888",
+            "name": "Каримов Кайрат Ганиевич",
+            "individ": "52efc72d-ba0d-4f87-ae73-e902936395fe"
+        },
+        {
+            "key": "f31c6a0f-b07c-4632-8949-2f24fde4fc26",
+            "iin": "910702000888",
+            "name": "Асетов Алинур Дарханулы",
+            "individ": "19db2753-68f9-4b5d-998a-727e347a958a"
+        },
+        {
+            "key": "eea93cf3-abf8-48e0-9c4d-8104fa2496a0",
+            "iin": "830119399019",
+            "name": "",
+            "individ": ""
+        }
+    ],
+    "len": 4,
+    "rows": -1,
+    "meta": {
+        "users": {
+            "iin": "string",
+            "individ": "individuals",
+            "key": "users",
+            "name": "string",
+            "pin": "string"
+        }
+    }
+}
+```
+
+```sh
 curl -b cookie.txt --request GET http://localhost:8080/i/users/c9aba8d6-351a-4d85-a8b6-9427ea2f8c8e
 ```
 
 **Ответ**:
 ```json
 {
-    "key": "c9aba8d6-351a-4d85-a8b6-9427ea2f8c8e",
-    "individKey": "27f74b66-cba7-486d-a263-81b6cb9a3e57",
-    "iin": "821019000888",
-    "login": "821019000888",
-    "name": "Усенбаев Дархан Жаксылыкович"
+    "data": {
+        "key": "c9aba8d6-351a-4d85-a8b6-9427ea2f8c8e",
+        "iin": "821019000888",
+        "name": "Усенбаев Дархан Жаксылыкович",
+        "individ": "27f74b66-cba7-486d-a263-81b6cb9a3e57"
+    },
+    "len": 1,
+    "rows": -1,
+    "meta": {
+        "users": {
+            "iin": "string",
+            "individ": "individuals",
+            "key": "users",
+            "name": "string",
+            "pin": "string"
+        }
+    }
 }
 ```
 

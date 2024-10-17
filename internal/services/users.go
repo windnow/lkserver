@@ -1,8 +1,9 @@
 package services
 
 import (
-	"fmt"
+	"context"
 	m "lkserver/internal/models"
+	"lkserver/internal/models/types"
 	"lkserver/internal/repository"
 )
 
@@ -16,30 +17,40 @@ func NewUsersService(r *repository.Repo) *UserService {
 	}
 }
 
-func (s *UserService) GetUserInfo(guid m.JSONByte) (any, error) {
-	type result struct {
-		Key        m.JSONByte `json:"key"`
-		IndividKey m.JSONByte `json:"individKey"`
-		Iin        string     `json:"iin"`
-		Login      string     `json:"login"`
-		Name       string     `json:"name"`
-	}
+func (s *UserService) GetUserInfo(guid m.JSONByte) (*Result, error) {
 	user, err := s.provider.User.Get(guid)
 	if err != nil {
 		return nil, m.HandleError(err, "UserService.GetUserInfo")
 	}
 
-	individ, err := s.provider.Individuals.Get(user.Individual)
+	return &Result{
+		Data: user,
+		Len:  1,
+		Rows: -1,
+		Meta: map[string]m.META{types.Users: m.UserMETA},
+	}, nil
+
+}
+
+func (s *UserService) UsersList(ctx context.Context, search string, limits ...int64) (*Result, error) {
+
+	var result []*m.User
+	var err error
+
+	if search != "" {
+		result, err = s.provider.User.Find(ctx, search, limits...)
+	} else {
+		result, err = s.provider.User.List(ctx, limits...)
+	}
 	if err != nil {
-		return nil, m.HandleError(err, "UserService.GetUserInfo")
+		return nil, m.HandleError(err, "UserService.UserList")
 	}
 
-	return &result{
-		Key:        user.Key,
-		Iin:        individ.IndividualNumber,
-		IndividKey: individ.Key,
-		Login:      user.Iin,
-		Name:       fmt.Sprintf("%s %s %s", individ.LastName, individ.FirstName, individ.Patronymic),
+	return &Result{
+		Data: result,
+		Len:  len(result),
+		Rows: -1,
+		Meta: map[string]m.META{types.Users: m.UserMETA},
 	}, nil
 
 }

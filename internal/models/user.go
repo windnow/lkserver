@@ -1,13 +1,26 @@
 package models
 
-import "golang.org/x/crypto/bcrypt"
+import (
+	"lkserver/internal/models/types"
+
+	"golang.org/x/crypto/bcrypt"
+)
 
 type User struct {
 	Key          JSONByte `json:"key"`
 	Iin          string   `json:"iin"`
+	Name         string   `json:"name"`
 	Pin          string   `json:"pin,omitempty"`
 	Individual   JSONByte `json:"individ"`
 	PasswordHash []byte   `json:"-"`
+}
+
+var UserMETA META = META{
+	"key":     types.Users,
+	"iin":     types.String,
+	"name":    types.String,
+	"pin":     types.String,
+	"individ": types.Individuals,
 }
 
 func (u *User) Sanitize() {
