@@ -8,6 +8,18 @@ import (
 	"github.com/gorilla/mux"
 )
 
+func (s *lkserver) handleGetUserList() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		limit, offset := getLimits(r)
+		search := r.URL.Query().Get("search")
+		result, err := s.usersService.UsersList(r.Context(), search, limit, offset)
+		if s.error(w, http.StatusInternalServerError, err) {
+			return
+		}
+		s.respond(w, http.StatusOK, result)
+	}
+}
+
 func (s *lkserver) handleGetUserInfo() http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {

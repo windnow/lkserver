@@ -56,7 +56,7 @@ func NewJSONProvider(dataDir string) (*repository.Repo, error) {
 	}
 
 	return &repository.Repo{
-		User:                 r.user,
+		//User:                 r.user,
 		Individuals:          r.individuals,
 		Contract:             r.contract,
 		Ranks:                r.ranks,

@@ -38,6 +38,8 @@ func (r *Repo) Close() {
 }
 
 type UserProvider interface {
+	Find(ctx context.Context, pattern string, limits ...int64) ([]*models.User, error)
+	List(ctx context.Context, limits ...int64) ([]*models.User, error)
 	FindUser(iin, pin string) (*models.User, error)
 	GetUser(iin string) (*models.User, error)
 	Get(guid models.JSONByte) (*models.User, error)

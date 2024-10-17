@@ -99,6 +99,7 @@ func (s *lkserver) configureRouter() {
 	private.HandleFunc("/edu/{iin}", s.handleEducationByIIN()).Methods("GET")
 
 	users := private.PathPrefix("/users").Subrouter()
+	users.HandleFunc("/", s.handleGetUserList()).Methods("GET")
 	users.HandleFunc("/{guid}", s.handleGetUserInfo()).Methods("GET")
 
 	s.catalogsRoutes(private)
