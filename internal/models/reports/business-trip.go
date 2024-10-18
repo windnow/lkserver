@@ -5,6 +5,11 @@ import (
 	"lkserver/internal/models/types"
 )
 
+type Destination struct {
+	ReportRef   m.JSONByte `json:"report_ref"`
+	Destination m.JSONByte `json:"destination"`
+}
+
 type BussinesTripDetails struct {
 	ReportRef        m.JSONByte `json:"report_ref"`
 	Supervisor       m.JSONByte `json:"supervisor"`

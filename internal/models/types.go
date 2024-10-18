@@ -1,6 +1,8 @@
 package models
 
 import (
+	"context"
+	"database/sql"
 	"database/sql/driver"
 	"encoding/hex"
 	"encoding/json"
@@ -157,4 +159,32 @@ func ParseJSONByteFromString(uuidStr string) (JSONByte, error) {
 
 func (left JSONByte) Equal(righ JSONByte) bool {
 	return left == righ
+}
+
+type Scanable interface {
+	Scan(rows *sql.Rows) error
+}
+type Getter func() Scanable
+
+func Query[T Scanable](db *sql.DB, ctx context.Context, getter Getter, query string, args ...any) ([]T, error) {
+	stmt, err := db.Prepare(query)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.QueryContext(ctx, args...)
+	if err != nil {
+		return nil, err
+	}
+	var result []T
+	for rows.Next() {
+		record := getter().(T)
+		if err = record.Scan(rows); err != nil {
+			return nil, err
+		}
+		result = append(result, record)
+	}
+
+	return result, nil
 }

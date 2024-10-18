@@ -118,6 +118,10 @@ func (s *lkserver) catalogsRoutes(route *mux.Router) {
 	catalogs.HandleFunc("/cato/{guid}", s.handleGetCato()).Methods("GET")
 	catalogs.HandleFunc("/vus", s.handleVusList()).Methods("GET")
 	catalogs.HandleFunc("/vus/{guid}", s.handleGetVus()).Methods("GET")
+	catalogs.HandleFunc("/orgs", s.handleOrgsList()).Methods("GET")
+	catalogs.HandleFunc("/orgs{guid}", s.handleGetOrganization()).Methods("GET")
+	catalogs.HandleFunc("/devision", s.handleDevisionsList()).Methods("GET")
+	catalogs.HandleFunc("/devision/{guid}", s.handleGetDevision()).Methods("GET")
 }
 
 func (s *lkserver) reportsRoutes(route *mux.Router) {

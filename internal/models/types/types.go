@@ -8,6 +8,8 @@ const (
 
 	// refs
 	Individuals      = "individuals"
+	Organization     = "organization"
+	Devision         = "devision"
 	Users            = "users"
 	Specialties      = "specialties"
 	Ranks            = "ranks"

@@ -105,3 +105,73 @@ func (s *lkserver) handleVusList() http.HandlerFunc {
 		s.respond(w, http.StatusOK, result)
 	}
 }
+
+func (s *lkserver) handleOrgsList() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		limit, offset := getLimits(r)
+		search := r.URL.Query().Get("search")
+
+		result, err := s.catalogsService.OrganizationList(r.Context(), search, limit, offset)
+		if s.error(w, http.StatusInternalServerError, err) {
+			return
+		}
+		s.respond(w, http.StatusOK, result)
+
+	}
+}
+
+func (s *lkserver) handleDevisionsList() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		limit, offset := getLimits(r)
+		search := r.URL.Query().Get("search")
+
+		result, err := s.catalogsService.DevisionList(r.Context(), search, limit, offset)
+		if s.error(w, http.StatusInternalServerError, err) {
+			return
+		}
+		s.respond(w, http.StatusOK, result)
+
+	}
+}
+
+func (s *lkserver) handleGetOrganization() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		guid := mux.Vars(r)["guid"]
+		if guid == "" {
+			s.error(w, http.StatusBadRequest, errors.New("ORGANIZATION GUID IS MISSING"))
+			return
+		}
+		GUID, err := models.ParseJSONByteFromString(guid)
+		if s.error(w, http.StatusBadRequest, err) {
+			return
+		}
+
+		result, err := s.catalogsService.GetOrganization(r.Context(), GUID)
+		if s.error(w, http.StatusInternalServerError, err) {
+			return
+		}
+		s.respond(w, http.StatusOK, result)
+	}
+}
+
+func (s *lkserver) handleGetDevision() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		guid := mux.Vars(r)["guid"]
+		if guid == "" {
+			s.error(w, http.StatusBadRequest, errors.New("DEVISION GUID IS MISSING"))
+			return
+		}
+		GUID, err := models.ParseJSONByteFromString(guid)
+		if s.error(w, http.StatusBadRequest, err) {
+			return
+		}
+
+		result, err := s.catalogsService.GetDevision(r.Context(), GUID)
+		if s.error(w, http.StatusInternalServerError, err) {
+			return
+		}
+		s.respond(w, http.StatusOK, result)
+	}
+}

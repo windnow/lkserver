@@ -85,7 +85,7 @@ func (r *DepartureOnBusinessTrip) Init() error {
 		CREATE INDEX IF NOT EXISTS idx_%[1]s_report ON    %[1]s(report);
 
 		CREATE TABLE IF NOT EXISTS %[4]s(
-		    report      BLOB,
+            report      BLOB,
 			destination BLOB,
 
 			FOREIGN KEY (report)      REFERENCES %[2]s(ref),

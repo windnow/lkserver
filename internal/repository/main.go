@@ -23,8 +23,10 @@ type Repo struct {
 }
 
 type Catalogs struct {
-	Cato CatoProvider
-	Vus  VusProvider
+	Cato         CatoProvider
+	Vus          VusProvider
+	Organization OrganizationProvider
+	Devision     DevisionProvider
 }
 
 func (r *Repo) Close() {
@@ -123,5 +125,21 @@ type VusProvider interface {
 	List(ctx context.Context, limits ...int64) ([]*catalogs.Vus, error)
 	Find(ctx context.Context, pattern string, limits ...int64) ([]*catalogs.Vus, error)
 	Save(ctx context.Context, vus *catalogs.Vus, tx *sql.Tx) error
+	Count(ctx context.Context) int64
+}
+
+type OrganizationProvider interface {
+	Get(ctx context.Context, Ref models.JSONByte) (*catalogs.Organization, error)
+	List(ctx context.Context, limits ...int64) ([]*catalogs.Organization, error)
+	Find(ctx context.Context, pattern string, limits ...int64) ([]*catalogs.Organization, error)
+	Save(ctx context.Context, org *catalogs.Organization, tx *sql.Tx) error
+	Count(ctx context.Context) int64
+}
+
+type DevisionProvider interface {
+	Get(ctx context.Context, Ref models.JSONByte) (*catalogs.Devision, error)
+	List(ctx context.Context, limits ...int64) ([]*catalogs.Devision, error)
+	Find(ctx context.Context, pattern string, limits ...int64) ([]*catalogs.Devision, error)
+	Save(ctx context.Context, dev *catalogs.Devision, tx *sql.Tx) error
 	Count(ctx context.Context) int64
 }

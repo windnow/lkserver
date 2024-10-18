@@ -88,3 +88,73 @@ func (c *CatalogsService) VusList(ctx context.Context, search string, limits ...
 		Meta: map[string]m.META{types.Vus: catalogs.VusMETA},
 	}, nil
 }
+
+func (c *CatalogsService) OrganizationList(ctx context.Context, search string, limits ...int64) (*Result, error) {
+
+	var result []*catalogs.Organization
+	var err error
+	if search != "" {
+		result, err = c.provider.Catalogs.Organization.Find(ctx, search, limits...)
+	} else {
+		result, err = c.provider.Catalogs.Organization.List(ctx, limits...)
+	}
+	if err != nil {
+		return nil, m.HandleError(err, "CatalogService.OrganizationList")
+	}
+
+	return &Result{
+		Data: result,
+		Len:  len(result),
+		Rows: c.provider.Catalogs.Organization.Count(ctx),
+		Meta: map[string]m.META{types.Organization: catalogs.OrganizationMETA},
+	}, nil
+
+}
+
+func (c *CatalogsService) DevisionList(ctx context.Context, search string, limits ...int64) (*Result, error) {
+
+	var result []*catalogs.Devision
+	var err error
+	if search != "" {
+		result, err = c.provider.Catalogs.Devision.Find(ctx, search, limits...)
+	} else {
+		result, err = c.provider.Catalogs.Devision.List(ctx, limits...)
+	}
+	if err != nil {
+		return nil, m.HandleError(err, "CatalogService.DevisionList")
+	}
+
+	return &Result{
+		Data: result,
+		Len:  len(result),
+		Rows: c.provider.Catalogs.Devision.Count(ctx),
+		Meta: map[string]m.META{types.Devision: catalogs.DevisionMETA},
+	}, nil
+
+}
+
+func (c *CatalogsService) GetOrganization(ctx context.Context, ref m.JSONByte) (*Result, error) {
+	data, err := c.provider.Catalogs.Organization.Get(ctx, ref)
+	if err != nil {
+		return nil, m.HandleError(err, "CatalogsService.GetOrganization")
+	}
+	return &Result{
+		Data: data,
+		Len:  1,
+		Rows: c.provider.Catalogs.Organization.Count(ctx),
+		Meta: map[string]m.META{types.Organization: catalogs.OrganizationMETA},
+	}, nil
+}
+
+func (c *CatalogsService) GetDevision(ctx context.Context, ref m.JSONByte) (*Result, error) {
+	data, err := c.provider.Catalogs.Devision.Get(ctx, ref)
+	if err != nil {
+		return nil, m.HandleError(err, "CatalogsService.GetDevision")
+	}
+	return &Result{
+		Data: data,
+		Len:  1,
+		Rows: c.provider.Catalogs.Devision.Count(ctx),
+		Meta: map[string]m.META{types.Devision: catalogs.DevisionMETA},
+	}, nil
+}
