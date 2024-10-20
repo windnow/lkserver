@@ -27,6 +27,7 @@ type Catalogs struct {
 	Vus          VusProvider
 	Organization OrganizationProvider
 	Devision     DevisionProvider
+	OrderSource  OrderSourceProvider
 }
 
 func (r *Repo) Close() {
@@ -141,5 +142,13 @@ type DevisionProvider interface {
 	List(ctx context.Context, limits ...int64) ([]*catalogs.Devision, error)
 	Find(ctx context.Context, pattern string, limits ...int64) ([]*catalogs.Devision, error)
 	Save(ctx context.Context, dev *catalogs.Devision, tx *sql.Tx) error
+	Count(ctx context.Context) int64
+}
+
+type OrderSourceProvider interface {
+	Get(ctx context.Context, Ref models.JSONByte) (*catalogs.OrderSource, error)
+	List(ctx context.Context, limits ...int64) ([]*catalogs.OrderSource, error)
+	Find(ctx context.Context, pattern string, limits ...int64) ([]*catalogs.OrderSource, error)
+	Save(ctx context.Context, dev *catalogs.OrderSource, tx *sql.Tx) error
 	Count(ctx context.Context) int64
 }

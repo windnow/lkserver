@@ -122,6 +122,8 @@ func (s *lkserver) catalogsRoutes(route *mux.Router) {
 	catalogs.HandleFunc("/orgs/{guid}", s.handleGetOrganization()).Methods("GET")
 	catalogs.HandleFunc("/devision", s.handleDevisionsList()).Methods("GET")
 	catalogs.HandleFunc("/devision/{guid}", s.handleGetDevision()).Methods("GET")
+	catalogs.HandleFunc("/order-source", s.handleOrderSourceList()).Methods("GET")
+	catalogs.HandleFunc("/order-source/{guid}", s.handleGetOrderSource()).Methods("GET")
 }
 
 func (s *lkserver) reportsRoutes(route *mux.Router) {

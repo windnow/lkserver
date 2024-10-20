@@ -136,6 +136,20 @@ func (s *lkserver) handleDevisionsList() http.HandlerFunc {
 	}
 }
 
+func (s *lkserver) handleOrderSourceList() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		limit, offset := getLimits(r)
+		search := r.URL.Query().Get("search")
+
+		result, err := s.catalogsService.OrderSourceList(r.Context(), search, limit, offset)
+		if s.error(w, http.StatusInternalServerError, err) {
+			return
+		}
+
+		s.respond(w, http.StatusOK, result)
+	}
+}
+
 func (s *lkserver) handleGetOrganization() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		guid := mux.Vars(r)["guid"]
@@ -158,12 +172,7 @@ func (s *lkserver) handleGetOrganization() http.HandlerFunc {
 
 func (s *lkserver) handleGetDevision() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		guid := mux.Vars(r)["guid"]
-		if guid == "" {
-			s.error(w, http.StatusBadRequest, errors.New("DEVISION GUID IS MISSING"))
-			return
-		}
-		GUID, err := models.ParseJSONByteFromString(guid)
+		GUID, err := getGUID(r)
 		if s.error(w, http.StatusBadRequest, err) {
 			return
 		}
@@ -174,4 +183,30 @@ func (s *lkserver) handleGetDevision() http.HandlerFunc {
 		}
 		s.respond(w, http.StatusOK, result)
 	}
+}
+
+func (s *lkserver) handleGetOrderSource() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		guid, err := getGUID(r)
+		if s.error(w, http.StatusBadRequest, err) {
+			return
+		}
+		result, err := s.catalogsService.GetOrderSource(r.Context(), guid)
+		if s.error(w, http.StatusInternalServerError, err) {
+			return
+		}
+		s.respond(w, http.StatusOK, result)
+	}
+}
+
+func getGUID(r *http.Request) (models.JSONByte, error) {
+	guid := mux.Vars(r)["guid"]
+	if guid == "" {
+		return models.JSONByte{}, errors.New("GUID IS MISSING")
+	}
+	GUID, err := models.ParseJSONByteFromString(guid)
+	if err != nil {
+		return models.JSONByte{}, models.HandleError(err, "getGUID")
+	}
+	return GUID, nil
 }

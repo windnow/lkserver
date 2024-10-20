@@ -71,28 +71,38 @@ func (r *DepartureOnBusinessTrip) Init() error {
 
 	query := fmt.Sprintf(`
         CREATE TABLE IF NOT EXISTS %[1]s (
-			report             BLOB,
-			supervisor         BLOB,
-			acting_supervisor  BLOB,
-			basis              TEXT,
-			transport_type     TEXT,
+            report             BLOB,
+            supervisor         BLOB,
+            acting_supervisor  BLOB,
+            basis              TEXT,
+            transport_type     TEXT,
+            unscheduled        INTEGER,
+            devision           BLOB,
 
-			FOREIGN KEY (report)            REFERENCES %[2]s(ref),
-			FOREIGN KEY (supervisor)        REFERENCES %[3]s(ref),
-			FOREIGN KEY (acting_supervisor) REFERENCES %[3]s(ref)
-		);
+            FOREIGN KEY (report)            REFERENCES %[2]s(ref),
+            FOREIGN KEY (supervisor)        REFERENCES %[3]s(ref),
+            FOREIGN KEY (acting_supervisor) REFERENCES %[3]s(ref),
+            FOREIGN KEY (devision)          REFERENCES %[4]s(ref)
+        );
 	
 		CREATE INDEX IF NOT EXISTS idx_%[1]s_report ON    %[1]s(report);
 
-		CREATE TABLE IF NOT EXISTS %[4]s(
+		CREATE TABLE IF NOT EXISTS %[5]s(
             report      BLOB,
 			destination BLOB,
 
 			FOREIGN KEY (report)      REFERENCES %[2]s(ref),
-			FOREIGN KEY (destination) REFERENCES %[5]s(ref)
+			FOREIGN KEY (destination) REFERENCES %[6]s(ref)
         );
-		CREATE INDEX IF NOT EXISTS idx_%[4]s_report ON    %[4]s(report);
-		`, types.BusinessTrip, types.Report, types.Users, types.BusinessTripDest, types.Cato)
+		CREATE INDEX IF NOT EXISTS idx_%[5]s_report ON    %[5]s(report);
+		`,
+		types.BusinessTrip,     // 1
+		types.Report,           // 2
+		types.Users,            // 3
+		types.Devision,         // 4
+		types.BusinessTripDest, // 5
+		types.Cato,             // 6
+	)
 
 	err := r.source.Exec(query)
 	if err != nil {

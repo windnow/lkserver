@@ -25,12 +25,12 @@ var OrganizationMETA m.META = m.META{
 }
 
 func (o *Organization) Scan(rows *sql.Rows) error {
-	return rows.Scan(
+	return m.HandleError(rows.Scan(
 		&o.Ref,
 		&o.Code,
 		&o.Description,
 		&o.Title,
 		&o.ShortTitle,
 		&o.ConventionalTitle,
-	)
+	), "Organization.Scan")
 }

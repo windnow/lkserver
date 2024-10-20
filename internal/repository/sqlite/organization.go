@@ -26,9 +26,7 @@ func (s *sqliteRepo) initOrganization() error {
 		return m.HandleError(err, "sqliteRepo.initOrganization")
 	}
 
-	var count int64
-	src.source.db.QueryRow(fmt.Sprintf(`select count(*) from %[1]s`, types.Organization)).Scan(&count)
-	if count == 0 {
+	if src.Count(context.Background()) == 0 {
 		if err := src.loadData("data/orgs.json"); err != nil {
 			return m.HandleError(err, "sqliteRepo.initOrganization")
 		}

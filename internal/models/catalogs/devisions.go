@@ -23,11 +23,11 @@ var DevisionMETA m.META = m.META{
 }
 
 func (d *Devision) Scan(rows *sql.Rows) error {
-	return rows.Scan(
+	return m.HandleError(rows.Scan(
 		&d.Ref,
 		&d.OwnerRef,
 		&d.ParentRef,
 		&d.Code,
 		&d.Description,
-	)
+	), "Devision.Scan")
 }

@@ -130,7 +130,26 @@ func (c *CatalogsService) DevisionList(ctx context.Context, search string, limit
 		Rows: c.provider.Catalogs.Devision.Count(ctx),
 		Meta: map[string]m.META{types.Devision: catalogs.DevisionMETA},
 	}, nil
+}
 
+func (c *CatalogsService) OrderSourceList(ctx context.Context, search string, limits ...int64) (*Result, error) {
+	var result []*catalogs.OrderSource
+	var err error
+	if search != "" {
+		result, err = c.provider.Catalogs.OrderSource.Find(ctx, search, limits...)
+	} else {
+		result, err = c.provider.Catalogs.OrderSource.List(ctx, limits...)
+	}
+	if err != nil {
+		return nil, m.HandleError(err, "CatalogService.OrderSourceList")
+	}
+
+	return &Result{
+		Data: result,
+		Len:  len(result),
+		Rows: c.provider.Catalogs.OrderSource.Count(ctx),
+		Meta: map[string]m.META{types.OrderSource: catalogs.OrderSourceMETA},
+	}, nil
 }
 
 func (c *CatalogsService) GetOrganization(ctx context.Context, ref m.JSONByte) (*Result, error) {
@@ -156,5 +175,18 @@ func (c *CatalogsService) GetDevision(ctx context.Context, ref m.JSONByte) (*Res
 		Len:  1,
 		Rows: c.provider.Catalogs.Devision.Count(ctx),
 		Meta: map[string]m.META{types.Devision: catalogs.DevisionMETA},
+	}, nil
+}
+
+func (c *CatalogsService) GetOrderSource(ctx context.Context, ref m.JSONByte) (*Result, error) {
+	data, err := c.provider.Catalogs.OrderSource.Get(ctx, ref)
+	if err != nil {
+		return nil, m.HandleError(err, "CatalogService.GetOrderSource")
+	}
+	return &Result{
+		Data: data,
+		Len:  1,
+		Rows: c.provider.Catalogs.OrderSource.Count(ctx),
+		Meta: map[string]m.META{types.OrderSource: catalogs.OrderSourceMETA},
 	}, nil
 }
