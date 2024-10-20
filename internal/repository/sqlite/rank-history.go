@@ -6,7 +6,6 @@ import (
 	"fmt"
 	m "lkserver/internal/models"
 	"lkserver/internal/models/types"
-	"time"
 )
 
 type rankHistoryRepo struct {
@@ -98,7 +97,7 @@ func (s *sqliteRepo) initRankHistory() error {
 
 func (r *rankHistoryRepo) Save(ctx context.Context, rh *m.RankHistory) error {
 	return m.HandleError(r.source.ExecContextInTransaction(ctx, fmt.Sprintf(`INSERT OR REPLACE INTO %[1]s (date, rank, individual) VALUES (?, ?, ?)`, types.RankHistory), nil,
-		time.Time(rh.Date).Unix(), rh.Rank.Key, rh.Individual.Key,
+		rh.Date.Unix(), rh.Rank.Key, rh.Individual.Key,
 	), "rankHistoryRepo.Save")
 }
 
@@ -132,7 +131,7 @@ func (r *rankHistoryRepo) GetLastByIin(individIin string) (*m.RankHistory, error
 		return nil, m.HandleError(m.ErrNotFound, "rankHistoryRepo.GetLastByIin")
 	}
 	for _, record := range history {
-		if last == nil || time.Time(record.Date).Unix() > time.Time(last.Date).Unix() {
+		if last == nil || record.Date.Unix() > last.Date.Unix() {
 			last = record
 		}
 	}

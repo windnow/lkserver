@@ -26,6 +26,10 @@ var (
 	DateFormat            = "2006.01.02"
 )
 
+func (t JSONTime) Unix() int64 {
+	return time.Time(t).Unix()
+}
+
 func (t JSONTime) MarshalJSON() ([]byte, error) {
 
 	stamp := fmt.Sprintf("\"%s\"", time.Time(t).In(config.ServerTimeZone).Format(DateTimeFormat))
@@ -166,8 +170,14 @@ type Scanable interface {
 }
 type Getter func() Scanable
 
-func Query[T Scanable](db *sql.DB, ctx context.Context, getter Getter, query string, args ...any) ([]T, error) {
-	stmt, err := db.Prepare(query)
+func Query[T Scanable](db *sql.DB, ctx context.Context, getter Getter, tx *sql.Tx, query string, args ...any) ([]T, error) {
+	var stmt *sql.Stmt
+	var err error
+	if tx != nil {
+		stmt, err = tx.Prepare(query)
+	} else {
+		stmt, err = db.Prepare(query)
+	}
 	if err != nil {
 		return nil, err
 	}

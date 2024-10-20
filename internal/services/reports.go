@@ -110,7 +110,7 @@ func (s *ReportService) GetReportData(ctx context.Context, guid models.JSONByte)
 		return nil, models.HandleError(err, "ReportService.GetReportData")
 	}
 
-	return &Result{Data: &reports.ReportData{
+	result := &Result{Data: &reports.ReportData{
 		Head:         reportHead,
 		Coordinators: reportCoordinators,
 		Details:      reportDetails,
@@ -120,9 +120,14 @@ func (s *ReportService) GetReportData(ctx context.Context, guid models.JSONByte)
 		Meta: map[string]models.META{
 			"head":         models.ReportMETA,
 			"coordinators": reports.CoordinatorsMETA,
-			"details":      meta,
 		},
-	}, nil
+	}
+
+	for key, value := range meta {
+		result.Meta[key] = value
+	}
+
+	return result, nil
 }
 
 func getContextUser(ctx context.Context) (*models.User, error) {

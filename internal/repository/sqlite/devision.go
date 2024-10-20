@@ -106,7 +106,7 @@ func newDevision() m.Scanable {
 func (o *devision) Get(ctx context.Context, Ref m.JSONByte) (*catalogs.Devision, error) {
 
 	query := fmt.Sprintf(`SELECT ref, owner_ref, parent_ref, code, description FROM %[1]s WHERE ref = ?`, types.Devision)
-	rows, err := m.Query[*catalogs.Devision](o.source.db, ctx, newDevision, query, Ref)
+	rows, err := m.Query[*catalogs.Devision](o.source.db, ctx, newDevision, nil, query, Ref)
 	if err != nil {
 		return nil, m.HandleError(err, "devision.Get")
 	}
@@ -120,7 +120,7 @@ func (o *devision) Get(ctx context.Context, Ref m.JSONByte) (*catalogs.Devision,
 func (o *devision) List(ctx context.Context, limits ...int64) ([]*catalogs.Devision, error) {
 	limit, offset := limitations(limits)
 	query := fmt.Sprintf(`SELECT ref, owner_ref, parent_ref, code, description FROM %[1]s LIMIT %[2]d OFFSET %[3]d`, types.Devision, limit, offset)
-	rows, err := m.Query[*catalogs.Devision](o.source.db, ctx, newDevision, query)
+	rows, err := m.Query[*catalogs.Devision](o.source.db, ctx, newDevision, nil, query)
 	if err != nil {
 		return nil, m.HandleError(err, "devision.List")
 	}
@@ -133,7 +133,7 @@ func (o *devision) Find(ctx context.Context, pattern string, limits ...int64) ([
     WHERE code LIKE ? OR description LIKE ?
 	LIMIT %[2]d OFFSET %[3]d`, types.Devision, limit, offset)
 	param := "%" + pattern + "%"
-	rows, err := m.Query[*catalogs.Devision](o.source.db, ctx, newDevision, query, param, param)
+	rows, err := m.Query[*catalogs.Devision](o.source.db, ctx, newDevision, nil, query, param, param)
 	if err != nil {
 		return nil, m.HandleError(err, "devision.Find")
 	}

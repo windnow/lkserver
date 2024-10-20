@@ -105,7 +105,7 @@ func newOrganization() m.Scanable {
 func (o *organization) Get(ctx context.Context, Ref m.JSONByte) (*catalogs.Organization, error) {
 
 	query := fmt.Sprintf(`SELECT ref, code, description, title, short_title, conventional_title FROM %[1]s WHERE ref = ?`, types.Organization)
-	rows, err := m.Query[*catalogs.Organization](o.source.db, ctx, newOrganization, query, Ref)
+	rows, err := m.Query[*catalogs.Organization](o.source.db, ctx, newOrganization, nil, query, Ref)
 	if err != nil {
 		return nil, m.HandleError(err, "organization.Get")
 	}
@@ -120,7 +120,7 @@ func (o *organization) Get(ctx context.Context, Ref m.JSONByte) (*catalogs.Organ
 func (o *organization) List(ctx context.Context, limits ...int64) ([]*catalogs.Organization, error) {
 	limit, offset := limitations(limits)
 	query := fmt.Sprintf(`SELECT ref, code, description, title, short_title, conventional_title FROM %[1]s LIMIT %[2]d OFFSET %[3]d`, types.Organization, limit, offset)
-	rows, err := m.Query[*catalogs.Organization](o.source.db, ctx, newOrganization, query)
+	rows, err := m.Query[*catalogs.Organization](o.source.db, ctx, newOrganization, nil, query)
 	if err != nil {
 		return nil, m.HandleError(err, "organization.List")
 	}
@@ -133,7 +133,7 @@ func (o *organization) Find(ctx context.Context, pattern string, limits ...int64
     WHERE code LIKE ? OR description LIKE ? OR title LIKE ? OR short_title LIKE ? OR conventional_title LIKE ?
 	LIMIT %[2]d OFFSET %[3]d`, types.Organization, limit, offset)
 	param := "%" + pattern + "%"
-	rows, err := m.Query[*catalogs.Organization](o.source.db, ctx, newOrganization, query, param, param, param, param, param)
+	rows, err := m.Query[*catalogs.Organization](o.source.db, ctx, newOrganization, nil, query, param, param, param, param, param)
 	if err != nil {
 		return nil, m.HandleError(err, "organization.Find")
 	}

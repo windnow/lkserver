@@ -56,7 +56,7 @@ func newOrderSource() models.Scanable {
 
 func (o *orderSource) Get(ctx context.Context, Ref models.JSONByte) (*catalogs.OrderSource, error) {
 	query := fmt.Sprintf(`SELECT ref, num, description FROM %[1]s WHERE ref = ?`, types.OrderSource)
-	rows, err := models.Query[*catalogs.OrderSource](o.source.db, ctx, newOrderSource, query, Ref)
+	rows, err := models.Query[*catalogs.OrderSource](o.source.db, ctx, newOrderSource, nil, query, Ref)
 	if err != nil {
 		return nil, models.HandleError(err, "orderSource.Get")
 	}
@@ -69,7 +69,7 @@ func (o *orderSource) Get(ctx context.Context, Ref models.JSONByte) (*catalogs.O
 func (o *orderSource) List(ctx context.Context, limits ...int64) ([]*catalogs.OrderSource, error) {
 	limit, offset := limitations(limits)
 	query := fmt.Sprintf(`SELECT ref, num, description FROM %[1]s LIMIT %[2]d OFFSET %[3]d`, types.OrderSource, limit, offset)
-	rows, err := models.Query[*catalogs.OrderSource](o.source.db, ctx, newOrderSource, query)
+	rows, err := models.Query[*catalogs.OrderSource](o.source.db, ctx, newOrderSource, nil, query)
 	if err != nil {
 		return nil, models.HandleError(err, "orderSource.List")
 	}
@@ -80,7 +80,7 @@ func (o *orderSource) Find(ctx context.Context, pattern string, limits ...int64)
 
 	limit, offset := limitations(limits)
 	query := fmt.Sprintf(`SELECT ref, num, description FROM %[1]s WHERE description LIKE ? LIMIT %[2]d OFFSET %[3]d`, types.OrderSource, limit, offset)
-	rows, err := models.Query[*catalogs.OrderSource](o.source.db, ctx, newOrderSource, query, "%"+pattern+"%")
+	rows, err := models.Query[*catalogs.OrderSource](o.source.db, ctx, newOrderSource, nil, query, "%"+pattern+"%")
 	if err != nil {
 		return nil, models.HandleError(err, "orderSource.Find")
 	}

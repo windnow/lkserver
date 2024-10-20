@@ -7,7 +7,6 @@ import (
 	m "lkserver/internal/models"
 	"lkserver/internal/models/types"
 	"lkserver/internal/repository"
-	"time"
 )
 
 type reportFactory struct {
@@ -93,7 +92,7 @@ func (repo *reportsRepo) Save(tx *sql.Tx, ctx context.Context, report *m.Report)
 	return m.HandleError(repo.source.ExecContextInTransaction(ctx, saveReportQuery, tx,
 		report.Ref,
 		report.Type,
-		time.Time(report.Date).Unix(),
+		report.Date.Unix(),
 		report.Number,
 		report.RegNumber,
 		report.Author,

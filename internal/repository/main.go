@@ -104,11 +104,11 @@ type ReportProvider interface {
 	GetStructure(reportType string) (any, error)
 	Get(guid models.JSONByte) (*models.Report, error)
 	GetCoordinators(ctx context.Context, report *models.Report) ([]*reports.Coordinators, error)
-	GetDetails(ctx context.Context, report *models.Report) (any, models.META, error)
+	GetDetails(ctx context.Context, report *models.Report) (any, map[string]models.META, error)
 	List(context.Context, models.JSONByte) ([]*models.Report, error)
 }
 type ReportDetails interface {
-	Get(ctx context.Context, ref models.JSONByte, tx ...*sql.Tx) (any, models.META, error)
+	Get(ctx context.Context, ref models.JSONByte, tx ...*sql.Tx) (any, map[string]models.META, error)
 	Save(tx *sql.Tx, ctx context.Context, report models.JSONByte, data any) error
 	Init() error
 	GetStructure() interface{}
