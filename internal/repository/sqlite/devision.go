@@ -141,10 +141,6 @@ func (o *devision) Find(ctx context.Context, pattern string, limits ...int64) ([
 }
 
 func (o *devision) Save(ctx context.Context, dev *catalogs.Devision, tx *sql.Tx) error {
-	tx, err := o.source.db.Begin()
-	if err != nil {
-		return m.HandleError(err, "devision.Save")
-	}
 	return m.HandleError(o.saveData(tx, []*catalogs.Devision{dev}))
 }
 
