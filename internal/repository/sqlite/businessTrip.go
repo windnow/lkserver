@@ -26,7 +26,7 @@ func (r *DepartureOnBusinessTrip) GetStructure() interface{} {
 func (r *DepartureOnBusinessTrip) Get(ctx context.Context, ref m.JSONByte, txs ...*sql.Tx) (any, map[string]m.META, error) {
 	query := fmt.Sprintf(`
 	SELECT acting, unscheduled, devision, article_number, order_source, order_number, order_date, other, transport_type, trip_goal, trip_from, trip_to, trip_duration
-	FROM %[1]s WHERE report = ?
+	FROM %[1]s WHERE report_ref = ?
 	`, types.BusinessTrip)
 
 	var tx *sql.Tx
@@ -35,6 +35,7 @@ func (r *DepartureOnBusinessTrip) Get(ctx context.Context, ref m.JSONByte, txs .
 	}
 	result, err := m.Query[*reports.BussinesTripDetails](r.source.db, ctx, reports.NewBusinesTripDetails, tx, query, ref)
 	if err != nil {
+		fmt.Println(query, err)
 		return nil, nil, m.HandleError(err, "DepartureOnBusinessTrip.Get")
 	}
 	if len(result) != 1 {
@@ -48,14 +49,17 @@ func (r *DepartureOnBusinessTrip) Get(ctx context.Context, ref m.JSONByte, txs .
         FROM %[1]s WHERE report_ref = ?`, types.BusinessTripDest)
 		result, err := m.Query[*reports.BusinessTripDestination](r.source.db, ctx, reports.NewBusinesTripDestination, tx, query, ref)
 		if err != nil {
-			return nil, nil, m.HandleError(m.ErrNotFound, "DepartureOnBusinessTrip.Get")
+			return nil, nil, m.HandleError(err, "DepartureOnBusinessTrip.Get")
 		}
 		for _, dest := range result {
 			details.Destinations = append(details.Destinations, *dest)
 		}
 	}
 
-	return details, map[string]m.META{"details": reports.BussinesTripDetailsMeta}, nil
+	return details, map[string]m.META{
+		"details":              reports.BussinesTripDetailsMeta,
+		"details.destinations": reports.BusinessTripDestinationMETA,
+	}, nil
 }
 func (r *DepartureOnBusinessTrip) Save(tx *sql.Tx, ctx context.Context, report m.JSONByte, data any) error {
 	details, ok := data.(*reports.BussinesTripDetails)
@@ -105,7 +109,7 @@ func (r *DepartureOnBusinessTrip) Save(tx *sql.Tx, ctx context.Context, report m
 			destination.Organization,
 			destination.From.Unix(),
 			destination.To.Unix(),
-			destination.Destination,
+			destination.Duration,
 		)
 
 	}

@@ -191,7 +191,7 @@ func Query[T Scanable](db *sql.DB, ctx context.Context, getter Getter, tx *sql.T
 	for rows.Next() {
 		record := getter().(T)
 		if err = record.Scan(rows); err != nil {
-			return nil, err
+			return nil, HandleError(err, "models.Query")
 		}
 		result = append(result, record)
 	}

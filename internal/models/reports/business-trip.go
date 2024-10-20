@@ -30,6 +30,7 @@ func NewBusinesTripDetails() m.Scanable {
 func (btd *BussinesTripDetails) Scan(rows *sql.Rows) error {
 
 	return rows.Scan(
+		&btd.Acting,
 		&btd.Unscheduled,
 		&btd.Devision,
 		&btd.ArticleNumber,
