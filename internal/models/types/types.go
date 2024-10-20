@@ -3,11 +3,15 @@ package types
 const (
 	// basic
 	String = "string"
+	Bool   = "bool"
 	Number = "number"
 	Date   = "date"
 
 	// refs
 	Individuals      = "individuals"
+	Organization     = "organization"
+	Devision         = "devision"
+	OrderSource      = "order_source"
 	Users            = "users"
 	Specialties      = "specialties"
 	Ranks            = "ranks"

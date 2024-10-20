@@ -44,7 +44,9 @@ func (s *sqliteRepo) initEducation() error {
 	}
 
 	var mockEdu []*draftEdu
-	json.Unmarshal([]byte(mockEducation), &mockEdu)
+	if err := json.Unmarshal([]byte(mockEducation), &mockEdu); err != nil {
+		return m.HandleError(err, "sqliteRepo.initEducation")
+	}
 	var count int64
 	edu.source.db.QueryRow(fmt.Sprintf(`select count(*) from %[1]s`, types.Education)).Scan(&count)
 	if count == 0 {

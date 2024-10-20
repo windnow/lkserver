@@ -68,26 +68,26 @@ func (c *cato) loadData(path string) error {
 		if end > len {
 			end = len
 		}
-		if err := saveData(tx, data[i:end]); err != nil {
+		if err := c.saveData(tx, data[i:end]); err != nil {
 			return m.HandleError(err, "cato.loadData")
 		}
 	}
 	return m.HandleError(tx.Commit(), "cato.loadData")
 }
 
-func saveData(tx *sql.Tx, data []*catalogs.Cato) error {
+func (c *cato) saveData(tx *sql.Tx, data []*catalogs.Cato) error {
 	query := fmt.Sprintf("INSERT INTO %[1]s (ref, parentRef, code, description, title, k1, k2, k3, k4, k5) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", types.Cato)
 
 	stmt, err := tx.Prepare(query)
 	if err != nil {
-		return err
+		return m.HandleError(err, "cato.saveData")
 	}
 	defer stmt.Close()
 
 	for _, cc := range data {
 		_, err := stmt.Exec(cc.Ref, cc.ParentRef, cc.Code, cc.Description, cc.Title, cc.K1, cc.K2, cc.K3, cc.K4, cc.K5)
 		if err != nil {
-			return err
+			return m.HandleError(err, "cato.saveData")
 		}
 	}
 

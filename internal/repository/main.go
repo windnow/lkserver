@@ -23,8 +23,11 @@ type Repo struct {
 }
 
 type Catalogs struct {
-	Cato CatoProvider
-	Vus  VusProvider
+	Cato         CatoProvider
+	Vus          VusProvider
+	Organization OrganizationProvider
+	Devision     DevisionProvider
+	OrderSource  OrderSourceProvider
 }
 
 func (r *Repo) Close() {
@@ -101,11 +104,11 @@ type ReportProvider interface {
 	GetStructure(reportType string) (any, error)
 	Get(guid models.JSONByte) (*models.Report, error)
 	GetCoordinators(ctx context.Context, report *models.Report) ([]*reports.Coordinators, error)
-	GetDetails(ctx context.Context, report *models.Report) (any, models.META, error)
+	GetDetails(ctx context.Context, report *models.Report) (any, map[string]models.META, error)
 	List(context.Context, models.JSONByte) ([]*models.Report, error)
 }
 type ReportDetails interface {
-	Get(ctx context.Context, ref models.JSONByte, tx ...*sql.Tx) (any, models.META, error)
+	Get(ctx context.Context, ref models.JSONByte, tx ...*sql.Tx) (any, map[string]models.META, error)
 	Save(tx *sql.Tx, ctx context.Context, report models.JSONByte, data any) error
 	Init() error
 	GetStructure() interface{}
@@ -123,5 +126,29 @@ type VusProvider interface {
 	List(ctx context.Context, limits ...int64) ([]*catalogs.Vus, error)
 	Find(ctx context.Context, pattern string, limits ...int64) ([]*catalogs.Vus, error)
 	Save(ctx context.Context, vus *catalogs.Vus, tx *sql.Tx) error
+	Count(ctx context.Context) int64
+}
+
+type OrganizationProvider interface {
+	Get(ctx context.Context, Ref models.JSONByte) (*catalogs.Organization, error)
+	List(ctx context.Context, limits ...int64) ([]*catalogs.Organization, error)
+	Find(ctx context.Context, pattern string, limits ...int64) ([]*catalogs.Organization, error)
+	Save(ctx context.Context, org *catalogs.Organization, tx *sql.Tx) error
+	Count(ctx context.Context) int64
+}
+
+type DevisionProvider interface {
+	Get(ctx context.Context, Ref models.JSONByte) (*catalogs.Devision, error)
+	List(ctx context.Context, limits ...int64) ([]*catalogs.Devision, error)
+	Find(ctx context.Context, pattern string, limits ...int64) ([]*catalogs.Devision, error)
+	Save(ctx context.Context, dev *catalogs.Devision, tx *sql.Tx) error
+	Count(ctx context.Context) int64
+}
+
+type OrderSourceProvider interface {
+	Get(ctx context.Context, Ref models.JSONByte) (*catalogs.OrderSource, error)
+	List(ctx context.Context, limits ...int64) ([]*catalogs.OrderSource, error)
+	Find(ctx context.Context, pattern string, limits ...int64) ([]*catalogs.OrderSource, error)
+	Save(ctx context.Context, dev *catalogs.OrderSource, tx *sql.Tx) error
 	Count(ctx context.Context) int64
 }
