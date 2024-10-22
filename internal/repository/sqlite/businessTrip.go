@@ -20,7 +20,18 @@ type DepartureOnBusinessTrip struct {
 func (r *DepartureOnBusinessTrip) GetStructure() interface{} {
 	details := &reports.BussinesTripDetails{}
 	details.Destinations = []reports.BusinessTripDestination{}
-	return &reports.ReportData{Details: details}
+	return &reports.ReportData{
+		Head:         &m.Report{},
+		Coordinators: []*reports.Coordinators{},
+		Details:      details,
+	}
+}
+
+func (r *DepartureOnBusinessTrip) META() map[string]m.META {
+	return map[string]m.META{
+		"details":              reports.BussinesTripDetailsMeta,
+		"details.destinations": reports.BusinessTripDestinationMETA,
+	}
 }
 
 func (r *DepartureOnBusinessTrip) Get(ctx context.Context, ref m.JSONByte, txs ...*sql.Tx) (any, map[string]m.META, error) {

@@ -99,6 +99,15 @@ func (repo *reportsRepo) Save(tx *sql.Tx, ctx context.Context, report *m.Report)
 	), "reportRepo.Save")
 }
 
+func (repo *reportsRepo) META(reportType string) map[string]m.META {
+	processor, err := repo.factory.GetReportProcessor(reportType)
+	if err != nil {
+		return nil
+	}
+
+	return processor.META()
+}
+
 func (repo *reportsRepo) GetStructure(reportType string) (interface{}, error) {
 
 	processor, err := repo.factory.GetReportProcessor(reportType)

@@ -95,6 +95,29 @@ func (s *ReportService) GetStructure(reportType string) (interface{}, error) {
 	return s.provider.Reports.GetStructure(reportType)
 }
 
+func (s *ReportService) NewReport(reportType string) (*Result, error) {
+	meta := s.provider.Reports.META(reportType)
+	mockData, err := s.provider.Reports.GetStructure(reportType)
+	if err != nil {
+		return nil, models.HandleError(err, "ReportService.NewReport")
+	}
+
+	result := &Result{
+		Data: mockData,
+		Meta: map[string]models.META{
+			"head":         models.ReportMETA,
+			"coordinators": reports.CoordinatorsMETA,
+		},
+	}
+
+	for key, value := range meta {
+		result.Meta[key] = value
+	}
+
+	return result, nil
+
+}
+
 func (s *ReportService) GetReportData(ctx context.Context, guid models.JSONByte) (*Result, error) {
 
 	reportHead, err := s.provider.Reports.Get(guid)
