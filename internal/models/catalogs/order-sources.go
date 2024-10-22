@@ -13,9 +13,9 @@ type OrderSource struct {
 }
 
 var OrderSourceMETA = m.META{
-	"ref":         m.Description{Type: types.OrderSource, Labels: map[string]string{"ru": "Идентификатор"}},
-	"num":         m.Description{Type: types.Number, Labels: map[string]string{"ru": "Номер"}},
-	"description": m.Description{Type: types.String, Labels: map[string]string{"ru": "Наименование"}},
+	"ref":         m.Desc(types.OrderSource, map[string]string{"ru": "Идентификатор"}, 0),
+	"num":         m.Desc(types.Number, map[string]string{"ru": "Номер"}, 1),
+	"description": m.Desc(types.String, map[string]string{"ru": "Наименование"}, 2),
 }
 
 func (o *OrderSource) Scan(rows *sql.Rows) error {

@@ -14,9 +14,9 @@ type Coordinators struct {
 }
 
 var CoordinatorsMETA = m.META{
-	"ref":             m.Description{Type: types.Coordinators, Labels: map[string]string{"ru": "Идентификатор"}},
-	"report_ref":      m.Description{Type: types.Report, Labels: map[string]string{"ru": "Идентификатор рапорта"}},
-	"coordinator_ref": m.Description{Type: types.Users, Labels: map[string]string{"ru": "Согласующий"}},
-	"who_author_ref":  m.Description{Type: types.Users, Labels: map[string]string{"ru": "Кто добавил"}},
-	"when_added":      m.Description{Type: types.Date, Labels: map[string]string{"ru": "Дата добавления"}},
+	"ref":             m.Desc(types.Coordinators, map[string]string{"ru": "Идентификатор"}, 0),
+	"report_ref":      m.Desc(types.Report, map[string]string{"ru": "Идентификатор рапорта"}, 1),
+	"coordinator_ref": m.Desc(types.Users, map[string]string{"ru": "Согласующий"}, 2),
+	"who_author_ref":  m.Desc(types.Users, map[string]string{"ru": "Кто добавил"}, 3),
+	"when_added":      m.Desc(types.Date, map[string]string{"ru": "Дата добавления"}, 4),
 }

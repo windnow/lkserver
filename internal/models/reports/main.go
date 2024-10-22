@@ -13,10 +13,10 @@ type ReportTypes struct {
 }
 
 var ReportTypesMETA = m.META{
-	"ref":    m.Description{Type: types.ReportType, Labels: map[string]string{"ru": "Идентификатор"}},
-	"parent": m.Description{Type: types.ReportType, Labels: map[string]string{"ru": "Родитель"}},
-	"code":   m.Description{Type: types.String, Labels: map[string]string{"ru": "Код"}},
-	"title":  m.Description{Type: types.String, Labels: map[string]string{"ru": "Наименование"}},
+	"ref":    m.Desc(types.ReportType, map[string]string{"ru": "Идентификатор"}, 0),
+	"parent": m.Desc(types.ReportType, map[string]string{"ru": "Родитель"}, 1),
+	"code":   m.Desc(types.String, map[string]string{"ru": "Код"}, 2),
+	"title":  m.Desc(types.String, map[string]string{"ru": "Наименование"}, 3),
 }
 
 type ReportData struct {

@@ -16,11 +16,11 @@ type User struct {
 }
 
 var UserMETA META = META{
-	"key":     Description{Type: types.Users, Labels: map[string]string{"ru": "Идентификатор"}},
-	"iin":     Description{Type: types.String, Labels: map[string]string{"ru": "ИИН"}},
-	"name":    Description{Type: types.String, Labels: map[string]string{"ru": "Имя"}},
-	"pin":     Description{Type: types.String, Labels: map[string]string{"ru": "ПИН-код"}},
-	"individ": Description{Type: types.Individuals, Labels: map[string]string{"ru": "Физическое лицо"}},
+	"key":     Desc(types.Users, map[string]string{"ru": "Идентификатор"}, 0),
+	"iin":     Desc(types.String, map[string]string{"ru": "ИИН"}, 2),
+	"name":    Desc(types.String, map[string]string{"ru": "Имя"}, 1),
+	"pin":     Desc(types.String, map[string]string{"ru": "ПИН-код"}, 3),
+	"individ": Desc(types.Individuals, map[string]string{"ru": "Физическое лицо"}, 4),
 }
 
 func (u *User) Sanitize() {
