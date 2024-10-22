@@ -131,6 +131,7 @@ func (s *lkserver) reportsRoutes(route *mux.Router) {
 	reports := route.PathPrefix("/reports").Subrouter()
 	reports.HandleFunc("/types", s.handleGetReportTypes()).Methods("GET")
 	reports.HandleFunc("/types/{guid}", s.handleGetReportType()).Methods("GET")
+	reports.HandleFunc("/{type}/new", s.handleNewReport()).Methods("GET")
 	reports.HandleFunc("/{type}/save", s.handleSaveReport()).Methods("POST")
 	reports.HandleFunc("/", s.handleReportsList()).Methods("GET")      // Список рапортов текущего пользователя х
 	reports.HandleFunc("/{guid}", s.handleReportData()).Methods("GET") // Данные рапорта

@@ -101,6 +101,7 @@ type ReportProvider interface {
 	Save(tx *sql.Tx, ctx context.Context, report *models.Report) error
 	SaveCoordinators(tx *sql.Tx, ctx context.Context, coordinators []*reports.Coordinators) error
 	SaveDetails(tx *sql.Tx, ctx context.Context, report *models.Report, data any) error
+	META(reportType string) map[string]models.META
 	GetStructure(reportType string) (any, error)
 	Get(guid models.JSONByte) (*models.Report, error)
 	GetCoordinators(ctx context.Context, report *models.Report) ([]*reports.Coordinators, error)
@@ -110,6 +111,7 @@ type ReportProvider interface {
 type ReportDetails interface {
 	Get(ctx context.Context, ref models.JSONByte, tx ...*sql.Tx) (any, map[string]models.META, error)
 	Save(tx *sql.Tx, ctx context.Context, report models.JSONByte, data any) error
+	META() map[string]models.META
 	Init() error
 	GetStructure() interface{}
 }

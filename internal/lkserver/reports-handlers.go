@@ -48,6 +48,24 @@ func (s *lkserver) handleGetReportTypes() http.HandlerFunc {
 	}
 }
 
+func (s *lkserver) handleNewReport() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		reportType := mux.Vars(r)["type"]
+		if reportType == "" {
+			s.error(w, http.StatusBadRequest, errors.New("MISSING REPORT TYPE"))
+			return
+		}
+		reportStruct, err := s.reportsService.NewReport(reportType)
+		if s.error(w, http.StatusBadRequest, err) {
+			return
+		}
+
+		s.respond(w, http.StatusOK, reportStruct)
+
+	}
+}
+
 func (s *lkserver) handleSaveReport() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		reportType := mux.Vars(r)["type"]
