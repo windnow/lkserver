@@ -15,11 +15,11 @@ type Devision struct {
 }
 
 var DevisionMETA m.META = m.META{
-	"ref":         m.Description{Type: types.Devision, Labels: map[string]string{"ru": "Идентификатор"}},
-	"owner_ref":   m.Description{Type: types.Organization, Labels: map[string]string{"ru": "Владелец"}},
-	"parent_ref":  m.Description{Type: types.Devision, Labels: map[string]string{"ru": "Родитель"}},
-	"code":        m.Description{Type: types.String, Labels: map[string]string{"ru": "Код"}},
-	"description": m.Description{Type: types.String, Labels: map[string]string{"ru": "Наименование"}},
+	"ref":         m.Desc(types.Devision, map[string]string{"ru": "Идентификатор"}, 0),
+	"owner_ref":   m.Desc(types.Organization, map[string]string{"ru": "Владелец"}, 4),
+	"parent_ref":  m.Desc(types.Devision, map[string]string{"ru": "Родитель"}, 2),
+	"code":        m.Desc(types.String, map[string]string{"ru": "Код"}, 3),
+	"description": m.Desc(types.String, map[string]string{"ru": "Наименование"}, 1),
 }
 
 func (d *Devision) Scan(rows *sql.Rows) error {

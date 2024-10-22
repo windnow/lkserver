@@ -16,12 +16,12 @@ type Organization struct {
 }
 
 var OrganizationMETA m.META = m.META{
-	"ref":                m.Description{Type: types.Organization, Labels: map[string]string{"ru": "Идентификатор"}},
-	"code":               m.Description{Type: types.String, Labels: map[string]string{"ru": "Код"}},
-	"description":        m.Description{Type: types.String, Labels: map[string]string{"ru": "Наименование"}},
-	"title":              m.Description{Type: types.String, Labels: map[string]string{"ru": "Полное наименование"}},
-	"short_title":        m.Description{Type: types.String, Labels: map[string]string{"ru": "Сокращенное юр. наименование"}},
-	"conventional_title": m.Description{Type: types.String, Labels: map[string]string{"ru": "Условное наименование"}},
+	"ref":                m.Desc(types.Organization, map[string]string{"ru": "Идентификатор"}, 0),
+	"code":               m.Desc(types.String, map[string]string{"ru": "Код"}, 1),
+	"description":        m.Desc(types.String, map[string]string{"ru": "Наименование"}, 2),
+	"title":              m.Desc(types.String, map[string]string{"ru": "Полное наименование"}, 3),
+	"short_title":        m.Desc(types.String, map[string]string{"ru": "Сокращенное юр. наименование"}, 4),
+	"conventional_title": m.Desc(types.String, map[string]string{"ru": "Условное наименование"}, 5),
 }
 
 func (o *Organization) Scan(rows *sql.Rows) error {

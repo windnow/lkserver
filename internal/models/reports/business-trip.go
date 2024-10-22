@@ -48,20 +48,20 @@ func (btd *BussinesTripDetails) Scan(rows *sql.Rows) error {
 }
 
 var BussinesTripDetailsMeta m.META = m.META{
-	"report_ref":     m.Desc(types.Report, map[string]string{"ru": "Идентификатор рапорта"}),
-	"acting":         m.Desc(types.Users, map[string]string{"ru": "Временно исполняющий обязанности"}),
-	"unscheduled":    m.Desc(types.Bool, map[string]string{"ru": "Внеплановое"}),
-	"devision":       m.Desc(types.Devision, map[string]string{"ru": "Подразделение"}),
-	"article_number": m.Desc(types.Number, map[string]string{"ru": "Номер пункта"}),
-	"order_source":   m.Desc(types.OrderSource, map[string]string{"ru": "Чей приказ"}),
-	"order_number":   m.Desc(types.String, map[string]string{"ru": "Номер приказа"}),
-	"order_date":     m.Desc(types.Date, map[string]string{"ru": "Дата приказа"}),
-	"transport_type": m.Desc(types.String, map[string]string{"ru": "Вид транспорта"}),
-	"trip_goal":      m.Desc(types.String, map[string]string{"ru": "Цель поездки"}),
-	"trip_from":      m.Desc(types.Date, map[string]string{"ru": "Дата начала командировки"}),
-	"trip_to":        m.Desc(types.Date, map[string]string{"ru": "Дата окончания командировки"}),
-	"trip_duration":  m.Desc(types.Number, map[string]string{"ru": "Количество суток"}),
-	"destinations":   m.Desc(types.BusinessTripDest, map[string]string{"ru": "Затраты на проживание"}),
+	"report_ref":     m.Desc(types.Report, map[string]string{"ru": "Идентификатор рапорта"}, 0),
+	"acting":         m.Desc(types.Users, map[string]string{"ru": "Временно исполняющий обязанности"}, 2),
+	"unscheduled":    m.Desc(types.Bool, map[string]string{"ru": "Внеплановое"}, 1),
+	"devision":       m.Desc(types.Devision, map[string]string{"ru": "Подразделение"}, 3),
+	"article_number": m.Desc(types.Number, map[string]string{"ru": "Номер пункта"}, 4),
+	"order_source":   m.Desc(types.OrderSource, map[string]string{"ru": "Чей приказ"}, 5),
+	"order_number":   m.Desc(types.String, map[string]string{"ru": "Номер приказа"}, 6),
+	"order_date":     m.Desc(types.Date, map[string]string{"ru": "Дата приказа"}, 7),
+	"transport_type": m.Desc(types.String, map[string]string{"ru": "Вид транспорта"}, 8),
+	"trip_goal":      m.Desc(types.String, map[string]string{"ru": "Цель поездки"}, 9),
+	"trip_from":      m.Desc(types.Date, map[string]string{"ru": "Дата начала командировки"}, 10),
+	"trip_to":        m.Desc(types.Date, map[string]string{"ru": "Дата окончания командировки"}, 11),
+	"trip_duration":  m.Desc(types.Number, map[string]string{"ru": "Количество суток"}, 12),
+	"destinations":   m.Desc(types.BusinessTripDest, map[string]string{"ru": "Затраты на проживание"}, 13),
 }
 
 type BusinessTripDestination struct {
@@ -87,10 +87,10 @@ func (btd *BusinessTripDestination) Scan(rows *sql.Rows) error {
 }
 
 var BusinessTripDestinationMETA = m.META{
-	"report_ref":   m.Desc(types.Report, map[string]string{"ru": "Идентификатор рапорта"}),
-	"destination":  m.Desc(types.Cato, map[string]string{"ru": "Место назначения"}),
-	"organization": m.Desc(types.String, map[string]string{"ru": "Организация"}),
-	"from":         m.Desc(types.Date, map[string]string{"ru": "Период проживания с"}),
-	"to":           m.Desc(types.Date, map[string]string{"ru": "Период проживания по"}),
-	"duration":     m.Desc(types.Number, map[string]string{"ru": "Количество суток проживания"}),
+	"report_ref":   m.Desc(types.Report, map[string]string{"ru": "Идентификатор рапорта"}, 0),
+	"destination":  m.Desc(types.Cato, map[string]string{"ru": "Место назначения"}, 1),
+	"organization": m.Desc(types.String, map[string]string{"ru": "Организация"}, 2),
+	"from":         m.Desc(types.Date, map[string]string{"ru": "Период проживания с"}, 3),
+	"to":           m.Desc(types.Date, map[string]string{"ru": "Период проживания по"}, 4),
+	"duration":     m.Desc(types.Number, map[string]string{"ru": "Количество суток проживания"}, 5),
 }

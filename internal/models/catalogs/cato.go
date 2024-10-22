@@ -19,14 +19,14 @@ type Cato struct {
 }
 
 var CatoMETA = m.META{
-	"ref":         m.Description{Type: types.Cato, Labels: map[string]string{"ru": "Идентификатор"}},
-	"parentRef":   m.Description{Type: types.Cato, Labels: map[string]string{"ru": "Родитель"}},
-	"code":        m.Description{Type: types.String, Labels: map[string]string{"ru": "Код"}},
-	"k1":          m.Description{Type: types.String, Labels: map[string]string{"ru": "К1"}},
-	"k2":          m.Description{Type: types.String, Labels: map[string]string{"ru": "К2"}},
-	"k3":          m.Description{Type: types.String, Labels: map[string]string{"ru": "К3"}},
-	"k4":          m.Description{Type: types.String, Labels: map[string]string{"ru": "К4"}},
-	"k5":          m.Description{Type: types.String, Labels: map[string]string{"ru": "К5"}},
-	"description": m.Description{Type: types.String, Labels: map[string]string{"ru": "Краткое наименование"}},
-	"title":       m.Description{Type: types.String, Labels: map[string]string{"ru": "Полное наименование"}},
+	"ref":         m.Desc(types.Cato, map[string]string{"ru": "Идентификатор"}, 0),
+	"parentRef":   m.Desc(types.Cato, map[string]string{"ru": "Родитель"}, 8),
+	"code":        m.Desc(types.String, map[string]string{"ru": "Код"}, 9),
+	"k1":          m.Desc(types.String, map[string]string{"ru": "К1"}, 3),
+	"k2":          m.Desc(types.String, map[string]string{"ru": "К2"}, 4),
+	"k3":          m.Desc(types.String, map[string]string{"ru": "К3"}, 5),
+	"k4":          m.Desc(types.String, map[string]string{"ru": "К4"}, 6),
+	"k5":          m.Desc(types.String, map[string]string{"ru": "К5"}, 7),
+	"description": m.Desc(types.String, map[string]string{"ru": "Краткое наименование"}, 1),
+	"title":       m.Desc(types.String, map[string]string{"ru": "Полное наименование"}, 2),
 }
