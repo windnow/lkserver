@@ -1,6 +1,8 @@
 package models
 
 import (
+	"context"
+	"database/sql"
 	"database/sql/driver"
 	"encoding/hex"
 	"encoding/json"
@@ -23,6 +25,10 @@ var (
 	DateTimeFormat        = "2006.01.02 15:04:05"
 	DateFormat            = "2006.01.02"
 )
+
+func (t JSONTime) Unix() int64 {
+	return time.Time(t).Unix()
+}
 
 func (t JSONTime) MarshalJSON() ([]byte, error) {
 
@@ -157,4 +163,38 @@ func ParseJSONByteFromString(uuidStr string) (JSONByte, error) {
 
 func (left JSONByte) Equal(righ JSONByte) bool {
 	return left == righ
+}
+
+type Scanable interface {
+	Scan(rows *sql.Rows) error
+}
+type Getter func() Scanable
+
+func Query[T Scanable](db *sql.DB, ctx context.Context, getter Getter, tx *sql.Tx, query string, args ...any) ([]T, error) {
+	var stmt *sql.Stmt
+	var err error
+	if tx != nil {
+		stmt, err = tx.Prepare(query)
+	} else {
+		stmt, err = db.Prepare(query)
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.QueryContext(ctx, args...)
+	if err != nil {
+		return nil, err
+	}
+	var result []T
+	for rows.Next() {
+		record := getter().(T)
+		if err = record.Scan(rows); err != nil {
+			return nil, HandleError(err, "models.Query")
+		}
+		result = append(result, record)
+	}
+
+	return result, nil
 }

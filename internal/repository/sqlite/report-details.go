@@ -31,11 +31,11 @@ func (repo *reportsRepo) SaveDetails(tx *sql.Tx, ctx context.Context, report *m.
 	return processor.Save(tx, ctx, report.Ref, data)
 }
 
-func (repo *reportsRepo) GetDetails(ctx context.Context, report *m.Report) (any, m.META, error) {
+func (repo *reportsRepo) GetDetails(ctx context.Context, report *m.Report) (any, map[string]m.META, error) {
 
 	processor, err := repo.getReportProcessor(report.Type)
 	if err != nil {
-		return nil, nil, m.HandleError(err, "reportsRepo.SaveDetails")
+		return nil, nil, m.HandleError(err, "reportsRepo.GetDetails")
 	}
 
 	return processor.Get(ctx, report.Ref)

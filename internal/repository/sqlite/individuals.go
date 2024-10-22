@@ -7,7 +7,6 @@ import (
 	"fmt"
 	m "lkserver/internal/models"
 	"lkserver/internal/models/types"
-	"time"
 )
 
 type individualsRepo struct {
@@ -147,7 +146,7 @@ func (i *individualsRepo) Save(ctx context.Context, individ *m.Individuals) erro
 		individ.LastName,
 		individ.Patronymic,
 		individ.Image,
-		time.Time(individ.BirthDate).Unix(),
+		individ.BirthDate.Unix(),
 		individ.BirthPlace,
 		individ.PersonalNumber,
 		individ.Vus)
