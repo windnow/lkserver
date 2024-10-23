@@ -41,6 +41,7 @@ func New(r *repository.Repo, fileStore repository.FileProvider, config *config.C
 	logger := logrus.New()
 	sessionStore := sessions.NewCookieStore([]byte(config.SessionsKey))
 	sessionStore.Options.MaxAge = config.SessionMaxAge
+	sessionStore.Options.Secure = false
 
 	s := &lkserver{
 		config:          config,
