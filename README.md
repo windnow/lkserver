@@ -405,6 +405,13 @@ curl -b cookie.txt http://localhost:8080/i/reports/types/fcf8e381-ea56-43ea-a83f
     }
 }
 ```
+### Получение структуры нового рапорта
+
+```sh
+curl -b cookie.txt  http://localhost:8833/i/reports/0001/new
+```
+
+Где `0001` - код типа рапорта
 
 ### Создание рапорта
 ```sh
