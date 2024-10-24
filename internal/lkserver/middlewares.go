@@ -80,9 +80,9 @@ func (s *lkserver) logRequest(next http.Handler) http.Handler {
 		name := "UNAUTORIZED"
 		u, ok := r.Context().Value(CTXUSER).(*models.User)
 		if ok && u != nil {
-			name = "USER (" + u.Iin + ")"
+			name = u.Name
 		}
 
-		logger.Infof("%s %s %s %d %v %d", name, r.Method, r.RequestURI, rw.code, time.Since(start), rw.size)
+		logger.Infof("%d %d %v %s %s %s", rw.code, rw.size, time.Since(start), name, r.Method, r.RequestURI)
 	})
 }

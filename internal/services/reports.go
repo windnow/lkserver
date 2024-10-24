@@ -50,7 +50,7 @@ func NewReportService(repo *repository.Repo) *ReportService {
 	}
 }
 
-func (s *ReportService) Get(guid models.JSONByte) (*Result, error) {
+func (s *ReportService) GetReportType(guid models.JSONByte) (*Result, error) {
 
 	set, err := s.provider.Reports.GetTypes([]string{})
 	if err != nil {
@@ -68,7 +68,7 @@ func (s *ReportService) Get(guid models.JSONByte) (*Result, error) {
 
 	return &Result{
 		Data: result,
-		Rows: -1,
+		Rows: s.provider.Reports.TypesCount(),
 		Len:  1,
 		Meta: map[string]models.META{types.ReportType: reports.ReportTypesMETA},
 	}, nil
@@ -84,7 +84,7 @@ func (s *ReportService) GetTypes(t []string) (*Result, error) {
 	return &Result{
 		Data: result,
 		Len:  len(result),
-		Rows: -1,
+		Rows: s.provider.Reports.TypesCount(),
 		Meta: map[string]models.META{
 			types.ReportType: reports.ReportTypesMETA,
 		},
@@ -124,11 +124,20 @@ func (s *ReportService) GetReportData(ctx context.Context, guid models.JSONByte)
 	if err != nil {
 		return nil, err
 	}
-	reportCoordinators, err := s.provider.Reports.GetCoordinators(ctx, reportHead)
+	reportCoordinators, err := s.provider.Reports.GetCoordinators(ctx, reportHead.Ref)
 	if err != nil {
 		return nil, models.HandleError(err, "ReportService.GetReportData")
 	}
 	reportDetails, meta, err := s.provider.Reports.GetDetails(ctx, reportHead)
+	if err != nil {
+		return nil, models.HandleError(err, "ReportService.GetReportData")
+	}
+	reportType, err := s.provider.Reports.GetType(ctx, reportHead.Type)
+	if err != nil {
+		return nil, models.HandleError(err, "ReportService.GetReportData")
+	}
+
+	user, err := getContextUser(ctx)
 	if err != nil {
 		return nil, models.HandleError(err, "ReportService.GetReportData")
 	}
@@ -139,7 +148,7 @@ func (s *ReportService) GetReportData(ctx context.Context, guid models.JSONByte)
 		Details:      reportDetails,
 	},
 		Len:  1,
-		Rows: -1,
+		Rows: s.provider.Reports.Count(user.Key, reportType.Ref),
 		Meta: map[string]models.META{
 			"head":         models.ReportMETA,
 			"coordinators": reports.CoordinatorsMETA,
@@ -250,21 +259,32 @@ func (s *ReportService) Save(ctx context.Context, reportType string, data interf
 	return nil
 }
 
-func (s *ReportService) List(ctx context.Context) (*Result, error) {
+func (s *ReportService) List(ctx context.Context, typeCode string, limits ...int64) (*Result, error) {
 	user, err := getContextUser(ctx)
 	if err != nil {
-		return nil, err
+		return nil, models.HandleError(err, "ReportService.List")
 	}
 
-	reports, err := s.provider.Reports.List(ctx, user.Key)
+	var reportType *reports.ReportTypes
+	if len(typeCode) > 0 {
+		reportType, err = s.provider.Reports.GetTypeByCode(typeCode)
+		if err != nil {
+			return nil, models.HandleError(err, "ReportService.List")
+		}
+
+	} else {
+		reportType = &reports.ReportTypes{}
+	}
+
+	reportsList, err := s.provider.Reports.List(ctx, user.Key, reportType.Ref, limits...)
 	if err != nil {
-		return nil, err
+		return nil, models.HandleError(err, "ReportService.List")
 	}
 
 	return &Result{
-		Data: reports,
-		Len:  len(reports),
-		Rows: -1,
+		Data: reportsList,
+		Len:  len(reportsList),
+		Rows: s.provider.Reports.Count(user.Key, reportType.Ref),
 		Meta: map[string]models.META{types.Report: models.ReportMETA},
 	}, nil
 

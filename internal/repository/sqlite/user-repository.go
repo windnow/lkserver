@@ -157,6 +157,16 @@ func (r *sqliteRepo) initUserRepo() error {
 	return nil
 }
 
+func (u *UserRepository) Count() uint64 {
+	var count uint64
+	if err := u.source.db.QueryRow(fmt.Sprintf(`select count(*) from %[1]s`, types.Users)).Scan(&count); err != nil {
+		return 0
+	}
+
+	return count
+
+}
+
 func (u *UserRepository) Save(ctx context.Context, user *m.User) error {
 	if user.Key.Blank() {
 		Key, err := m.GenerateUUID()

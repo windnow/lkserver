@@ -131,9 +131,11 @@ func (c *cato) List(ctx context.Context, parentRef m.JSONByte, limits ...int64) 
 
 }
 
-func (c *cato) Count(ctx context.Context) int64 {
-	var count int64
-	c.source.db.QueryRow(fmt.Sprintf(`select count(ref) from %[1]s`, types.Cato)).Scan(&count)
+func (c *cato) Count(ctx context.Context) uint64 {
+	var count uint64
+	if err := c.source.db.QueryRow(fmt.Sprintf(`select count(ref) from %[1]s`, types.Cato)).Scan(&count); err != nil {
+		return 0
+	}
 	return count
 }
 

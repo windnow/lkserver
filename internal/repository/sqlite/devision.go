@@ -144,8 +144,8 @@ func (o *devision) Save(ctx context.Context, dev *catalogs.Devision, tx *sql.Tx)
 	return m.HandleError(o.saveData(tx, []*catalogs.Devision{dev}))
 }
 
-func (o *devision) Count(ctx context.Context) int64 {
-	var count int64
+func (o *devision) Count(ctx context.Context) uint64 {
+	var count uint64
 	o.source.db.QueryRow(fmt.Sprintf(`select count(ref) from %[1]s`, types.Devision)).Scan(&count)
 	return count
 }

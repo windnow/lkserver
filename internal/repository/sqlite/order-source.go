@@ -92,8 +92,8 @@ func (o *orderSource) Save(ctx context.Context, orderSource *catalogs.OrderSourc
 	return models.HandleError(o.source.ExecContextInTransaction(ctx, query, nil, orderSource.Ref, orderSource.Number, orderSource.Description))
 }
 
-func (o *orderSource) Count(ctx context.Context) int64 {
-	var count int64
+func (o *orderSource) Count(ctx context.Context) uint64 {
+	var count uint64
 	o.source.db.QueryRow(fmt.Sprintf(`select count(ref) from %[1]s`, types.OrderSource)).Scan(&count)
 	return count
 }
