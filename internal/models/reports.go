@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	"lkserver/internal/models/types"
 )
 
@@ -11,6 +12,21 @@ type Report struct {
 	Number    string   `json:"number"`
 	RegNumber string   `json:"reg_number"`
 	Author    JSONByte `json:"author"`
+}
+
+func NewReport() Scanable {
+	return &Report{}
+}
+
+func (r *Report) Scan(row *sql.Rows) error {
+	return row.Scan(
+		&r.Ref,
+		&r.Type,
+		&r.Date,
+		&r.Number,
+		&r.RegNumber,
+		&r.Author,
+	)
 }
 
 var ReportMETA = META{

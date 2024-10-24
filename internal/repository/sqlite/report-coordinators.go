@@ -62,28 +62,13 @@ func (repo *reportsRepo) SaveCoordinators(tx *sql.Tx, ctx context.Context, coord
 	return nil
 }
 
-func (repo *reportsRepo) GetCoordinators(ctx context.Context, report *m.Report) ([]*reports.Coordinators, error) {
+func (repo *reportsRepo) GetCoordinators(ctx context.Context, report m.JSONByte) ([]*reports.Coordinators, error) {
 	query := fmt.Sprintf("SELECT ref, report, coordinator, author, when_added FROM %[1]s WHERE report = ?", types.Coordinators)
-	rows, err := repo.source.db.QueryContext(ctx, query, report.Ref)
+
+	result, err := m.Query[*reports.Coordinators](repo.source.db, ctx, reports.NewCoordinators, nil, query, report)
 	if err != nil {
 		return nil, m.HandleError(err, "reportsRepo.GetCoordinators")
 	}
-	result := []*reports.Coordinators{}
-	for rows.Next() {
 
-		data := &reports.Coordinators{}
-		if err := rows.Scan(
-			&data.Ref,
-			&data.ReportRef,
-			&data.CoordinatorRef,
-			&data.WhoAuthor,
-			&data.WhenAdded,
-		); err != nil {
-			return nil, m.HandleError(err, "reportsRepo.GetCoordinators")
-		}
-
-		result = append(result, data)
-
-	}
 	return result, nil
 }

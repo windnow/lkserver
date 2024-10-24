@@ -19,7 +19,7 @@ func NewCatalogsService(r *repository.Repo) *CatalogsService {
 type Result struct {
 	Data any               `json:"data"`
 	Len  int               `json:"len"`
-	Rows int64             `json:"rows"`
+	Rows uint64            `json:"rows"`
 	Meta map[string]m.META `json:"meta"`
 }
 

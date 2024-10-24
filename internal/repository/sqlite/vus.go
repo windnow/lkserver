@@ -58,8 +58,8 @@ func (s *vus) Get(ctx context.Context, Ref m.JSONByte) (*catalogs.Vus, error) {
 	return result[0], nil
 }
 
-func (c *vus) Count(ctx context.Context) int64 {
-	var count int64
+func (c *vus) Count(ctx context.Context) uint64 {
+	var count uint64
 	c.source.db.QueryRow(fmt.Sprintf(`select count(ref) from %[1]s`, types.Vus)).Scan(&count)
 	return count
 }

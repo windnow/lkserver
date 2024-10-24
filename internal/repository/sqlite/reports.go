@@ -9,46 +9,14 @@ import (
 	"lkserver/internal/repository"
 )
 
-type reportFactory struct {
-	detailsMap map[string]repository.ReportDetails
-}
-
-func NewReportFactory(source *src) *reportFactory {
-	return &reportFactory{
-		detailsMap: map[string]repository.ReportDetails{
-			"0001": &DepartureOnBusinessTrip{source: source},
-		},
-	}
-}
-
-func (f *reportFactory) GetAllProcessors() []repository.ReportDetails {
-	var result []repository.ReportDetails
-	for _, val := range f.detailsMap {
-		result = append(result, val)
-	}
-
-	return result
-}
-
-func (f *reportFactory) GetReportProcessor(reportType string) (repository.ReportDetails, error) {
-
-	details, ok := f.detailsMap[reportType]
-	if !ok {
-		return nil, m.HandleError(fmt.Errorf("unsupported report type: %s", reportType))
-	}
-
-	return details, nil
-
-}
-
 type reportsRepo struct {
 	source  *src
 	repo    *sqliteRepo
 	factory *reportFactory
 }
 
-func (r *reportsRepo) GetTransaction(ctx context.Context) (*sql.Tx, error) {
-	return r.source.db.BeginTx(ctx, nil)
+type reportFactory struct {
+	detailsMap map[string]repository.ReportDetails
 }
 
 func (s *sqliteRepo) initReports() error {
@@ -79,24 +47,35 @@ func (s *sqliteRepo) initReports() error {
 	return nil
 }
 
-func (repo *reportsRepo) Save(tx *sql.Tx, ctx context.Context, report *m.Report) error {
+func NewReportFactory(source *src) *reportFactory {
+	return &reportFactory{
+		detailsMap: map[string]repository.ReportDetails{
+			"0001": &DepartureOnBusinessTrip{source: source},
+		},
+	}
+}
 
-	if report.Ref.Blank() {
-		guid, err := m.GenerateUUID()
-		if err != nil {
-			return m.HandleError(err, "reportsRepo.Save")
-		}
-		report.Ref = guid
+func (f *reportFactory) GetAllProcessors() []repository.ReportDetails {
+	var result []repository.ReportDetails
+	for _, val := range f.detailsMap {
+		result = append(result, val)
 	}
 
-	return m.HandleError(repo.source.ExecContextInTransaction(ctx, saveReportQuery, tx,
-		report.Ref,
-		report.Type,
-		report.Date.Unix(),
-		report.Number,
-		report.RegNumber,
-		report.Author,
-	), "reportRepo.Save")
+	return result
+}
+
+func (f *reportFactory) GetReportProcessor(reportType string) (repository.ReportDetails, error) {
+
+	details, ok := f.detailsMap[reportType]
+	if !ok {
+		return nil, m.HandleError(fmt.Errorf("unsupported report type: %s", reportType))
+	}
+
+	return details, nil
+}
+
+func (r *reportsRepo) GetTransaction(ctx context.Context) (*sql.Tx, error) {
+	return r.source.db.BeginTx(ctx, nil)
 }
 
 func (repo *reportsRepo) META(reportType string) map[string]m.META {
@@ -118,21 +97,68 @@ func (repo *reportsRepo) GetStructure(reportType string) (interface{}, error) {
 	return processor.GetStructure(), nil
 }
 
-func (repo *reportsRepo) List(ctx context.Context, userKey m.JSONByte) ([]*m.Report, error) {
+func (repo *reportsRepo) Save(tx *sql.Tx, ctx context.Context, report *m.Report) error {
 
-	query := fmt.Sprintf("SELECT ref, type, date, number, reg_number, author FROM %[1]s WHERE author = ?", types.Report)
-
-	rows, err := repo.source.db.QueryContext(ctx, query, userKey)
-	if err != nil {
-		return nil, err
-	}
-	var result []*m.Report
-	for rows.Next() {
-		report := &m.Report{}
-		if err = rows.Scan(&report.Ref, &report.Type, &report.Date, &report.Number, &report.RegNumber, &report.Author); err != nil {
-			return nil, err
+	if report.Ref.Blank() {
+		guid, err := m.GenerateUUID()
+		if err != nil {
+			return m.HandleError(err, "reportsRepo.Save")
 		}
-		result = append(result, report)
+		report.Ref = guid
+	}
+
+	return m.HandleError(repo.source.ExecContextInTransaction(ctx, saveReportQuery, tx,
+		report.Ref,
+		report.Type,
+		report.Date.Unix(),
+		report.Number,
+		report.RegNumber,
+		report.Author,
+	), "reportRepo.Save")
+}
+
+func (repo *reportsRepo) TypesCount() uint64 {
+
+	var count uint64
+	if err := repo.source.db.QueryRow(fmt.Sprintf(`select count(ref) from %[1]s`, types.ReportType)).Scan(&count); err != nil {
+		return 0
+	}
+	return count
+}
+func (repo *reportsRepo) Count(userRef, reportType m.JSONByte) uint64 {
+
+	var row *sql.Row
+
+	if reportType.Blank() {
+		query := fmt.Sprintf(`select count(ref) from %[1]s WHERE author = ?`, types.Report)
+		row = repo.source.db.QueryRow(query, userRef)
+	} else {
+		query := fmt.Sprintf(`select count(ref) from %[1]s WHERE author = ? AND type = ?`, types.Report)
+		row = repo.source.db.QueryRow(query, userRef, reportType)
+	}
+	var count uint64
+	if err := row.Scan(&count); err != nil {
+		return 0
+	}
+	return count
+}
+
+func (repo *reportsRepo) List(ctx context.Context, userKey, typeRef m.JSONByte, limits ...int64) ([]*m.Report, error) {
+
+	var result []*m.Report
+	var err error
+
+	limit, offset := limitations(limits)
+
+	if typeRef.Blank() {
+		query := fmt.Sprintf("SELECT ref, type, date, number, reg_number, author FROM %[1]s WHERE author = ? LIMIT %[2]d OFFSET %[3]d", types.Report, limit, offset)
+		result, err = m.Query[*m.Report](repo.source.db, ctx, m.NewReport, nil, query, userKey)
+	} else {
+		query := fmt.Sprintf("SELECT ref, type, date, number, reg_number, author FROM %[1]s WHERE author = ? AND type = ? LIMIT %[2]d OFFSET %[3]d", types.Report, limit, offset)
+		result, err = m.Query[*m.Report](repo.source.db, ctx, m.NewReport, nil, query, userKey, typeRef)
+	}
+	if err != nil {
+		return nil, m.HandleError(err, "reportsRepo.List")
 	}
 
 	return result, nil
@@ -140,23 +166,19 @@ func (repo *reportsRepo) List(ctx context.Context, userKey m.JSONByte) ([]*m.Rep
 
 func (repo *reportsRepo) Get(guid m.JSONByte) (*m.Report, error) {
 	query := fmt.Sprintf(`
-		SELECT type, date, number, reg_number, author
+		SELECT ref, type, date, number, reg_number, author
 		FROM %[1]s
 		WHERE ref = ?
 	`, types.Report)
-	report := &m.Report{Ref: guid}
-
-	if err := repo.source.db.QueryRow(query, guid).Scan(
-		&report.Type,
-		&report.Date,
-		&report.Number,
-		&report.RegNumber,
-		&report.Author,
-	); err != nil {
+	report, err := m.Query[*m.Report](repo.source.db, context.Background(), m.NewReport, nil, query, guid)
+	if err != nil {
 		return nil, err
 	}
+	if len(report) != 1 {
+		return nil, m.ErrNotFound
+	}
 
-	return report, nil
+	return report[0], nil
 }
 
 func InitReports(repo *reportsRepo) error {

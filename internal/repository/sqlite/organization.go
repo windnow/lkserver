@@ -144,8 +144,8 @@ func (o *organization) Save(ctx context.Context, org *catalogs.Organization, tx 
 	return m.HandleError(o.saveData(tx, []*catalogs.Organization{org}))
 }
 
-func (o *organization) Count(ctx context.Context) int64 {
-	var count int64
+func (o *organization) Count(ctx context.Context) uint64 {
+	var count uint64
 	o.source.db.QueryRow(fmt.Sprintf(`select count(ref) from %[1]s`, types.Organization)).Scan(&count)
 	return count
 }

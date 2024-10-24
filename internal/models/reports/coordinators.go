@@ -1,6 +1,7 @@
 package reports
 
 import (
+	"database/sql"
 	m "lkserver/internal/models"
 	"lkserver/internal/models/types"
 )
@@ -11,6 +12,20 @@ type Coordinators struct {
 	CoordinatorRef m.JSONByte `json:"coordinator_ref"`
 	WhoAuthor      m.JSONByte `json:"who_author_ref"`
 	WhenAdded      m.JSONTime `json:"when_added"`
+}
+
+func NewCoordinators() m.Scanable {
+	return &Coordinators{}
+}
+
+func (c *Coordinators) Scan(rows *sql.Rows) error {
+	return rows.Scan(
+		&c.Ref,
+		&c.ReportRef,
+		&c.CoordinatorRef,
+		&c.WhoAuthor,
+		&c.WhenAdded,
+	)
 }
 
 var CoordinatorsMETA = m.META{

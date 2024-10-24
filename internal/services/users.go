@@ -26,7 +26,7 @@ func (s *UserService) GetUserInfo(guid m.JSONByte) (*Result, error) {
 	return &Result{
 		Data: user,
 		Len:  1,
-		Rows: -1,
+		Rows: s.provider.User.Count(),
 		Meta: map[string]m.META{types.Users: m.UserMETA},
 	}, nil
 
@@ -49,7 +49,7 @@ func (s *UserService) UsersList(ctx context.Context, search string, limits ...in
 	return &Result{
 		Data: result,
 		Len:  len(result),
-		Rows: -1,
+		Rows: s.provider.User.Count(),
 		Meta: map[string]m.META{types.Users: m.UserMETA},
 	}, nil
 

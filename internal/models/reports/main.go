@@ -1,6 +1,7 @@
 package reports
 
 import (
+	"database/sql"
 	m "lkserver/internal/models"
 	"lkserver/internal/models/types"
 )
@@ -10,6 +11,19 @@ type ReportTypes struct {
 	ParentRef m.JSONByte `json:"parent"`
 	Code      string     `json:"code"`
 	Title     string     `json:"title"`
+}
+
+func NewReportType() m.Scanable {
+	return &ReportTypes{}
+}
+
+func (r *ReportTypes) Scan(rows *sql.Rows) error {
+	return rows.Scan(
+		&r.Ref,
+		&r.ParentRef,
+		&r.Code,
+		&r.Title,
+	)
 }
 
 var ReportTypesMETA = m.META{

@@ -51,7 +51,6 @@ func InitReportTypes(repo *reportsRepo) error {
 	}
 
 	return nil
-
 }
 
 func (r *reportsRepo) GetTypeCode(guid m.JSONByte) (string, error) {
@@ -62,7 +61,34 @@ func (r *reportsRepo) GetTypeCode(guid m.JSONByte) (string, error) {
 	}
 
 	return result, nil
+}
 
+func (repo *reportsRepo) GetType(ctx context.Context, ref m.JSONByte) (*r.ReportTypes, error) {
+	query := fmt.Sprintf(`select ref, parent, code, title FROM %[1]s WHERE ref = ?`, types.ReportType)
+
+	rows, err := m.Query[*r.ReportTypes](repo.source.db, ctx, r.NewReportType, nil, query, ref)
+	if err != nil {
+		return nil, m.HandleError(err, "reportsRepo.GetType")
+	}
+	if len(rows) != 1 {
+		return nil, m.HandleError(m.ErrWrongLength, "reportsRepo.GetType")
+	}
+
+	return rows[0], nil
+}
+
+func (repo *reportsRepo) GetTypeByCode(typeCode string) (*r.ReportTypes, error) {
+	query := fmt.Sprintf(`select ref, parent, code, title FROM %[1]s WHERE code = ?`, types.ReportType)
+
+	rows, err := m.Query[*r.ReportTypes](repo.source.db, context.Background(), r.NewReportType, nil, query, typeCode)
+	if err != nil {
+		return nil, m.HandleError(err, "reportsRepo.GetType")
+	}
+	if len(rows) != 1 {
+		return nil, m.HandleError(fmt.Errorf("%s: WRONG TYPE CODE", typeCode), "reportsRepo.GetType")
+	}
+
+	return rows[0], nil
 }
 
 func (repo *reportsRepo) GetTypes(typesList []string) ([]*r.ReportTypes, error) {
@@ -99,7 +125,6 @@ func (repo *reportsRepo) GetTypes(typesList []string) ([]*r.ReportTypes, error) 
 	}
 
 	return result, nil
-
 }
 
 func (repo *reportsRepo) SaveType(ctx context.Context, rt *r.ReportTypes) error {

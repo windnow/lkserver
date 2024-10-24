@@ -6,6 +6,7 @@ import (
 	"errors"
 	"lkserver/internal/models"
 	"net/http"
+	"strings"
 
 	"github.com/gorilla/mux"
 )
@@ -25,7 +26,7 @@ func (s *lkserver) handleGetReportType() http.HandlerFunc {
 			s.error(w, http.StatusBadRequest, errors.New("WRONG GUID FORMAT"))
 			return
 		}
-		result, err := s.reportsService.Get(GUID)
+		result, err := s.reportsService.GetReportType(GUID)
 		if s.error(w, http.StatusInternalServerError, err) {
 			return
 		}
@@ -98,12 +99,17 @@ func (s *lkserver) handleSaveReport() http.HandlerFunc {
 
 func (s *lkserver) handleReportsList() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+
+		limit, offset := getLimits(r)
+
+		reportType := strings.TrimSpace(r.URL.Query().Get("type"))
+
 		ctx, err := s.setUserContext(w, r)
 		if s.error(w, http.StatusBadRequest, err) {
 			return
 		}
 
-		list, err := s.reportsService.List(ctx)
+		list, err := s.reportsService.List(ctx, reportType, limit, offset)
 		if s.error(w, http.StatusInternalServerError, err) {
 			return
 		}
@@ -126,7 +132,12 @@ func (s *lkserver) handleReportData() http.HandlerFunc {
 			return
 		}
 
-		data, err := s.reportsService.GetReportData(r.Context(), GUID)
+		ctx, err := s.setUserContext(w, r)
+		if s.error(w, http.StatusBadRequest, err) {
+			return
+		}
+
+		data, err := s.reportsService.GetReportData(ctx, GUID)
 		if s.error(w, http.StatusBadRequest, err) {
 			return
 		}
