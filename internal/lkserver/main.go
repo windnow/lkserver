@@ -42,6 +42,7 @@ func New(r *repository.Repo, fileStore repository.FileProvider, config *config.C
 	sessionStore := sessions.NewCookieStore([]byte(config.SessionsKey))
 	sessionStore.Options.MaxAge = config.SessionMaxAge
 	sessionStore.Options.Secure = false
+	sessionStore.Options.SameSite = http.SameSiteLaxMode
 
 	s := &lkserver{
 		config:          config,
